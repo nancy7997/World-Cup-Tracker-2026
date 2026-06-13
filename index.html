@@ -32,7 +32,7 @@
         .tab-btn{padding:8px 14px;border:1px solid #dee2e6;background:#f8f9fa;color:#495057;cursor:pointer;font-size:.8em;font-weight:600;border-radius:8px 8px 0 0;transition:all .15s;}
         .tab-btn.active{background:var(--accent);color:#fff;border-color:var(--accent2);}
         .tab-btn:hover:not(.active){background:#e9ecef;}
-        .content{padding:6px 12px 40px;max-width:1400px;margin:0 auto;}
+        .content{padding:6px 12px 20px;max-width:1400px;margin:0 auto;}
         .view{display:none;}
         .view.active{display:block;}
         .groups-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px;}
@@ -50,7 +50,7 @@
         .game-row{display:flex;align-items:center;justify-content:space-between;padding:5px 3px;cursor:pointer;border-radius:4px;font-size:.7em;gap:4px;transition:all .1s;}
         .game-row:hover{background:#f8f9fa;border-left:3px solid var(--accent);}
         .game-row .teams{flex:1;min-width:0;}
-        .game-row .player-inline{font-size:.75em;font-weight:700;color:#6c3bd4;}
+        .game-row .player-inline{font-size:.75em;font-weight:700;}
         .game-row .score{font-weight:700;min-width:32px;text-align:center;color:var(--accent2);}
         .game-row .score.pending{color:#adb5bd;font-weight:400;font-size:.62em;}
         .game-row .date-sm{font-size:.58em;color:#adb5bd;min-width:34px;text-align:right;}
@@ -64,7 +64,7 @@
         .daily-game-card .match-info{flex:1;}
         .daily-game-card .teams-line{font-weight:700;font-size:.9em;color:#212529;}
         .daily-game-card .details-line{font-size:.65em;color:#6c757d;margin-top:1px;}
-        .daily-game-card .player-line{font-size:.72em;font-weight:700;color:#6c3bd4;margin-top:1px;}
+        .daily-game-card .player-line{font-size:.72em;font-weight:700;margin-top:1px;}
         .daily-game-card .score-badge{font-weight:700;font-size:1.1em;color:var(--accent2);min-width:45px;text-align:center;}
         .daily-game-card .score-badge.pending{color:#adb5bd;font-size:.7em;}
         .daily-close-btn{display:block;width:100%;margin-top:10px;padding:8px;border-radius:8px;border:1px solid #dee2e6;background:#f8f9fa;color:#495057;cursor:pointer;font-weight:600;font-size:.8em;}
@@ -90,7 +90,7 @@
         .modal .matchup{display:flex;align-items:center;justify-content:center;gap:12px;margin:12px 0;}
         .modal .team-block{text-align:center;flex:1;}
         .modal .team-block .country{font-weight:700;font-size:.95em;color:#212529;}
-        .modal .team-block .owner{font-size:.8em;font-weight:700;color:#6c3bd4;}
+        .modal .team-block .owner{font-size:.8em;font-weight:700;}
         .modal .vs{font-weight:700;color:#adb5bd;}
         .modal .score-inputs{display:flex;align-items:center;justify-content:center;gap:14px;margin:12px 0;}
         .modal .score-inputs input{width:54px;height:44px;text-align:center;font-size:1.3em;font-weight:700;border:2px solid #dee2e6;border-radius:8px;background:#f8f9fa;color:#212529;}
@@ -103,7 +103,15 @@
         .btn-reset{background:#fff;color:#dc3545;border:1px solid #dc3545;font-size:.7em;padding:5px 12px;}
         .filter-info{text-align:center;padding:6px;color:#6c757d;font-size:.8em;}
         .clear-filter{cursor:pointer;text-decoration:underline;color:#0d6efd;margin-left:4px;}
-        @media(max-width:768px){.groups-grid{grid-template-columns:1fr;}.ko-games{grid-template-columns:1fr;}}
+        /* ── LEGEND ── */
+        .legend-section{background:#fff;border:2px solid #dee2e6;border-radius:12px;padding:16px;margin:20px 0 10px;box-shadow:var(--shadow);}
+        .legend-section h3{color:#1a1a2e;margin-bottom:12px;font-size:.9em;text-align:center;}
+        .legend-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;}
+        .legend-player{border:1px solid #e9ecef;border-radius:8px;padding:10px 12px;background:#fafafa;}
+        .legend-player .legend-name{font-weight:700;font-size:.85em;margin-bottom:4px;}
+        .legend-player .legend-teams{font-size:.7em;color:#6c757d;line-height:1.4;}
+        .legend-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;}
+        @media(max-width:768px){.groups-grid{grid-template-columns:1fr;}.ko-games{grid-template-columns:1fr;}.legend-grid{grid-template-columns:1fr;}}
     </style>
 </head>
 <body>
@@ -177,6 +185,17 @@
             'Moni':'#e6398c','Grampa':'#e67e22','Grama':'#2ecc71','Anthony':'#3498db',
             'Nancy':'#9b59b6','Irma':'#1abc9c','Mari':'#e74c3c','Michael':'#f39c12'
         };
+
+        // Build legend data from peopleMap
+        function buildLegendData(){
+            const legend={};
+            Object.entries(peopleMap).forEach(([team,person])=>{
+                if(!legend[person]) legend[person]={color:playerColors[person]||'#6c3bd4',teams:[]};
+                legend[person].teams.push(team);
+            });
+            return legend;
+        }
+        const legendData=buildLegendData();
 
         const allGroupGames=[
             {id:'G1',group:'A',home:'Mexico',away:'South Africa',date:'2026-06-11',time:'1:00 PM CT',pst:'11:00 AM PST',stadium:'Estadio Azteca, Mexico City',homeScore:2,awayScore:0},
@@ -258,34 +277,6 @@
             {id:'K1',round:'Round of 32',home:'Winner A',away:'3rd Best*',date:'2026-06-28',time:'1:00 PM ET',pst:'10:00 AM PST',stadium:'MetLife Stadium',homeScore:null,awayScore:null,isKo:true},
             {id:'K2',round:'Round of 32',home:'Winner B',away:'3rd Best*',date:'2026-06-28',time:'4:00 PM CT',pst:'2:00 PM PST',stadium:'AT&T Stadium',homeScore:null,awayScore:null,isKo:true},
             {id:'K3',round:'Round of 32',home:'Winner C',away:'Runner-up D',date:'2026-06-28',time:'7:00 PM PT',pst:'7:00 PM PST',stadium:'SoFi Stadium',homeScore:null,awayScore:null,isKo:true},
-            {id:'K4',round:'Round of 32',home:'Winner D',away:'Runner-up C',date:'2026-06-29',time:'10:00 AM CT',pst:'8:00 AM PST',stadium:'NRG Stadium',homeScore:null,awayScore:null,isKo:true},
-            {id:'K5',round:'Round of 32',home:'Winner E',away:'Runner-up F',date:'2026-06-29',time:'1:00 PM ET',pst:'10:00 AM PST',stadium:'BMO Field',homeScore:null,awayScore:null,isKo:true},
-            {id:'K6',round:'Round of 32',home:'Winner F',away:'Runner-up E',date:'2026-06-29',time:'4:00 PM PT',pst:'4:00 PM PST',stadium:"Levi's Stadium",homeScore:null,awayScore:null,isKo:true},
-            {id:'K7',round:'Round of 32',home:'Winner G',away:'Runner-up H',date:'2026-06-30',time:'10:00 AM CT',pst:'8:00 AM PST',stadium:'Arrowhead Stadium',homeScore:null,awayScore:null,isKo:true},
-            {id:'K8',round:'Round of 32',home:'Winner H',away:'Runner-up G',date:'2026-06-30',time:'1:00 PM ET',pst:'10:00 AM PST',stadium:'Gillette Stadium',homeScore:null,awayScore:null,isKo:true},
-            {id:'K9',round:'Round of 32',home:'Winner I',away:'Runner-up J',date:'2026-06-30',time:'4:00 PM CT',pst:'2:00 PM PST',stadium:'Estadio Azteca',homeScore:null,awayScore:null,isKo:true},
-            {id:'K10',round:'Round of 32',home:'Winner J',away:'Runner-up I',date:'2026-07-01',time:'10:00 AM ET',pst:'7:00 AM PST',stadium:'Mercedes-Benz Stadium',homeScore:null,awayScore:null,isKo:true},
-            {id:'K11',round:'Round of 32',home:'Winner K',away:'Runner-up L',date:'2026-07-01',time:'1:00 PM ET',pst:'10:00 AM PST',stadium:'Lincoln Financial Field',homeScore:null,awayScore:null,isKo:true},
-            {id:'K12',round:'Round of 32',home:'Winner L',away:'Runner-up K',date:'2026-07-01',time:'4:00 PM ET',pst:'1:00 PM PST',stadium:'Hard Rock Stadium',homeScore:null,awayScore:null,isKo:true},
-            {id:'K13',round:'Round of 32',home:'Runner-up A',away:'Runner-up B',date:'2026-07-02',time:'10:00 AM PT',pst:'10:00 AM PST',stadium:'BC Place',homeScore:null,awayScore:null,isKo:true},
-            {id:'K14',round:'Round of 32',home:'3rd Best*',away:'3rd Best*',date:'2026-07-02',time:'1:00 PM CT',pst:'11:00 AM PST',stadium:'Estadio Akron',homeScore:null,awayScore:null,isKo:true},
-            {id:'K15',round:'Round of 32',home:'3rd Best*',away:'3rd Best*',date:'2026-07-02',time:'4:00 PM PT',pst:'4:00 PM PST',stadium:'Lumen Field',homeScore:null,awayScore:null,isKo:true},
-            {id:'K16',round:'Round of 32',home:'3rd Best*',away:'3rd Best*',date:'2026-07-02',time:'7:00 PM CT',pst:'5:00 PM PST',stadium:'NRG Stadium',homeScore:null,awayScore:null,isKo:true},
-            {id:'K17',round:'Round of 16',home:'W R32-1',away:'W R32-2',date:'2026-07-04',time:'1:00 PM CT',pst:'11:00 AM PST',stadium:'AT&T Stadium',homeScore:null,awayScore:null,isKo:true},
-            {id:'K18',round:'Round of 16',home:'W R32-3',away:'W R32-4',date:'2026-07-04',time:'4:00 PM ET',pst:'1:00 PM PST',stadium:'MetLife Stadium',homeScore:null,awayScore:null,isKo:true},
-            {id:'K19',round:'Round of 16',home:'W R32-5',away:'W R32-6',date:'2026-07-05',time:'10:00 AM PT',pst:'10:00 AM PST',stadium:'SoFi Stadium',homeScore:null,awayScore:null,isKo:true},
-            {id:'K20',round:'Round of 16',home:'W R32-7',away:'W R32-8',date:'2026-07-05',time:'1:00 PM ET',pst:'10:00 AM PST',stadium:'BMO Field',homeScore:null,awayScore:null,isKo:true},
-            {id:'K21',round:'Round of 16',home:'W R32-9',away:'W R32-10',date:'2026-07-05',time:'4:00 PM PT',pst:'4:00 PM PST',stadium:"Levi's Stadium",homeScore:null,awayScore:null,isKo:true},
-            {id:'K22',round:'Round of 16',home:'W R32-11',away:'W R32-12',date:'2026-07-06',time:'1:00 PM CT',pst:'11:00 AM PST',stadium:'Arrowhead Stadium',homeScore:null,awayScore:null,isKo:true},
-            {id:'K23',round:'Round of 16',home:'W R32-13',away:'W R32-14',date:'2026-07-06',time:'4:00 PM ET',pst:'1:00 PM PST',stadium:'Gillette Stadium',homeScore:null,awayScore:null,isKo:true},
-            {id:'K24',round:'Round of 16',home:'W R32-15',away:'W R32-16',date:'2026-07-06',time:'7:00 PM CT',pst:'5:00 PM PST',stadium:'Estadio Azteca',homeScore:null,awayScore:null,isKo:true},
-            {id:'K25',round:'Quarter-finals',home:'W R16-1',away:'W R16-2',date:'2026-07-08',time:'1:00 PM ET',pst:'10:00 AM PST',stadium:'MetLife Stadium',homeScore:null,awayScore:null,isKo:true},
-            {id:'K26',round:'Quarter-finals',home:'W R16-3',away:'W R16-4',date:'2026-07-08',time:'4:00 PM CT',pst:'2:00 PM PST',stadium:'AT&T Stadium',homeScore:null,awayScore:null,isKo:true},
-            {id:'K27',round:'Quarter-finals',home:'W R16-5',away:'W R16-6',date:'2026-07-09',time:'1:00 PM PT',pst:'1:00 PM PST',stadium:'SoFi Stadium',homeScore:null,awayScore:null,isKo:true},
-            {id:'K28',round:'Quarter-finals',home:'W R16-7',away:'W R16-8',date:'2026-07-10',time:'1:00 PM CT',pst:'11:00 AM PST',stadium:'Arrowhead Stadium',homeScore:null,awayScore:null,isKo:true},
-            {id:'K29',round:'Semi-finals',home:'W QF-1',away:'W QF-2',date:'2026-07-14',time:'1:00 PM CT',pst:'11:00 AM PST',stadium:'AT&T Stadium',homeScore:null,awayScore:null,isKo:true},
-            {id:'K30',round:'Semi-finals',home:'W QF-3',away:'W QF-4',date:'2026-07-15',time:'1:00 PM ET',pst:'10:00 AM PST',stadium:'Mercedes-Benz Stadium',homeScore:null,awayScore:null,isKo:true},
-            {id:'K31',round:'Third Place',home:'L SF-1',away:'L SF-2',date:'2026-07-18',time:'1:00 PM ET',pst:'10:00 AM PST',stadium:'Hard Rock Stadium',homeScore:null,awayScore:null,isKo:true},
             {id:'K32',round:'Final',home:'W SF-1',away:'W SF-2',date:'2026-07-19',time:'1:00 PM ET',pst:'10:00 AM PST',stadium:'MetLife Stadium',homeScore:null,awayScore:null,isKo:true}
         ];
 
@@ -295,182 +286,92 @@
         function syncFromFirebase(){
             const statusEl=document.getElementById('syncStatus');
             statusEl.textContent='🟡 Syncing...';
-            statusEl.className='sync-status';
             onValue(scoresRef,(snapshot)=>{
                 const data=snapshot.val()||{};
-                allGames.forEach(g=>{
-                    if(data[g.id]!==undefined){
-                        g.homeScore=data[g.id].homeScore;
-                        g.awayScore=data[g.id].awayScore;
-                    }
-                });
-                statusEl.textContent='🟢 Live Sync Connected';
-                statusEl.className='sync-status';
+                allGames.forEach(g=>{if(data[g.id]!==undefined){g.homeScore=data[g.id].homeScore;g.awayScore=data[g.id].awayScore;}});
+                statusEl.textContent='🟢 Live Sync Connected';statusEl.className='sync-status';
                 renderAll();
-            },(error)=>{
-                statusEl.textContent='🔴 Sync Error';
-                statusEl.className='sync-status offline';
-                renderAll();
-            });
+            },()=>{statusEl.textContent='🔴 Sync Error';statusEl.className='sync-status offline';renderAll();});
         }
 
-        function saveToFirebase(gameId,homeScore,awayScore){
-            const updates={};
-            updates[gameId]={homeScore,awayScore};
-            update(scoresRef,updates);
-        }
+        function saveToFirebase(gameId,homeScore,awayScore){const updates={};updates[gameId]={homeScore,awayScore};update(scoresRef,updates);}
 
         function initializeDefaultScores(){
             get(scoresRef).then(snapshot=>{
-                if(!snapshot.exists()){
-                    const defaults={};
-                    allGroupGames.forEach(g=>{
-                        if(g.homeScore!==null||g.awayScore!==null){
-                            defaults[g.id]={homeScore:g.homeScore,awayScore:g.awayScore};
-                        }
-                    });
-                    if(Object.keys(defaults).length>0) set(scoresRef,defaults);
-                }
+                if(!snapshot.exists()){const defaults={};allGroupGames.forEach(g=>{if(g.homeScore!==null||g.awayScore!==null)defaults[g.id]={homeScore:g.homeScore,awayScore:g.awayScore};});if(Object.keys(defaults).length>0)set(scoresRef,defaults);}
             });
         }
-        initializeDefaultScores();
-        syncFromFirebase();
+        initializeDefaultScores();syncFromFirebase();
 
         function renderCalendar(){
-            const strip=document.getElementById('calendarStrip');
-            const dates=new Set(allGames.map(g=>g.date));
-            const s=new Date(2026,5,11),e=new Date(2026,6,19);
-            const m=['Jun','Jul'];let h='';const c=new Date(s);
+            const strip=document.getElementById('calendarStrip'),dates=new Set(allGames.map(g=>g.date));
+            const s=new Date(2026,5,11),e=new Date(2026,6,19),m=['Jun','Jul'];let h='';const c=new Date(s);
             while(c<=e){const ds=c.toISOString().split('T')[0];h+=`<div class="cal-day${dates.has(ds)?' has-games':''}${selectedDate===ds?' selected':''}${ds==='2026-06-13'?' today':''}" data-date="${ds}"><span style="font-size:.48em;">${m[c.getMonth()-5]}</span><span class="day-num">${c.getDate()}</span></div>`;c.setDate(c.getDate()+1);}
             strip.innerHTML=h;
-            strip.querySelectorAll('.cal-day').forEach(el=>el.addEventListener('click',()=>{
-                const d=el.dataset.date;
-                if(selectedDate===d){selectedDate=null;renderCalendar();renderAll();document.getElementById('dailyOverlay').classList.remove('open');}
-                else{selectedDate=d;renderCalendar();renderAll();openDailyModal(d);}
-            }));
+            strip.querySelectorAll('.cal-day').forEach(el=>el.addEventListener('click',()=>{const d=el.dataset.date;if(selectedDate===d){selectedDate=null;renderCalendar();renderAll();document.getElementById('dailyOverlay').classList.remove('open');}else{selectedDate=d;renderCalendar();renderAll();openDailyModal(d);}}));
         }
 
         function openDailyModal(dateStr){
             const overlay=document.getElementById('dailyOverlay'),modal=document.getElementById('dailyModal');
-            const dayGames=allGames.filter(g=>g.date===dateStr);
-            const dateObj=new Date(dateStr+'T00:00:00');
-            const dn=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-            const mn=['January','February','March','April','May','June','July'];
-            let h=`<h3>📅 ${dn[dateObj.getUTCDay()]}, ${mn[dateObj.getUTCMonth()]} ${dateObj.getUTCDate()}, 2026</h3>`;
-            h+=`<div class="daily-date">${dayGames.length} match${dayGames.length!==1?'es':''}</div>`;
+            const dayGames=allGames.filter(g=>g.date===dateStr),dateObj=new Date(dateStr+'T00:00:00');
+            const dn=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],mn=['January','February','March','April','May','June','July'];
+            let h=`<h3>📅 ${dn[dateObj.getUTCDay()]}, ${mn[dateObj.getUTCMonth()]} ${dateObj.getUTCDate()}, 2026</h3><div class="daily-date">${dayGames.length} match${dayGames.length!==1?'es':''}</div>`;
             if(dayGames.length===0)h+=`<div class="daily-empty">No matches today.</div>`;
-            else dayGames.forEach(game=>{
-                const sc=game.homeScore!==null&&game.awayScore!==null;
-                const hp=peopleMap[game.home]||'',ap=peopleMap[game.away]||'';
-                const hc=playerColors[hp]||'#6c3bd4',ac=playerColors[ap]||'#6c3bd4';
-                h+=`<div class="daily-game-card" data-game-id="${game.id}"><div class="match-info"><div class="teams-line">${game.home} vs ${game.away}</div><div class="details-line">${game.round==='group'?'Group '+game.group:game.round} · ${game.stadium}</div><div class="details-line">🕐 ${game.time} (${game.pst})</div><div class="player-line"><span style="color:${hc}">👤 ${hp||'—'}</span> vs <span style="color:${ac}">👤 ${ap||'—'}</span></div></div><div class="score-badge${!sc?' pending':''}">${sc?game.homeScore+' - '+game.awayScore:'vs'}</div></div>`;
-            });
-            h+=`<button class="daily-close-btn" id="dailyCloseBtn">✕ Close</button>`;
-            modal.innerHTML=h;overlay.classList.add('open');
+            else dayGames.forEach(game=>{const sc=game.homeScore!==null&&game.awayScore!==null,hp=peopleMap[game.home]||'',ap=peopleMap[game.away]||'',hc=playerColors[hp]||'#6c3bd4',ac=playerColors[ap]||'#6c3bd4';h+=`<div class="daily-game-card" data-game-id="${game.id}"><div class="match-info"><div class="teams-line">${game.home} vs ${game.away}</div><div class="details-line">${game.round==='group'?'Group '+game.group:game.round} · ${game.stadium}</div><div class="details-line">🕐 ${game.time} (${game.pst})</div><div class="player-line"><span style="color:${hc}">👤 ${hp||'—'}</span> vs <span style="color:${ac}">👤 ${ap||'—'}</span></div></div><div class="score-badge${!sc?' pending':''}">${sc?game.homeScore+' - '+game.awayScore:'vs'}</div></div>`;});
+            h+=`<button class="daily-close-btn" id="dailyCloseBtn">✕ Close</button>`;modal.innerHTML=h;overlay.classList.add('open');
             document.getElementById('dailyCloseBtn').addEventListener('click',()=>overlay.classList.remove('open'));
             modal.querySelectorAll('.daily-game-card').forEach(c=>c.addEventListener('click',()=>{overlay.classList.remove('open');openGameModal(c.dataset.gameId);}));
         }
         document.getElementById('dailyOverlay').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
 
         function calculateStandings(gid){
-            const teams=GROUPS[gid],stats={};
-            teams.forEach(t=>{stats[t]={team:t,person:peopleMap[t]||'',gp:0,w:0,d:0,l:0,gf:0,ga:0,gd:0,pts:0};});
-            allGroupGames.filter(g=>g.group===gid).forEach(g=>{
-                if(g.homeScore!==null&&g.awayScore!==null&&stats[g.home]&&stats[g.away]){
-                    stats[g.home].gp++;stats[g.away].gp++;stats[g.home].gf+=g.homeScore;stats[g.home].ga+=g.awayScore;stats[g.away].gf+=g.awayScore;stats[g.away].ga+=g.homeScore;
-                    if(g.homeScore>g.awayScore){stats[g.home].w++;stats[g.home].pts+=3;stats[g.away].l++;}
-                    else if(g.homeScore<g.awayScore){stats[g.away].w++;stats[g.away].pts+=3;stats[g.home].l++;}
-                    else{stats[g.home].d++;stats[g.away].d++;stats[g.home].pts+=1;stats[g.away].pts+=1;}
-                }
-            });
-            Object.values(stats).forEach(s=>{s.gd=s.gf-s.ga;});
-            return Object.values(stats).sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf);
+            const teams=GROUPS[gid],stats={};teams.forEach(t=>{stats[t]={team:t,person:peopleMap[t]||'',gp:0,w:0,d:0,l:0,gf:0,ga:0,gd:0,pts:0};});
+            allGroupGames.filter(g=>g.group===gid).forEach(g=>{if(g.homeScore!==null&&g.awayScore!==null&&stats[g.home]&&stats[g.away]){stats[g.home].gp++;stats[g.away].gp++;stats[g.home].gf+=g.homeScore;stats[g.home].ga+=g.awayScore;stats[g.away].gf+=g.awayScore;stats[g.away].ga+=g.homeScore;if(g.homeScore>g.awayScore){stats[g.home].w++;stats[g.home].pts+=3;stats[g.away].l++;}else if(g.homeScore<g.awayScore){stats[g.away].w++;stats[g.away].pts+=3;stats[g.home].l++;}else{stats[g.home].d++;stats[g.away].d++;stats[g.home].pts+=1;stats[g.away].pts+=1;}}});
+            Object.values(stats).forEach(s=>{s.gd=s.gf-s.ga;});return Object.values(stats).sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf);
         }
 
-        function getAllThirdPlaceTeams(){
-            const thirds=[];
-            Object.keys(GROUPS).forEach(gid=>{const s=calculateStandings(gid);if(s.length>=3)thirds.push({...s[2],group:gid});});
-            return thirds.sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf);
-        }
-
-        function getPlayerStyle(person){
-            const color=playerColors[person]||'#6c3bd4';
-            return `font-size:.75em;font-weight:700;color:${color};`;
-        }
+        function getAllThirdPlaceTeams(){const thirds=[];Object.keys(GROUPS).forEach(gid=>{const s=calculateStandings(gid);if(s.length>=3)thirds.push({...s[2],group:gid});});return thirds.sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf);}
 
         function renderGroups(){
-            const grid=document.getElementById('groupsGrid'),filtered=allGames.filter(g=>g.date===selectedDate&&g.round==='group'||!selectedDate&&g.round==='group'),fIds=new Set(filtered.map(g=>g.id));
-            let h='';
-            Object.keys(GROUPS).sort().forEach(gid=>{
-                const st=calculateStandings(gid),games=allGroupGames.filter(g=>g.group===gid);
-                h+=`<div class="group-card"><h3>🏴 Group ${gid}</h3><table class="group-standings"><thead><tr><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr></thead><tbody>`;
-                st.forEach(s=>{
-                    const pstyle=getPlayerStyle(s.person);
-                    h+=`<tr><td>${s.team}<span class="player-name" style="${pstyle}">${s.person}</span></td><td>${s.gp}</td><td>${s.w}</td><td>${s.d}</td><td>${s.l}</td><td>${s.gf}</td><td>${s.ga}</td><td>${s.gd>=0?'+':''}${s.gd}</td><td class="pts">${s.pts}</td></tr>`;
-                });
-                h+=`</tbody></table><div class="group-games">`;
-                games.forEach(g=>{
-                    const hi=fIds.has(g.id)||!selectedDate,sc=g.homeScore!==null&&g.awayScore!==null;
-                    const hp=peopleMap[g.home]||'',ap=peopleMap[g.away]||'';
-                    const hc=playerColors[hp]||'#6c3bd4',ac=playerColors[ap]||'#6c3bd4';
-                    h+=`<div class="game-row" data-game-id="${g.id}" style="${hi&&selectedDate?'background:#fff8e1;':''}"><span class="teams"><strong>${g.home}</strong> <span class="player-inline" style="color:${hc}">(${hp||'—'})</span> — <strong>${g.away}</strong> <span class="player-inline" style="color:${ac}">(${ap||'—'})</span><br><span style="font-size:.55em;color:#adb5bd;">${g.stadium} · ${g.time} (${g.pst})</span></span><span class="${sc?'score':'score pending'}">${sc?g.homeScore+' - '+g.awayScore:'vs'}</span><span class="date-sm">${g.date.slice(5)}</span></div>`;
-                });
-                h+=`</div></div>`;
-            });
-            grid.innerHTML=h;
-            grid.querySelectorAll('.game-row').forEach(r=>r.addEventListener('click',()=>openGameModal(r.dataset.gameId)));
+            const grid=document.getElementById('groupsGrid'),filtered=allGames.filter(g=>g.date===selectedDate&&g.round==='group'||!selectedDate&&g.round==='group'),fIds=new Set(filtered.map(g=>g.id));let h='';
+            Object.keys(GROUPS).sort().forEach(gid=>{const st=calculateStandings(gid),games=allGroupGames.filter(g=>g.group===gid);h+=`<div class="group-card"><h3>🏴 Group ${gid}</h3><table class="group-standings"><thead><tr><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr></thead><tbody>`;st.forEach(s=>{const c=playerColors[s.person]||'#6c3bd4';h+=`<tr><td>${s.team}<span class="player-name" style="color:${c}">${s.person}</span></td><td>${s.gp}</td><td>${s.w}</td><td>${s.d}</td><td>${s.l}</td><td>${s.gf}</td><td>${s.ga}</td><td>${s.gd>=0?'+':''}${s.gd}</td><td class="pts">${s.pts}</td></tr>`;});h+=`</tbody></table><div class="group-games">`;
+            games.forEach(g=>{const hi=fIds.has(g.id)||!selectedDate,sc=g.homeScore!==null&&g.awayScore!==null,hp=peopleMap[g.home]||'',ap=peopleMap[g.away]||'',hc=playerColors[hp]||'#6c3bd4',ac=playerColors[ap]||'#6c3bd4';h+=`<div class="game-row" data-game-id="${g.id}" style="${hi&&selectedDate?'background:#fff8e1;':''}"><span class="teams"><strong>${g.home}</strong> <span class="player-inline" style="color:${hc}">(${hp||'—'})</span> — <strong>${g.away}</strong> <span class="player-inline" style="color:${ac}">(${ap||'—'})</span><br><span style="font-size:.55em;color:#adb5bd;">${g.stadium} · ${g.time} (${g.pst})</span></span><span class="${sc?'score':'score pending'}">${sc?g.homeScore+' - '+g.awayScore:'vs'}</span><span class="date-sm">${g.date.slice(5)}</span></div>`;});h+=`</div></div>`;});
+            grid.innerHTML=h;grid.querySelectorAll('.game-row').forEach(r=>r.addEventListener('click',()=>openGameModal(r.dataset.gameId)));
         }
 
-        function renderThirdPlace(){
-            const container=document.getElementById('thirdPlaceContainer'),thirds=getAllThirdPlaceTeams();
-            let h=`<div class="third-place-section"><h3>📊 Third-Placed Teams Ranking (Top 8 advance)</h3><table class="third-place-table"><thead><tr><th>Pos</th><th>Grp</th><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th><th>Status</th></tr></thead><tbody>`;
-            thirds.forEach((t,i)=>{const q=i<8;const pstyle=getPlayerStyle(t.person);h+=`<tr><td>${i+1}</td><td>${t.group}</td><td>${t.team}<span class="player-name" style="${pstyle}">${t.person}</span></td><td>${t.gp}</td><td>${t.w}</td><td>${t.d}</td><td>${t.l}</td><td>${t.gf}</td><td>${t.ga}</td><td>${t.gd>=0?'+':''}${t.gd}</td><td class="pts">${t.pts}</td><td class="${q?'qualifies':''}">${q?'✅ Advances':'❌'}</td></tr>`;});
-            h+=`</tbody></table></div>`;container.innerHTML=h;
-        }
+        function renderThirdPlace(){const container=document.getElementById('thirdPlaceContainer'),thirds=getAllThirdPlaceTeams();let h=`<div class="third-place-section"><h3>📊 Third-Placed Teams Ranking (Top 8 advance)</h3><table class="third-place-table"><thead><tr><th>Pos</th><th>Grp</th><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th><th>Status</th></tr></thead><tbody>`;thirds.forEach((t,i)=>{const q=i<8,c=playerColors[t.person]||'#6c3bd4';h+=`<tr><td>${i+1}</td><td>${t.group}</td><td>${t.team}<span class="player-name" style="color:${c}">${t.person}</span></td><td>${t.gp}</td><td>${t.w}</td><td>${t.d}</td><td>${t.l}</td><td>${t.gf}</td><td>${t.ga}</td><td>${t.gd>=0?'+':''}${t.gd}</td><td class="pts">${t.pts}</td><td class="${q?'qualifies':''}">${q?'✅ Advances':'❌'}</td></tr>`;});h+=`</tbody></table></div>`;container.innerHTML=h;}
 
-        function renderKnockout(){
-            const container=document.getElementById('knockoutContainer'),filtered=allGames.filter(g=>g.isKo&&(g.date===selectedDate||!selectedDate)),fIds=new Set(filtered.map(g=>g.id));
-            const rounds=['Round of 32','Round of 16','Quarter-finals','Semi-finals','Third Place','Final'];
-            let h='';
-            rounds.forEach(rn=>{
-                const games=allKoGames.filter(g=>g.round===rn);if(!games.length)return;
-                h+=`<div class="ko-round"><h3>🏆 ${rn}</h3><div class="ko-games">`;
-                games.forEach(g=>{
-                    const hi=fIds.has(g.id),sc=g.homeScore!==null&&g.awayScore!==null;
-                    h+=`<div class="ko-game" data-game-id="${g.id}" style="${hi&&selectedDate?'border:2px solid var(--accent);background:#fff8e1;':''}"><span><strong>${g.home}</strong> vs <strong>${g.away}</strong><br><span style="font-size:.55em;color:#adb5bd;">${g.stadium} · ${g.time} (${g.pst})</span></span><span class="${sc?'ko-score':'ko-score pending'}">${sc?g.homeScore+' - '+g.awayScore:'TBD'}</span><span style="font-size:.6em;color:#adb5bd;">${g.date.slice(5)}</span></div>`;
-                });
-                h+=`</div></div>`;
-            });
-            container.innerHTML=h;
-            container.querySelectorAll('.ko-game').forEach(r=>r.addEventListener('click',()=>openGameModal(r.dataset.gameId)));
-        }
+        function renderKnockout(){const container=document.getElementById('knockoutContainer'),filtered=allGames.filter(g=>g.isKo&&(g.date===selectedDate||!selectedDate)),fIds=new Set(filtered.map(g=>g.id));const rounds=['Round of 32','Round of 16','Quarter-finals','Semi-finals','Third Place','Final'];let h='';rounds.forEach(rn=>{const games=allKoGames.filter(g=>g.round===rn);if(!games.length)return;h+=`<div class="ko-round"><h3>🏆 ${rn}</h3><div class="ko-games">`;games.forEach(g=>{const hi=fIds.has(g.id),sc=g.homeScore!==null&&g.awayScore!==null;h+=`<div class="ko-game" data-game-id="${g.id}" style="${hi&&selectedDate?'border:2px solid var(--accent);background:#fff8e1;':''}"><span><strong>${g.home}</strong> vs <strong>${g.away}</strong><br><span style="font-size:.55em;color:#adb5bd;">${g.stadium} · ${g.time} (${g.pst})</span></span><span class="${sc?'ko-score':'ko-score pending'}">${sc?g.homeScore+' - '+g.awayScore:'TBD'}</span><span style="font-size:.6em;color:#adb5bd;">${g.date.slice(5)}</span></div>`;});h+=`</div></div>`;});container.innerHTML=h;container.querySelectorAll('.ko-game').forEach(r=>r.addEventListener('click',()=>openGameModal(r.dataset.gameId)));}
 
         function openGameModal(gameId){
-            const game=allGames.find(g=>g.id===gameId);if(!game)return;
-            const overlay=document.getElementById('modalOverlay'),modal=document.getElementById('gameModal');
-            const hs=game.homeScore!==null?game.homeScore:'',as=game.awayScore!==null?game.awayScore:'';
-            const hp=peopleMap[game.home]||'',ap=peopleMap[game.away]||'';
-            const hc=playerColors[hp]||'#6c3bd4',ac=playerColors[ap]||'#6c3bd4';
+            const game=allGames.find(g=>g.id===gameId);if(!game)return;const overlay=document.getElementById('modalOverlay'),modal=document.getElementById('gameModal'),hs=game.homeScore!==null?game.homeScore:'',as=game.awayScore!==null?game.awayScore:'',hp=peopleMap[game.home]||'',ap=peopleMap[game.away]||'',hc=playerColors[hp]||'#6c3bd4',ac=playerColors[ap]||'#6c3bd4';
             modal.innerHTML=`<h3>${game.round==='group'?'Group '+game.group+' · ':''}${game.home} vs ${game.away}</h3><div class="modal-date">📅 ${game.date} | 🏟 ${game.stadium} | 🕐 ${game.time} (${game.pst})</div><div class="matchup"><div class="team-block"><div style="font-size:2em;">⚽</div><div class="country">${game.home}</div><div class="owner" style="color:${hc}">${hp||'—'}</div></div><div class="vs">VS</div><div class="team-block"><div style="font-size:2em;">⚽</div><div class="country">${game.away}</div><div class="owner" style="color:${ac}">${ap||'—'}</div></div></div><div class="score-inputs"><input type="number" id="modalHomeScore" value="${hs}" placeholder="-" min="0" max="99"><span>—</span><input type="number" id="modalAwayScore" value="${as}" placeholder="-" min="0" max="99"></div><div class="btn-row"><button class="btn btn-save" id="modalSave">💾 Save</button><button class="btn btn-reset" id="modalReset">Clear</button><button class="btn btn-close" id="modalClose">Close</button></div>`;
             overlay.classList.add('open');
-            document.getElementById('modalSave').addEventListener('click',()=>{
-                const hv=document.getElementById('modalHomeScore').value,av=document.getElementById('modalAwayScore').value;
-                if(hv!==''&&av!==''&&!isNaN(hv)&&!isNaN(av)){game.homeScore=parseInt(hv);game.awayScore=parseInt(av);}
-                else if(hv===''&&av===''){game.homeScore=null;game.awayScore=null;}
-                saveToFirebase(game.id,game.homeScore,game.awayScore);overlay.classList.remove('open');
-            });
+            document.getElementById('modalSave').addEventListener('click',()=>{const hv=document.getElementById('modalHomeScore').value,av=document.getElementById('modalAwayScore').value;if(hv!==''&&av!==''&&!isNaN(hv)&&!isNaN(av)){game.homeScore=parseInt(hv);game.awayScore=parseInt(av);}else if(hv===''&&av===''){game.homeScore=null;game.awayScore=null;}saveToFirebase(game.id,game.homeScore,game.awayScore);overlay.classList.remove('open');});
             document.getElementById('modalReset').addEventListener('click',()=>{game.homeScore=null;game.awayScore=null;saveToFirebase(game.id,null,null);overlay.classList.remove('open');});
             document.getElementById('modalClose').addEventListener('click',()=>overlay.classList.remove('open'));
         }
         document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
 
+        function renderLegend(){
+            const legendEl=document.getElementById('playerLegend');if(!legendEl)return;
+            const order=['Moni','Grampa','Grama','Anthony','Nancy','Irma','Mari','Michael'];
+            let h=`<div class="legend-section"><h3>👥 Player Legend</h3><div class="legend-grid">`;
+            order.forEach(person=>{if(legendData[person]){const c=legendData[person].color;h+=`<div class="legend-player"><div class="legend-name"><span class="legend-dot" style="background:${c}"></span>${person}</div><div class="legend-teams">${legendData[person].teams.join(', ')}</div></div>`;}});
+            h+=`</div></div>`;legendEl.innerHTML=h;
+        }
+
         function renderAll(){
             document.getElementById('filterBanner').innerHTML=selectedDate?`🔍 Showing <strong>${selectedDate}</strong> <span class="clear-filter" id="clearFilter">[Show All]</span>`:`📅 Click a date to see games · 🔴 Live Sync Active`;
             if(selectedDate)document.getElementById('clearFilter').addEventListener('click',()=>{selectedDate=null;renderCalendar();renderAll();document.getElementById('dailyOverlay').classList.remove('open');});
             if(currentView==='groups')renderGroups();else if(currentView==='thirdplace')renderThirdPlace();else renderKnockout();
+            renderLegend();
         }
 
         document.querySelectorAll('.tab-btn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');currentView=btn.dataset.view;document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('view-'+currentView).classList.add('active');renderAll();});});
+
+        // Add legend container
+        const legendContainer=document.createElement('div');legendContainer.id='playerLegend';document.querySelector('.content').appendChild(legendContainer);
 
         renderCalendar();renderAll();
     </script>
