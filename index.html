@@ -11,6 +11,7 @@
             --accent:#e6a817; --accent2:#c98d0a;
             --win:#198754; --loss:#dc3545; --draw:#6c757d;
             --highlight:#fff8e1; --shadow:0 1px 3px rgba(0,0,0,0.08);
+            --player-color:#6c3bd4;
         }
         *{margin:0;padding:0;box-sizing:border-box;}
         body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;min-height:100vh;line-height:1.5;}
@@ -34,7 +35,7 @@
         .content{padding:6px 12px 40px;max-width:1400px;margin:0 auto;}
         .view{display:none;}
         .view.active{display:block;}
-        .groups-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:12px;}
+        .groups-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px;}
         .group-card{background:#fff;border:1px solid #dee2e6;border-radius:10px;overflow:hidden;box-shadow:var(--shadow);}
         .group-card h3{background:#f8f9fa;padding:8px 12px;font-size:.85em;color:#1a1a2e;border-bottom:2px solid var(--accent);font-weight:700;}
         .group-standings{width:100%;border-collapse:collapse;font-size:.72em;}
@@ -42,13 +43,14 @@
         .group-standings th:first-child{text-align:left;padding-left:8px;}
         .group-standings td{padding:5px 2px;text-align:center;border-bottom:1px solid #f1f3f5;color:#495057;}
         .group-standings td:first-child{text-align:left;padding-left:8px;font-weight:600;color:#212529;}
-        .group-standings .person-name{font-size:.62em;color:#adb5bd;font-weight:400;display:block;}
+        .player-name{font-size:.75em;font-weight:700;color:#6c3bd4;display:block;}
         .group-standings .pts{font-weight:700;color:var(--accent2);}
         .group-standings tr:hover td{background:#fff8e1;}
         .group-games{padding:4px 8px 8px;border-top:1px solid #e9ecef;}
         .game-row{display:flex;align-items:center;justify-content:space-between;padding:5px 3px;cursor:pointer;border-radius:4px;font-size:.7em;gap:4px;transition:all .1s;}
         .game-row:hover{background:#f8f9fa;border-left:3px solid var(--accent);}
         .game-row .teams{flex:1;min-width:0;}
+        .game-row .player-inline{font-size:.75em;font-weight:700;color:#6c3bd4;}
         .game-row .score{font-weight:700;min-width:32px;text-align:center;color:var(--accent2);}
         .game-row .score.pending{color:#adb5bd;font-weight:400;font-size:.62em;}
         .game-row .date-sm{font-size:.58em;color:#adb5bd;min-width:34px;text-align:right;}
@@ -62,6 +64,7 @@
         .daily-game-card .match-info{flex:1;}
         .daily-game-card .teams-line{font-weight:700;font-size:.9em;color:#212529;}
         .daily-game-card .details-line{font-size:.65em;color:#6c757d;margin-top:1px;}
+        .daily-game-card .player-line{font-size:.72em;font-weight:700;color:#6c3bd4;margin-top:1px;}
         .daily-game-card .score-badge{font-weight:700;font-size:1.1em;color:var(--accent2);min-width:45px;text-align:center;}
         .daily-game-card .score-badge.pending{color:#adb5bd;font-size:.7em;}
         .daily-close-btn{display:block;width:100%;margin-top:10px;padding:8px;border-radius:8px;border:1px solid #dee2e6;background:#f8f9fa;color:#495057;cursor:pointer;font-weight:600;font-size:.8em;}
@@ -87,7 +90,7 @@
         .modal .matchup{display:flex;align-items:center;justify-content:center;gap:12px;margin:12px 0;}
         .modal .team-block{text-align:center;flex:1;}
         .modal .team-block .country{font-weight:700;font-size:.95em;color:#212529;}
-        .modal .team-block .owner{font-size:.65em;color:#adb5bd;}
+        .modal .team-block .owner{font-size:.8em;font-weight:700;color:#6c3bd4;}
         .modal .vs{font-weight:700;color:#adb5bd;}
         .modal .score-inputs{display:flex;align-items:center;justify-content:center;gap:14px;margin:12px 0;}
         .modal .score-inputs input{width:54px;height:44px;text-align:center;font-size:1.3em;font-weight:700;border:2px solid #dee2e6;border-radius:8px;background:#f8f9fa;color:#212529;}
@@ -169,6 +172,10 @@
             'Argentina':'Grama','Algeria':'Anthony','Austria':'Michael','Jordan':'Grampa',
             'Portugal':'Grama','DR Congo':'Anthony','Uzbekistan':'Moni','Colombia':'Irma',
             'England':'Mari','Croatia':'Irma','Ghana':'Moni','Panama':'Nancy'
+        };
+        const playerColors={
+            'Moni':'#e6398c','Grampa':'#e67e22','Grama':'#2ecc71','Anthony':'#3498db',
+            'Nancy':'#9b59b6','Irma':'#1abc9c','Mari':'#e74c3c','Michael':'#f39c12'
         };
 
         const allGroupGames=[
@@ -285,7 +292,6 @@
         const allGames=[...allGroupGames,...allKoGames];
         let selectedDate=null,currentView='groups';
 
-        // ═══════════ FIREBASE SYNC ═══════════
         function syncFromFirebase(){
             const statusEl=document.getElementById('syncStatus');
             statusEl.textContent='🟡 Syncing...';
@@ -304,7 +310,6 @@
             },(error)=>{
                 statusEl.textContent='🔴 Sync Error';
                 statusEl.className='sync-status offline';
-                console.error('Firebase sync error:',error);
                 renderAll();
             });
         }
@@ -312,7 +317,7 @@
         function saveToFirebase(gameId,homeScore,awayScore){
             const updates={};
             updates[gameId]={homeScore,awayScore};
-            update(scoresRef,updates).catch(err=>console.error('Save error:',err));
+            update(scoresRef,updates);
         }
 
         function initializeDefaultScores(){
@@ -331,7 +336,6 @@
         initializeDefaultScores();
         syncFromFirebase();
 
-        // ═══════════ REST OF THE APP ═══════════
         function renderCalendar(){
             const strip=document.getElementById('calendarStrip');
             const dates=new Set(allGames.map(g=>g.date));
@@ -357,7 +361,9 @@
             if(dayGames.length===0)h+=`<div class="daily-empty">No matches today.</div>`;
             else dayGames.forEach(game=>{
                 const sc=game.homeScore!==null&&game.awayScore!==null;
-                h+=`<div class="daily-game-card" data-game-id="${game.id}"><div class="match-info"><div class="teams-line">${game.home} vs ${game.away}</div><div class="details-line">${game.round==='group'?'Group '+game.group:game.round} · ${game.stadium}</div><div class="details-line">🕐 ${game.time} (${game.pst})</div></div><div class="score-badge${!sc?' pending':''}">${sc?game.homeScore+' - '+game.awayScore:'vs'}</div></div>`;
+                const hp=peopleMap[game.home]||'',ap=peopleMap[game.away]||'';
+                const hc=playerColors[hp]||'#6c3bd4',ac=playerColors[ap]||'#6c3bd4';
+                h+=`<div class="daily-game-card" data-game-id="${game.id}"><div class="match-info"><div class="teams-line">${game.home} vs ${game.away}</div><div class="details-line">${game.round==='group'?'Group '+game.group:game.round} · ${game.stadium}</div><div class="details-line">🕐 ${game.time} (${game.pst})</div><div class="player-line"><span style="color:${hc}">👤 ${hp||'—'}</span> vs <span style="color:${ac}">👤 ${ap||'—'}</span></div></div><div class="score-badge${!sc?' pending':''}">${sc?game.homeScore+' - '+game.awayScore:'vs'}</div></div>`;
             });
             h+=`<button class="daily-close-btn" id="dailyCloseBtn">✕ Close</button>`;
             modal.innerHTML=h;overlay.classList.add('open');
@@ -365,8 +371,6 @@
             modal.querySelectorAll('.daily-game-card').forEach(c=>c.addEventListener('click',()=>{overlay.classList.remove('open');openGameModal(c.dataset.gameId);}));
         }
         document.getElementById('dailyOverlay').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
-
-        function getFilteredGames(){return selectedDate?allGames.filter(g=>g.date===selectedDate):allGames;}
 
         function calculateStandings(gid){
             const teams=GROUPS[gid],stats={};
@@ -389,17 +393,27 @@
             return thirds.sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf);
         }
 
+        function getPlayerStyle(person){
+            const color=playerColors[person]||'#6c3bd4';
+            return `font-size:.75em;font-weight:700;color:${color};`;
+        }
+
         function renderGroups(){
-            const grid=document.getElementById('groupsGrid'),filtered=getFilteredGames().filter(g=>g.round==='group'),fIds=new Set(filtered.map(g=>g.id));
+            const grid=document.getElementById('groupsGrid'),filtered=allGames.filter(g=>g.date===selectedDate&&g.round==='group'||!selectedDate&&g.round==='group'),fIds=new Set(filtered.map(g=>g.id));
             let h='';
             Object.keys(GROUPS).sort().forEach(gid=>{
                 const st=calculateStandings(gid),games=allGroupGames.filter(g=>g.group===gid);
                 h+=`<div class="group-card"><h3>🏴 Group ${gid}</h3><table class="group-standings"><thead><tr><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr></thead><tbody>`;
-                st.forEach(s=>{h+=`<tr><td>${s.team}<span class="person-name">${s.person}</span></td><td>${s.gp}</td><td>${s.w}</td><td>${s.d}</td><td>${s.l}</td><td>${s.gf}</td><td>${s.ga}</td><td>${s.gd>=0?'+':''}${s.gd}</td><td class="pts">${s.pts}</td></tr>`;});
+                st.forEach(s=>{
+                    const pstyle=getPlayerStyle(s.person);
+                    h+=`<tr><td>${s.team}<span class="player-name" style="${pstyle}">${s.person}</span></td><td>${s.gp}</td><td>${s.w}</td><td>${s.d}</td><td>${s.l}</td><td>${s.gf}</td><td>${s.ga}</td><td>${s.gd>=0?'+':''}${s.gd}</td><td class="pts">${s.pts}</td></tr>`;
+                });
                 h+=`</tbody></table><div class="group-games">`;
                 games.forEach(g=>{
-                    const hi=fIds.has(g.id),sc=g.homeScore!==null&&g.awayScore!==null;
-                    h+=`<div class="game-row" data-game-id="${g.id}" style="${hi?'background:#fff8e1;':''}"><span class="teams"><strong>${g.home}</strong> — <strong>${g.away}</strong><br><span style="font-size:.55em;color:#adb5bd;">${g.stadium} · ${g.time} (${g.pst})</span></span><span class="${sc?'score':'score pending'}">${sc?g.homeScore+' - '+g.awayScore:'vs'}</span><span class="date-sm">${g.date.slice(5)}</span></div>`;
+                    const hi=fIds.has(g.id)||!selectedDate,sc=g.homeScore!==null&&g.awayScore!==null;
+                    const hp=peopleMap[g.home]||'',ap=peopleMap[g.away]||'';
+                    const hc=playerColors[hp]||'#6c3bd4',ac=playerColors[ap]||'#6c3bd4';
+                    h+=`<div class="game-row" data-game-id="${g.id}" style="${hi&&selectedDate?'background:#fff8e1;':''}"><span class="teams"><strong>${g.home}</strong> <span class="player-inline" style="color:${hc}">(${hp||'—'})</span> — <strong>${g.away}</strong> <span class="player-inline" style="color:${ac}">(${ap||'—'})</span><br><span style="font-size:.55em;color:#adb5bd;">${g.stadium} · ${g.time} (${g.pst})</span></span><span class="${sc?'score':'score pending'}">${sc?g.homeScore+' - '+g.awayScore:'vs'}</span><span class="date-sm">${g.date.slice(5)}</span></div>`;
                 });
                 h+=`</div></div>`;
             });
@@ -410,12 +424,12 @@
         function renderThirdPlace(){
             const container=document.getElementById('thirdPlaceContainer'),thirds=getAllThirdPlaceTeams();
             let h=`<div class="third-place-section"><h3>📊 Third-Placed Teams Ranking (Top 8 advance)</h3><table class="third-place-table"><thead><tr><th>Pos</th><th>Grp</th><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th><th>Status</th></tr></thead><tbody>`;
-            thirds.forEach((t,i)=>{const q=i<8;h+=`<tr><td>${i+1}</td><td>${t.group}</td><td>${t.team}<span style="font-size:.6em;color:#adb5bd;display:block;">${t.person}</span></td><td>${t.gp}</td><td>${t.w}</td><td>${t.d}</td><td>${t.l}</td><td>${t.gf}</td><td>${t.ga}</td><td>${t.gd>=0?'+':''}${t.gd}</td><td class="pts">${t.pts}</td><td class="${q?'qualifies':''}">${q?'✅ Advances':'❌'}</td></tr>`;});
+            thirds.forEach((t,i)=>{const q=i<8;const pstyle=getPlayerStyle(t.person);h+=`<tr><td>${i+1}</td><td>${t.group}</td><td>${t.team}<span class="player-name" style="${pstyle}">${t.person}</span></td><td>${t.gp}</td><td>${t.w}</td><td>${t.d}</td><td>${t.l}</td><td>${t.gf}</td><td>${t.ga}</td><td>${t.gd>=0?'+':''}${t.gd}</td><td class="pts">${t.pts}</td><td class="${q?'qualifies':''}">${q?'✅ Advances':'❌'}</td></tr>`;});
             h+=`</tbody></table></div>`;container.innerHTML=h;
         }
 
         function renderKnockout(){
-            const container=document.getElementById('knockoutContainer'),filtered=getFilteredGames().filter(g=>g.isKo),fIds=new Set(filtered.map(g=>g.id));
+            const container=document.getElementById('knockoutContainer'),filtered=allGames.filter(g=>g.isKo&&(g.date===selectedDate||!selectedDate)),fIds=new Set(filtered.map(g=>g.id));
             const rounds=['Round of 32','Round of 16','Quarter-finals','Semi-finals','Third Place','Final'];
             let h='';
             rounds.forEach(rn=>{
@@ -423,7 +437,7 @@
                 h+=`<div class="ko-round"><h3>🏆 ${rn}</h3><div class="ko-games">`;
                 games.forEach(g=>{
                     const hi=fIds.has(g.id),sc=g.homeScore!==null&&g.awayScore!==null;
-                    h+=`<div class="ko-game" data-game-id="${g.id}" style="${hi?'border:2px solid var(--accent);background:#fff8e1;':''}"><span><strong>${g.home}</strong> vs <strong>${g.away}</strong><br><span style="font-size:.55em;color:#adb5bd;">${g.stadium} · ${g.time} (${g.pst})</span></span><span class="${sc?'ko-score':'ko-score pending'}">${sc?g.homeScore+' - '+g.awayScore:'TBD'}</span><span style="font-size:.6em;color:#adb5bd;">${g.date.slice(5)}</span></div>`;
+                    h+=`<div class="ko-game" data-game-id="${g.id}" style="${hi&&selectedDate?'border:2px solid var(--accent);background:#fff8e1;':''}"><span><strong>${g.home}</strong> vs <strong>${g.away}</strong><br><span style="font-size:.55em;color:#adb5bd;">${g.stadium} · ${g.time} (${g.pst})</span></span><span class="${sc?'ko-score':'ko-score pending'}">${sc?g.homeScore+' - '+g.awayScore:'TBD'}</span><span style="font-size:.6em;color:#adb5bd;">${g.date.slice(5)}</span></div>`;
                 });
                 h+=`</div></div>`;
             });
@@ -435,14 +449,15 @@
             const game=allGames.find(g=>g.id===gameId);if(!game)return;
             const overlay=document.getElementById('modalOverlay'),modal=document.getElementById('gameModal');
             const hs=game.homeScore!==null?game.homeScore:'',as=game.awayScore!==null?game.awayScore:'';
-            modal.innerHTML=`<h3>${game.round==='group'?'Group '+game.group+' · ':''}${game.home} vs ${game.away}</h3><div class="modal-date">📅 ${game.date} | 🏟 ${game.stadium} | 🕐 ${game.time} (${game.pst})</div><div class="matchup"><div class="team-block"><div style="font-size:2em;">⚽</div><div class="country">${game.home}</div><div class="owner">${peopleMap[game.home]||''}</div></div><div class="vs">VS</div><div class="team-block"><div style="font-size:2em;">⚽</div><div class="country">${game.away}</div><div class="owner">${peopleMap[game.away]||''}</div></div></div><div class="score-inputs"><input type="number" id="modalHomeScore" value="${hs}" placeholder="-" min="0" max="99"><span>—</span><input type="number" id="modalAwayScore" value="${as}" placeholder="-" min="0" max="99"></div><div class="btn-row"><button class="btn btn-save" id="modalSave">💾 Save</button><button class="btn btn-reset" id="modalReset">Clear</button><button class="btn btn-close" id="modalClose">Close</button></div>`;
+            const hp=peopleMap[game.home]||'',ap=peopleMap[game.away]||'';
+            const hc=playerColors[hp]||'#6c3bd4',ac=playerColors[ap]||'#6c3bd4';
+            modal.innerHTML=`<h3>${game.round==='group'?'Group '+game.group+' · ':''}${game.home} vs ${game.away}</h3><div class="modal-date">📅 ${game.date} | 🏟 ${game.stadium} | 🕐 ${game.time} (${game.pst})</div><div class="matchup"><div class="team-block"><div style="font-size:2em;">⚽</div><div class="country">${game.home}</div><div class="owner" style="color:${hc}">${hp||'—'}</div></div><div class="vs">VS</div><div class="team-block"><div style="font-size:2em;">⚽</div><div class="country">${game.away}</div><div class="owner" style="color:${ac}">${ap||'—'}</div></div></div><div class="score-inputs"><input type="number" id="modalHomeScore" value="${hs}" placeholder="-" min="0" max="99"><span>—</span><input type="number" id="modalAwayScore" value="${as}" placeholder="-" min="0" max="99"></div><div class="btn-row"><button class="btn btn-save" id="modalSave">💾 Save</button><button class="btn btn-reset" id="modalReset">Clear</button><button class="btn btn-close" id="modalClose">Close</button></div>`;
             overlay.classList.add('open');
             document.getElementById('modalSave').addEventListener('click',()=>{
                 const hv=document.getElementById('modalHomeScore').value,av=document.getElementById('modalAwayScore').value;
                 if(hv!==''&&av!==''&&!isNaN(hv)&&!isNaN(av)){game.homeScore=parseInt(hv);game.awayScore=parseInt(av);}
                 else if(hv===''&&av===''){game.homeScore=null;game.awayScore=null;}
-                saveToFirebase(game.id,game.homeScore,game.awayScore);
-                overlay.classList.remove('open');
+                saveToFirebase(game.id,game.homeScore,game.awayScore);overlay.classList.remove('open');
             });
             document.getElementById('modalReset').addEventListener('click',()=>{game.homeScore=null;game.awayScore=null;saveToFirebase(game.id,null,null);overlay.classList.remove('open');});
             document.getElementById('modalClose').addEventListener('click',()=>overlay.classList.remove('open'));
@@ -457,8 +472,7 @@
 
         document.querySelectorAll('.tab-btn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');currentView=btn.dataset.view;document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('view-'+currentView).classList.add('active');renderAll();});});
 
-        renderCalendar();
-        renderAll();
+        renderCalendar();renderAll();
     </script>
 </body>
 </html>
