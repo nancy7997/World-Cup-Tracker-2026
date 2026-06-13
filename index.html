@@ -103,7 +103,6 @@
         .btn-reset{background:#fff;color:#dc3545;border:1px solid #dc3545;font-size:.7em;padding:5px 12px;}
         .filter-info{text-align:center;padding:6px;color:#6c757d;font-size:.8em;}
         .clear-filter{cursor:pointer;text-decoration:underline;color:#0d6efd;margin-left:4px;}
-        /* ── LEGEND ── */
         .legend-section{background:#fff;border:2px solid #dee2e6;border-radius:12px;padding:16px;margin:20px 0 10px;box-shadow:var(--shadow);}
         .legend-section h3{color:#1a1a2e;margin-bottom:12px;font-size:.9em;text-align:center;}
         .legend-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;}
@@ -186,7 +185,6 @@
             'Nancy':'#9b59b6','Irma':'#1abc9c','Mari':'#e74c3c','Michael':'#f39c12'
         };
 
-        // Build legend data from peopleMap
         function buildLegendData(){
             const legend={};
             Object.entries(peopleMap).forEach(([team,person])=>{
@@ -274,10 +272,38 @@
         allGroupGames.forEach(g=>{g.round='group';});
 
         const allKoGames=[
-            {id:'K1',round:'Round of 32',home:'Winner A',away:'3rd Best*',date:'2026-06-28',time:'1:00 PM ET',pst:'10:00 AM PST',stadium:'MetLife Stadium',homeScore:null,awayScore:null,isKo:true},
-            {id:'K2',round:'Round of 32',home:'Winner B',away:'3rd Best*',date:'2026-06-28',time:'4:00 PM CT',pst:'2:00 PM PST',stadium:'AT&T Stadium',homeScore:null,awayScore:null,isKo:true},
-            {id:'K3',round:'Round of 32',home:'Winner C',away:'Runner-up D',date:'2026-06-28',time:'7:00 PM PT',pst:'7:00 PM PST',stadium:'SoFi Stadium',homeScore:null,awayScore:null,isKo:true},
-            {id:'K32',round:'Final',home:'W SF-1',away:'W SF-2',date:'2026-07-19',time:'1:00 PM ET',pst:'10:00 AM PST',stadium:'MetLife Stadium',homeScore:null,awayScore:null,isKo:true}
+            {id:'K1',round:'Round of 32',home:'Winner A',away:'3rd Best*',date:'2026-06-28',time:'1:00 PM ET',pst:'10:00 AM PST',stadium:'MetLife Stadium, East Rutherford',homeScore:null,awayScore:null,isKo:true},
+            {id:'K2',round:'Round of 32',home:'Winner B',away:'3rd Best*',date:'2026-06-28',time:'4:00 PM CT',pst:'2:00 PM PST',stadium:'AT&T Stadium, Arlington',homeScore:null,awayScore:null,isKo:true},
+            {id:'K3',round:'Round of 32',home:'Winner C',away:'Runner-up D',date:'2026-06-28',time:'7:00 PM PT',pst:'7:00 PM PST',stadium:'SoFi Stadium, Inglewood',homeScore:null,awayScore:null,isKo:true},
+            {id:'K4',round:'Round of 32',home:'Winner D',away:'Runner-up C',date:'2026-06-29',time:'10:00 AM CT',pst:'8:00 AM PST',stadium:'NRG Stadium, Houston',homeScore:null,awayScore:null,isKo:true},
+            {id:'K5',round:'Round of 32',home:'Winner E',away:'Runner-up F',date:'2026-06-29',time:'1:00 PM ET',pst:'10:00 AM PST',stadium:'BMO Field, Toronto',homeScore:null,awayScore:null,isKo:true},
+            {id:'K6',round:'Round of 32',home:'Winner F',away:'Runner-up E',date:'2026-06-29',time:'4:00 PM PT',pst:'4:00 PM PST',stadium:"Levi's Stadium, Santa Clara",homeScore:null,awayScore:null,isKo:true},
+            {id:'K7',round:'Round of 32',home:'Winner G',away:'Runner-up H',date:'2026-06-30',time:'10:00 AM CT',pst:'8:00 AM PST',stadium:'Arrowhead Stadium, Kansas City',homeScore:null,awayScore:null,isKo:true},
+            {id:'K8',round:'Round of 32',home:'Winner H',away:'Runner-up G',date:'2026-06-30',time:'1:00 PM ET',pst:'10:00 AM PST',stadium:'Gillette Stadium, Foxborough',homeScore:null,awayScore:null,isKo:true},
+            {id:'K9',round:'Round of 32',home:'Winner I',away:'Runner-up J',date:'2026-06-30',time:'4:00 PM CT',pst:'2:00 PM PST',stadium:'Estadio Azteca, Mexico City',homeScore:null,awayScore:null,isKo:true},
+            {id:'K10',round:'Round of 32',home:'Winner J',away:'Runner-up I',date:'2026-07-01',time:'10:00 AM ET',pst:'7:00 AM PST',stadium:'Mercedes-Benz Stadium, Atlanta',homeScore:null,awayScore:null,isKo:true},
+            {id:'K11',round:'Round of 32',home:'Winner K',away:'Runner-up L',date:'2026-07-01',time:'1:00 PM ET',pst:'10:00 AM PST',stadium:'Lincoln Financial Field, Philadelphia',homeScore:null,awayScore:null,isKo:true},
+            {id:'K12',round:'Round of 32',home:'Winner L',away:'Runner-up K',date:'2026-07-01',time:'4:00 PM ET',pst:'1:00 PM PST',stadium:'Hard Rock Stadium, Miami Gardens',homeScore:null,awayScore:null,isKo:true},
+            {id:'K13',round:'Round of 32',home:'Runner-up A',away:'Runner-up B',date:'2026-07-02',time:'10:00 AM PT',pst:'10:00 AM PST',stadium:'BC Place, Vancouver',homeScore:null,awayScore:null,isKo:true},
+            {id:'K14',round:'Round of 32',home:'3rd Best*',away:'3rd Best*',date:'2026-07-02',time:'1:00 PM CT',pst:'11:00 AM PST',stadium:'Estadio Akron, Zapopan',homeScore:null,awayScore:null,isKo:true},
+            {id:'K15',round:'Round of 32',home:'3rd Best*',away:'3rd Best*',date:'2026-07-02',time:'4:00 PM PT',pst:'4:00 PM PST',stadium:'Lumen Field, Seattle',homeScore:null,awayScore:null,isKo:true},
+            {id:'K16',round:'Round of 32',home:'3rd Best*',away:'3rd Best*',date:'2026-07-02',time:'7:00 PM CT',pst:'5:00 PM PST',stadium:'NRG Stadium, Houston',homeScore:null,awayScore:null,isKo:true},
+            {id:'K17',round:'Round of 16',home:'W R32-1',away:'W R32-2',date:'2026-07-04',time:'1:00 PM CT',pst:'11:00 AM PST',stadium:'AT&T Stadium, Arlington',homeScore:null,awayScore:null,isKo:true},
+            {id:'K18',round:'Round of 16',home:'W R32-3',away:'W R32-4',date:'2026-07-04',time:'4:00 PM ET',pst:'1:00 PM PST',stadium:'MetLife Stadium, East Rutherford',homeScore:null,awayScore:null,isKo:true},
+            {id:'K19',round:'Round of 16',home:'W R32-5',away:'W R32-6',date:'2026-07-05',time:'10:00 AM PT',pst:'10:00 AM PST',stadium:'SoFi Stadium, Inglewood',homeScore:null,awayScore:null,isKo:true},
+            {id:'K20',round:'Round of 16',home:'W R32-7',away:'W R32-8',date:'2026-07-05',time:'1:00 PM ET',pst:'10:00 AM PST',stadium:'BMO Field, Toronto',homeScore:null,awayScore:null,isKo:true},
+            {id:'K21',round:'Round of 16',home:'W R32-9',away:'W R32-10',date:'2026-07-05',time:'4:00 PM PT',pst:'4:00 PM PST',stadium:"Levi's Stadium, Santa Clara",homeScore:null,awayScore:null,isKo:true},
+            {id:'K22',round:'Round of 16',home:'W R32-11',away:'W R32-12',date:'2026-07-06',time:'1:00 PM CT',pst:'11:00 AM PST',stadium:'Arrowhead Stadium, Kansas City',homeScore:null,awayScore:null,isKo:true},
+            {id:'K23',round:'Round of 16',home:'W R32-13',away:'W R32-14',date:'2026-07-06',time:'4:00 PM ET',pst:'1:00 PM PST',stadium:'Gillette Stadium, Foxborough',homeScore:null,awayScore:null,isKo:true},
+            {id:'K24',round:'Round of 16',home:'W R32-15',away:'W R32-16',date:'2026-07-06',time:'7:00 PM CT',pst:'5:00 PM PST',stadium:'Estadio Azteca, Mexico City',homeScore:null,awayScore:null,isKo:true},
+            {id:'K25',round:'Quarter-finals',home:'W R16-1',away:'W R16-2',date:'2026-07-08',time:'1:00 PM ET',pst:'10:00 AM PST',stadium:'MetLife Stadium, East Rutherford',homeScore:null,awayScore:null,isKo:true},
+            {id:'K26',round:'Quarter-finals',home:'W R16-3',away:'W R16-4',date:'2026-07-08',time:'4:00 PM CT',pst:'2:00 PM PST',stadium:'AT&T Stadium, Arlington',homeScore:null,awayScore:null,isKo:true},
+            {id:'K27',round:'Quarter-finals',home:'W R16-5',away:'W R16-6',date:'2026-07-09',time:'1:00 PM PT',pst:'1:00 PM PST',stadium:'SoFi Stadium, Inglewood',homeScore:null,awayScore:null,isKo:true},
+            {id:'K28',round:'Quarter-finals',home:'W R16-7',away:'W R16-8',date:'2026-07-10',time:'1:00 PM CT',pst:'11:00 AM PST',stadium:'Arrowhead Stadium, Kansas City',homeScore:null,awayScore:null,isKo:true},
+            {id:'K29',round:'Semi-finals',home:'W QF-1',away:'W QF-2',date:'2026-07-14',time:'1:00 PM CT',pst:'11:00 AM PST',stadium:'AT&T Stadium, Arlington',homeScore:null,awayScore:null,isKo:true},
+            {id:'K30',round:'Semi-finals',home:'W QF-3',away:'W QF-4',date:'2026-07-15',time:'1:00 PM ET',pst:'10:00 AM PST',stadium:'Mercedes-Benz Stadium, Atlanta',homeScore:null,awayScore:null,isKo:true},
+            {id:'K31',round:'Third Place',home:'L SF-1',away:'L SF-2',date:'2026-07-18',time:'1:00 PM ET',pst:'10:00 AM PST',stadium:'Hard Rock Stadium, Miami Gardens',homeScore:null,awayScore:null,isKo:true},
+            {id:'K32',round:'Final',home:'W SF-1',away:'W SF-2',date:'2026-07-19',time:'1:00 PM ET',pst:'10:00 AM PST',stadium:'MetLife Stadium, East Rutherford',homeScore:null,awayScore:null,isKo:true}
         ];
 
         const allGames=[...allGroupGames,...allKoGames];
@@ -370,7 +396,6 @@
 
         document.querySelectorAll('.tab-btn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');currentView=btn.dataset.view;document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('view-'+currentView).classList.add('active');renderAll();});});
 
-        // Add legend container
         const legendContainer=document.createElement('div');legendContainer.id='playerLegend';document.querySelector('.content').appendChild(legendContainer);
 
         renderCalendar();renderAll();
