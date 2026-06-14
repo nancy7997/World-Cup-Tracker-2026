@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚽ 2026 FIFA World Cup Tracker · Live Sync</title>
+    <title>⚽ 2026 FIFA World Cup Tracker · Live Sync + Bracket</title>
     <style>
         :root {
             --bg:#ffffff; --surface:#f8f9fa; --surface2:#e9ecef;
@@ -22,12 +22,13 @@
         .sync-status.offline{color:#f87171;}
         .calendar-wrap{background:#fff;border-bottom:1px solid var(--border);padding:6px 0;position:sticky;top:68px;z-index:99;overflow-x:auto;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,0.05);}
         .calendar-strip{display:flex;gap:3px;padding:0 10px;min-width:fit-content;}
-        .cal-day{flex:0 0 38px;height:42px;border-radius:6px;background:#f8f9fa;border:1px solid #dee2e6;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.6em;transition:all .15s;color:#495057;}
+        .cal-day{flex:0 0 48px;height:54px;border-radius:8px;background:#f8f9fa;border:1px solid #dee2e6;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.85em;transition:all .15s;color:#495057;}
         .cal-day:hover{border-color:var(--accent);background:#fff8e1;}
         .cal-day.has-games{border-color:var(--accent);background:#fff8e1;font-weight:600;}
         .cal-day.selected{background:var(--accent);color:#fff;font-weight:bold;border-color:var(--accent2);}
-        .cal-day.today{border:2px solid #e63946;box-shadow:0 0 6px rgba(230,57,70,0.3);}
-        .cal-day .day-num{font-size:1em;font-weight:700;}
+        .cal-day.today{border:3px solid #e63946;background:#fff0f0;box-shadow:0 0 8px rgba(230,57,70,0.4);}
+        .cal-day .day-num{font-size:1.3em;font-weight:700;}
+        .cal-day .month-text{font-size:.7em;font-weight:500;}
         .tabs{display:flex;gap:3px;padding:0 12px;margin:10px 0;flex-wrap:wrap;}
         .tab-btn{padding:8px 14px;border:1px solid #dee2e6;background:#f8f9fa;color:#495057;cursor:pointer;font-size:.8em;font-weight:600;border-radius:8px 8px 0 0;transition:all .15s;}
         .tab-btn.active{background:var(--accent);color:#fff;border-color:var(--accent2);}
@@ -63,6 +64,7 @@
         .daily-game-card:hover{border-color:var(--accent);background:#fff8e1;}
         .daily-game-card .match-info{flex:1;}
         .daily-game-card .teams-line{font-weight:700;font-size:.9em;color:#212529;}
+        .daily-game-card .group-badge{display:inline-block;background:var(--accent);color:#fff;font-size:.6em;padding:2px 8px;border-radius:20px;margin-left:8px;font-weight:600;}
         .daily-game-card .details-line{font-size:.65em;color:#6c757d;margin-top:1px;}
         .daily-game-card .player-line{font-size:.72em;font-weight:700;margin-top:1px;}
         .daily-game-card .score-badge{font-weight:700;font-size:1.1em;color:var(--accent2);min-width:45px;text-align:center;}
@@ -110,6 +112,79 @@
         .legend-player .legend-name{font-weight:700;font-size:.85em;margin-bottom:4px;}
         .legend-player .legend-teams{font-size:.7em;color:#6c757d;line-height:1.4;}
         .legend-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;}
+        
+        .bracket-wrapper {
+            margin-top: 48px;
+            margin-bottom: 40px;
+            background: #fff;
+            border-radius: 28px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+            border: 1px solid #eef2f8;
+            overflow-x: auto;
+            overflow-y: visible;
+            padding: 20px 20px;
+            width: 100%;
+        }
+        .bracket-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px dashed #e9ecef;
+        }
+        .bracket-header h2 { font-size: 1.5rem; background: linear-gradient(135deg, #1e2a3a, #2c3e50); background-clip: text; -webkit-background-clip: text; color: transparent; }
+        .bracket-note { font-size: 0.7rem; background: #f1f5f9; padding: 5px 12px; border-radius: 30px; color: #3a5468; }
+        .tournament-bracket {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            gap: 20px;
+            min-width: 1100px;
+            width: max-content;
+            padding-bottom: 16px;
+        }
+        .bracket-round-col {
+            flex: 0 0 180px;
+            background: #fefefe;
+            border-radius: 20px;
+            padding: 8px 6px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+        }
+        .round-label {
+            font-weight: 800;
+            text-align: center;
+            background: #0a1c2a;
+            color: white;
+            padding: 8px 4px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            margin-bottom: 18px;
+        }
+        .bracket-matches {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .match-card {
+            background: #f8fafc;
+            border-radius: 14px;
+            padding: 10px 8px;
+            border-left: 4px solid var(--accent);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .match-card:hover { background: #fff5e3; transform: translateX(2px); }
+        .match-teams { font-weight: 700; font-size: 0.75rem; display: flex; justify-content: space-between; color: #1e2f3c; }
+        .team-abbr { max-width: 90px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .match-score { font-weight: 800; font-family: monospace; font-size: 0.75rem; background: #eef2f6; padding: 2px 6px; border-radius: 30px; color: #2c5a2e; }
+        .match-score.pending { color: #9aaebf; background: #f1f3f7; }
+        .match-meta { font-size: 0.55rem; color: #6c86a0; margin-top: 6px; text-align: center; }
+        .champion-highlight { background: radial-gradient(circle at 30% 10%, #fff3cf, #ffe9b6); border: 2px solid #f5c542; }
+        .final-winner { background: #d4af37; color: #1e2a2e; font-weight: bold; text-align: center; padding: 12px; border-radius: 60px; margin-top: 12px; font-size: 0.85rem; }
+        
         @media(max-width:768px){.groups-grid{grid-template-columns:1fr;}.ko-games{grid-template-columns:1fr;}.legend-grid{grid-template-columns:1fr;}}
     </style>
 </head>
@@ -131,6 +206,15 @@
         <div class="view" id="view-thirdplace"><div id="thirdPlaceContainer"></div></div>
         <div class="view" id="view-knockout"><div id="knockoutContainer"></div></div>
     </div>
+    
+    <div id="globalBracketContainer" class="bracket-wrapper">
+        <div class="bracket-header">
+            <h2>🏆 WORLD CUP 2026 · KNOCKOUT BRACKET</h2>
+            <div class="bracket-note">⚡ Click any match to edit score | Results auto-fill from Round of 32 → Final</div>
+        </div>
+        <div id="dynamicBracketTree" class="tournament-bracket"></div>
+    </div>
+
     <div class="daily-overlay" id="dailyOverlay"><div class="daily-modal" id="dailyModal"></div></div>
     <div class="modal-overlay" id="modalOverlay"><div class="modal" id="gameModal"></div></div>
 
@@ -317,6 +401,7 @@
                 allGames.forEach(g=>{if(data[g.id]!==undefined){g.homeScore=data[g.id].homeScore;g.awayScore=data[g.id].awayScore;}});
                 statusEl.textContent='🟢 Live Sync Connected';statusEl.className='sync-status';
                 renderAll();
+                renderBracket();
             },()=>{statusEl.textContent='🔴 Sync Error';statusEl.className='sync-status offline';renderAll();});
         }
 
@@ -327,12 +412,55 @@
                 if(!snapshot.exists()){const defaults={};allGroupGames.forEach(g=>{if(g.homeScore!==null||g.awayScore!==null)defaults[g.id]={homeScore:g.homeScore,awayScore:g.awayScore};});if(Object.keys(defaults).length>0)set(scoresRef,defaults);}
             });
         }
-        initializeDefaultScores();syncFromFirebase();
+        
+        function renderBracket() {
+            const container = document.getElementById('dynamicBracketTree');
+            if (!container) return;
+            const rounds = ['Round of 32', 'Round of 16', 'Quarter-finals', 'Semi-finals', 'Final', 'Third Place'];
+            let html = '';
+            rounds.forEach(rnd => {
+                const matches = allKoGames.filter(m => m.round === rnd);
+                if (matches.length === 0) return;
+                html += `<div class="bracket-round-col"><div class="round-label">${rnd}</div><div class="bracket-matches">`;
+                matches.forEach(m => {
+                    const hasScore = (m.homeScore !== null && m.awayScore !== null);
+                    const scoreText = hasScore ? `${m.homeScore} - ${m.awayScore}` : '—';
+                    html += `<div class="match-card" data-game-id="${m.id}">
+                                <div class="match-teams">
+                                    <span class="team-abbr">${m.home}</span>
+                                    <span class="match-score ${!hasScore ? 'pending' : ''}">${scoreText}</span>
+                                    <span class="team-abbr">${m.away}</span>
+                                </div>
+                                <div class="match-meta">${m.date.slice(5)}</div>
+                             </div>`;
+                });
+                html += `</div></div>`;
+            });
+            const finalMatch = allKoGames.find(g => g.round === 'Final');
+            let champHtml = '';
+            if (finalMatch && finalMatch.homeScore !== null && finalMatch.awayScore !== null) {
+                const champ = finalMatch.homeScore > finalMatch.awayScore ? finalMatch.home : finalMatch.away;
+                champHtml = `<div class="bracket-round-col champion-highlight"><div class="round-label">🏆 CHAMPION</div><div class="final-winner">⭐ ${champ} ⭐</div></div>`;
+            } else {
+                champHtml = `<div class="bracket-round-col"><div class="round-label">🏆 CHAMPION</div><div class="final-winner">TBD</div></div>`;
+            }
+            container.innerHTML = html + champHtml;
+            document.querySelectorAll('#dynamicBracketTree .match-card').forEach(el => {
+                el.addEventListener('click', (e) => { e.stopPropagation(); openGameModal(el.dataset.gameId); });
+            });
+        }
 
         function renderCalendar(){
             const strip=document.getElementById('calendarStrip'),dates=new Set(allGames.map(g=>g.date));
             const s=new Date(2026,5,11),e=new Date(2026,6,19),m=['Jun','Jul'];let h='';const c=new Date(s);
-            while(c<=e){const ds=c.toISOString().split('T')[0];h+=`<div class="cal-day${dates.has(ds)?' has-games':''}${selectedDate===ds?' selected':''}${ds==='2026-06-13'?' today':''}" data-date="${ds}"><span style="font-size:.48em;">${m[c.getMonth()-5]}</span><span class="day-num">${c.getDate()}</span></div>`;c.setDate(c.getDate()+1);}
+            const today = new Date();
+            const todayStr = today.toISOString().split('T')[0];
+            while(c<=e){
+                const ds=c.toISOString().split('T')[0];
+                const isToday = (ds === todayStr);
+                h+=`<div class="cal-day${dates.has(ds)?' has-games':''}${selectedDate===ds?' selected':''}${isToday?' today':''}" data-date="${ds}"><span class="month-text">${m[c.getMonth()-5]}</span><span class="day-num">${c.getDate()}</span></div>`;
+                c.setDate(c.getDate()+1);
+            }
             strip.innerHTML=h;
             strip.querySelectorAll('.cal-day').forEach(el=>el.addEventListener('click',()=>{const d=el.dataset.date;if(selectedDate===d){selectedDate=null;renderCalendar();renderAll();document.getElementById('dailyOverlay').classList.remove('open');}else{selectedDate=d;renderCalendar();renderAll();openDailyModal(d);}}));
         }
@@ -343,8 +471,33 @@
             const dn=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],mn=['January','February','March','April','May','June','July'];
             let h=`<h3>📅 ${dn[dateObj.getUTCDay()]}, ${mn[dateObj.getUTCMonth()]} ${dateObj.getUTCDate()}, 2026</h3><div class="daily-date">${dayGames.length} match${dayGames.length!==1?'es':''}</div>`;
             if(dayGames.length===0)h+=`<div class="daily-empty">No matches today.</div>`;
-            else dayGames.forEach(game=>{const sc=game.homeScore!==null&&game.awayScore!==null,hp=peopleMap[game.home]||'',ap=peopleMap[game.away]||'',hc=playerColors[hp]||'#6c3bd4',ac=playerColors[ap]||'#6c3bd4';h+=`<div class="daily-game-card" data-game-id="${game.id}"><div class="match-info"><div class="teams-line">${game.home} vs ${game.away}</div><div class="details-line">${game.round==='group'?'Group '+game.group:game.round} · ${game.stadium}</div><div class="details-line">🕐 ${game.time} (${game.pst})</div><div class="player-line"><span style="color:${hc}">👤 ${hp||'—'}</span> vs <span style="color:${ac}">👤 ${ap||'—'}</span></div></div><div class="score-badge${!sc?' pending':''}">${sc?game.homeScore+' - '+game.awayScore:'vs'}</div></div>`;});
-            h+=`<button class="daily-close-btn" id="dailyCloseBtn">✕ Close</button>`;modal.innerHTML=h;overlay.classList.add('open');
+            else dayGames.forEach(game=>{
+                const sc=game.homeScore!==null&&game.awayScore!==null;
+                const hp=peopleMap[game.home]||'',ap=peopleMap[game.away]||'';
+                const hc=playerColors[hp]||'#6c3bd4',ac=playerColors[ap]||'#6c3bd4';
+                // Determine group display text
+                let groupDisplay = '';
+                if (game.round === 'group') {
+                    groupDisplay = `<span class="group-badge">Group ${game.group}</span>`;
+                } else {
+                    groupDisplay = `<span class="group-badge" style="background:#6c757d;">${game.round}</span>`;
+                }
+                h+=`<div class="daily-game-card" data-game-id="${game.id}">
+                        <div class="match-info">
+                            <div class="teams-line">
+                                ${game.home} vs ${game.away}
+                                ${groupDisplay}
+                            </div>
+                            <div class="details-line">${game.stadium}</div>
+                            <div class="details-line">🕐 ${game.time} (${game.pst})</div>
+                            <div class="player-line"><span style="color:${hc}">👤 ${hp||'—'}</span> vs <span style="color:${ac}">👤 ${ap||'—'}</span></div>
+                        </div>
+                        <div class="score-badge${!sc?' pending':''}">${sc?game.homeScore+' - '+game.awayScore:'vs'}</div>
+                    </div>`;
+            });
+            h+=`<button class="daily-close-btn" id="dailyCloseBtn">✕ Close</button>`;
+            modal.innerHTML=h;
+            overlay.classList.add('open');
             document.getElementById('dailyCloseBtn').addEventListener('click',()=>overlay.classList.remove('open'));
             modal.querySelectorAll('.daily-game-card').forEach(c=>c.addEventListener('click',()=>{overlay.classList.remove('open');openGameModal(c.dataset.gameId);}));
         }
@@ -373,8 +526,8 @@
             const game=allGames.find(g=>g.id===gameId);if(!game)return;const overlay=document.getElementById('modalOverlay'),modal=document.getElementById('gameModal'),hs=game.homeScore!==null?game.homeScore:'',as=game.awayScore!==null?game.awayScore:'',hp=peopleMap[game.home]||'',ap=peopleMap[game.away]||'',hc=playerColors[hp]||'#6c3bd4',ac=playerColors[ap]||'#6c3bd4';
             modal.innerHTML=`<h3>${game.round==='group'?'Group '+game.group+' · ':''}${game.home} vs ${game.away}</h3><div class="modal-date">📅 ${game.date} | 🏟 ${game.stadium} | 🕐 ${game.time} (${game.pst})</div><div class="matchup"><div class="team-block"><div style="font-size:2em;">⚽</div><div class="country">${game.home}</div><div class="owner" style="color:${hc}">${hp||'—'}</div></div><div class="vs">VS</div><div class="team-block"><div style="font-size:2em;">⚽</div><div class="country">${game.away}</div><div class="owner" style="color:${ac}">${ap||'—'}</div></div></div><div class="score-inputs"><input type="number" id="modalHomeScore" value="${hs}" placeholder="-" min="0" max="99"><span>—</span><input type="number" id="modalAwayScore" value="${as}" placeholder="-" min="0" max="99"></div><div class="btn-row"><button class="btn btn-save" id="modalSave">💾 Save</button><button class="btn btn-reset" id="modalReset">Clear</button><button class="btn btn-close" id="modalClose">Close</button></div>`;
             overlay.classList.add('open');
-            document.getElementById('modalSave').addEventListener('click',()=>{const hv=document.getElementById('modalHomeScore').value,av=document.getElementById('modalAwayScore').value;if(hv!==''&&av!==''&&!isNaN(hv)&&!isNaN(av)){game.homeScore=parseInt(hv);game.awayScore=parseInt(av);}else if(hv===''&&av===''){game.homeScore=null;game.awayScore=null;}saveToFirebase(game.id,game.homeScore,game.awayScore);overlay.classList.remove('open');});
-            document.getElementById('modalReset').addEventListener('click',()=>{game.homeScore=null;game.awayScore=null;saveToFirebase(game.id,null,null);overlay.classList.remove('open');});
+            document.getElementById('modalSave').addEventListener('click',()=>{const hv=document.getElementById('modalHomeScore').value,av=document.getElementById('modalAwayScore').value;if(hv!==''&&av!==''&&!isNaN(hv)&&!isNaN(av)){game.homeScore=parseInt(hv);game.awayScore=parseInt(av);}else if(hv===''&&av===''){game.homeScore=null;game.awayScore=null;}saveToFirebase(game.id,game.homeScore,game.awayScore);overlay.classList.remove('open');renderBracket();});
+            document.getElementById('modalReset').addEventListener('click',()=>{game.homeScore=null;game.awayScore=null;saveToFirebase(game.id,null,null);overlay.classList.remove('open');renderBracket();});
             document.getElementById('modalClose').addEventListener('click',()=>overlay.classList.remove('open'));
         }
         document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
@@ -392,12 +545,14 @@
             if(selectedDate)document.getElementById('clearFilter').addEventListener('click',()=>{selectedDate=null;renderCalendar();renderAll();document.getElementById('dailyOverlay').classList.remove('open');});
             if(currentView==='groups')renderGroups();else if(currentView==='thirdplace')renderThirdPlace();else renderKnockout();
             renderLegend();
+            renderBracket();
         }
 
         document.querySelectorAll('.tab-btn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');currentView=btn.dataset.view;document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('view-'+currentView).classList.add('active');renderAll();});});
 
         const legendContainer=document.createElement('div');legendContainer.id='playerLegend';document.querySelector('.content').appendChild(legendContainer);
 
+        initializeDefaultScores();syncFromFirebase();
         renderCalendar();renderAll();
     </script>
 </body>
