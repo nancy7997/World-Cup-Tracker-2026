@@ -311,7 +311,7 @@
             {id:'G55',group:'E',home:'Curaçao',away:'Ivory Coast',date:'2026-06-25',time:'4:00 PM ET',pst:'1:00 PM PST',stadium:'Lincoln Financial Field, Philadelphia',homeScore:null,awayScore:null},
             {id:'G56',group:'E',home:'Ecuador',away:'Germany',date:'2026-06-25',time:'4:00 PM ET',pst:'1:00 PM PST',stadium:'MetLife Stadium, East Rutherford',homeScore:null,awayScore:null},
             {id:'G11',group:'F',home:'Netherlands',away:'Japan',date:'2026-06-14',time:'3:00 PM CT',pst:'1:00 PM PST',stadium:'AT&T Stadium, Arlington',homeScore:null,awayScore:null},
-            {id:'G12',group:'F',home:'Sweden',away:'Tunisia',date:'2026-06-14',time:'7:00 PM PT',pst:'7:00 PM PST',stadium:'Estadio BBVA, Guadalupe',homeScore:null,awayScore:null},
+            {id:'G12',group:'F',home:'Sweden',away:'Tunisia',date:'2026-06-14',time:'8:00 PM CT',pst:'6:00 PM PST',stadium:'Estadio BBVA, Guadalupe',homeScore:null,awayScore:null},
             {id:'G35',group:'F',home:'Netherlands',away:'Sweden',date:'2026-06-20',time:'12:00 PM CT',pst:'10:00 AM PST',stadium:'NRG Stadium, Houston',homeScore:null,awayScore:null},
             {id:'G36',group:'F',home:'Tunisia',away:'Japan',date:'2026-06-20',time:'10:00 PM CT',pst:'8:00 PM PST',stadium:'Estadio BBVA, Guadalupe',homeScore:null,awayScore:null},
             {id:'G57',group:'F',home:'Japan',away:'Sweden',date:'2026-06-25',time:'6:00 PM CT',pst:'4:00 PM PST',stadium:'AT&T Stadium, Arlington',homeScore:null,awayScore:null},
@@ -475,6 +475,7 @@
                 const sc=game.homeScore!==null&&game.awayScore!==null;
                 const hp=peopleMap[game.home]||'',ap=peopleMap[game.away]||'';
                 const hc=playerColors[hp]||'#6c3bd4',ac=playerColors[ap]||'#6c3bd4';
+                // Determine group display text
                 let groupDisplay = '';
                 if (game.round === 'group') {
                     groupDisplay = `<span class="group-badge">Group ${game.group}</span>`;
@@ -512,7 +513,7 @@
 
         function renderGroups(){
             const grid=document.getElementById('groupsGrid'),filtered=allGames.filter(g=>g.date===selectedDate&&g.round==='group'||!selectedDate&&g.round==='group'),fIds=new Set(filtered.map(g=>g.id));let h='';
-            Object.keys(GROUPS).sort().forEach(gid=>{const st=calculateStandings(gid),games=allGroupGames.filter(g=>g.group===gid);h+=`<div class="group-card"><h3>🏴 Group ${gid}</h3><table class="group-standings"><thead><tr><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr></thead><tbody>`;st.forEach(s=>{const c=playerColors[s.person]||'#6c3bd4';h+=`<tr><td>${s.team}<span class="player-name" style="color:${c}">${s.person}</span></td><td>${s.gp}</td><td>${s.w}</td><td>${s.d}</td><td>${s.l}</td><td>${s.gf}</td><td>${s.ga}</td><td>${s.gd>=0?'+':''}${s.gd}</td><td class="pts">${s.pts}</td></tr>`;});h+=`</tbody><td><div class="group-games">`;
+            Object.keys(GROUPS).sort().forEach(gid=>{const st=calculateStandings(gid),games=allGroupGames.filter(g=>g.group===gid);h+=`<div class="group-card"><h3>🏴 Group ${gid}</h3><table class="group-standings"><thead><tr><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr></thead><tbody>`;st.forEach(s=>{const c=playerColors[s.person]||'#6c3bd4';h+=`<tr><td>${s.team}<span class="player-name" style="color:${c}">${s.person}</span></td><td>${s.gp}</td><td>${s.w}</td><td>${s.d}</td><td>${s.l}</td><td>${s.gf}</td><td>${s.ga}</td><td>${s.gd>=0?'+':''}${s.gd}</td><td class="pts">${s.pts}</td></tr>`;});h+=`</tbody></table><div class="group-games">`;
             games.forEach(g=>{const hi=fIds.has(g.id)||!selectedDate,sc=g.homeScore!==null&&g.awayScore!==null,hp=peopleMap[g.home]||'',ap=peopleMap[g.away]||'',hc=playerColors[hp]||'#6c3bd4',ac=playerColors[ap]||'#6c3bd4';h+=`<div class="game-row" data-game-id="${g.id}" style="${hi&&selectedDate?'background:#fff8e1;':''}"><span class="teams"><strong>${g.home}</strong> <span class="player-inline" style="color:${hc}">(${hp||'—'})</span> — <strong>${g.away}</strong> <span class="player-inline" style="color:${ac}">(${ap||'—'})</span><br><span style="font-size:.55em;color:#adb5bd;">${g.stadium} · ${g.time} (${g.pst})</span></span><span class="${sc?'score':'score pending'}">${sc?g.homeScore+' - '+g.awayScore:'vs'}</span><span class="date-sm">${g.date.slice(5)}</span></div>`;});h+=`</div></div>`;});
             grid.innerHTML=h;grid.querySelectorAll('.game-row').forEach(r=>r.addEventListener('click',()=>openGameModal(r.dataset.gameId)));
         }
