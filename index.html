@@ -105,10 +105,11 @@
         .btn-reset{background:#fff;color:#dc3545;border:1px solid #dc3545;font-size:.7em;padding:5px 12px;}
         .filter-info{text-align:center;padding:6px;color:#6c757d;font-size:.8em;}
         .clear-filter{cursor:pointer;text-decoration:underline;color:#0d6efd;margin-left:4px;}
-        .legend-section{background:#fff;border:2px solid #dee2e6;border-radius:12px;padding:16px;margin:20px 0 10px;box-shadow:var(--shadow);}
+        .legend-section{background:#fff;border:2px solid #dee2e6;border-radius:12px;padding:16px;margin:10px 12px 10px;box-shadow:var(--shadow);}
         .legend-section h3{color:#1a1a2e;margin-bottom:12px;font-size:.9em;text-align:center;}
         .legend-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;}
-        .legend-player{border:1px solid #e9ecef;border-radius:8px;padding:10px 12px;background:#fafafa;}
+        .legend-player{border:1px solid #e9ecef;border-radius:8px;padding:10px 12px;background:#fafafa;cursor:pointer;transition:all .15s;}
+        .legend-player:hover{border-color:var(--accent);background:#fff8e1;transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,0.05);}
         .legend-player .legend-name{font-weight:700;font-size:.85em;margin-bottom:4px;}
         .legend-player .legend-teams{font-size:.7em;color:#6c757d;line-height:1.4;}
         .legend-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;}
@@ -194,8 +195,12 @@
         <div class="subtitle">12 Groups · 48 Teams · 104 Matches | June 11 – July 19, 2026</div>
         <div class="sync-status" id="syncStatus">🟢 Live Sync Connected</div>
     </header>
+    
     <div class="calendar-wrap"><div class="calendar-strip" id="calendarStrip"></div></div>
     <div style="text-align:center;padding:4px;" id="filterBanner"></div>
+    
+    <div id="playerLegend"></div>
+
     <div class="tabs">
         <button class="tab-btn active" data-view="groups">📋 Groups</button>
         <button class="tab-btn" data-view="thirdplace">📊 3rd Place</button>
@@ -217,6 +222,7 @@
 
     <div class="daily-overlay" id="dailyOverlay"><div class="daily-modal" id="dailyModal"></div></div>
     <div class="modal-overlay" id="modalOverlay"><div class="modal" id="gameModal"></div></div>
+    <div class="modal-overlay" id="playerOverlay"><div class="modal" id="playerModal"></div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
@@ -278,6 +284,19 @@
             return legend;
         }
         const legendData=buildLegendData();
+
+        // Helper Function: Parses PST time string into sortable minutes
+        function parsePST(timeStr) {
+            if (!timeStr) return 0;
+            const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+            if (!match) return 0;
+            let hrs = parseInt(match[1], 10);
+            const mins = parseInt(match[2], 10);
+            const ampm = match[3].toUpperCase();
+            if (ampm === 'PM' && hrs !== 12) hrs += 12;
+            if (ampm === 'AM' && hrs === 12) hrs = 0;
+            return (hrs * 60) + mins;
+        }
 
         const allGroupGames=[
             {id:'G1',group:'A',home:'Mexico',away:'South Africa',date:'2026-06-11',time:'1:00 PM CT',pst:'11:00 AM PST',stadium:'Estadio Azteca, Mexico City',homeScore:2,awayScore:0},
@@ -467,7 +486,13 @@
 
         function openDailyModal(dateStr){
             const overlay=document.getElementById('dailyOverlay'),modal=document.getElementById('dailyModal');
-            const dayGames=allGames.filter(g=>g.date===dateStr),dateObj=new Date(dateStr+'T00:00:00');
+            
+            // Sort matches by their parsed PST start times
+            const dayGames = allGames
+                .filter(g => g.date === dateStr)
+                .sort((a, b) => parsePST(a.pst) - parsePST(b.pst));
+                
+            const dateObj=new Date(dateStr+'T00:00:00');
             const dn=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],mn=['January','February','March','April','May','June','July'];
             let h=`<h3>📅 ${dn[dateObj.getUTCDay()]}, ${mn[dateObj.getUTCMonth()]} ${dateObj.getUTCDate()}, 2026</h3><div class="daily-date">${dayGames.length} match${dayGames.length!==1?'es':''}</div>`;
             if(dayGames.length===0)h+=`<div class="daily-empty">No matches today.</div>`;
@@ -475,7 +500,6 @@
                 const sc=game.homeScore!==null&&game.awayScore!==null;
                 const hp=peopleMap[game.home]||'',ap=peopleMap[game.away]||'';
                 const hc=playerColors[hp]||'#6c3bd4',ac=playerColors[ap]||'#6c3bd4';
-                // Determine group display text
                 let groupDisplay = '';
                 if (game.round === 'group') {
                     groupDisplay = `<span class="group-badge">Group ${game.group}</span>`;
@@ -502,6 +526,71 @@
             modal.querySelectorAll('.daily-game-card').forEach(c=>c.addEventListener('click',()=>{overlay.classList.remove('open');openGameModal(c.dataset.gameId);}));
         }
         document.getElementById('dailyOverlay').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
+
+        // Open Player Stats Modal
+        function openPlayerModal(playerName) {
+            const overlay = document.getElementById('playerOverlay');
+            const modal = document.getElementById('playerModal');
+            let w = 0, l = 0, d = 0;
+            
+            // Find games where this player owns either the home or away team
+            const playerGames = allGames.filter(g => {
+                const isHome = peopleMap[g.home] === playerName;
+                const isAway = peopleMap[g.away] === playerName;
+                
+                // Only count played games towards W/L/D tally
+                if (g.homeScore !== null && g.awayScore !== null && (isHome || isAway)) {
+                    if (g.homeScore === g.awayScore) { d++; } 
+                    else if (isHome && g.homeScore > g.awayScore) { w++; } 
+                    else if (isAway && g.awayScore > g.homeScore) { w++; } 
+                    else { l++; }
+                }
+                return isHome || isAway;
+            });
+            
+            // Sort player games chronologically (by date, then time)
+            playerGames.sort((a,b) => {
+                if(a.date !== b.date) return a.date.localeCompare(b.date);
+                return parsePST(a.pst) - parsePST(b.pst);
+            });
+            
+            let h = `<h3>👤 ${playerName}'s Dashboard</h3>
+                     <div style="text-align:center; margin: 12px 0;">
+                        <span style="font-size: 1.2em; padding: 0 10px; font-weight: bold; color: var(--win);">W: ${w}</span>
+                        <span style="font-size: 1.2em; padding: 0 10px; font-weight: bold; color: var(--loss);">L: ${l}</span>
+                        <span style="font-size: 1.2em; padding: 0 10px; font-weight: bold; color: var(--draw);">D: ${d}</span>
+                     </div>
+                     <div style="max-height: 55vh; overflow-y: auto; border-top: 1px solid #e9ecef; padding-top: 10px;">`;
+                     
+            if(playerGames.length === 0) h+= `<p style="text-align:center; font-size:0.8em; color: #6c757d;">No games found.</p>`;
+            
+            playerGames.forEach(g => {
+                const sc = g.homeScore !== null && g.awayScore !== null;
+                const hp = peopleMap[g.home] || '';
+                const ap = peopleMap[g.away] || '';
+                const hColor = hp === playerName ? 'font-weight:900;text-decoration:underline;' : 'color:#6c757d;';
+                const aColor = ap === playerName ? 'font-weight:900;text-decoration:underline;' : 'color:#6c757d;';
+                
+                h += `<div class="daily-game-card" style="cursor:default;">
+                        <div class="match-info">
+                            <div class="teams-line">${g.home} vs ${g.away}</div>
+                            <div class="details-line">📅 ${g.date} | 🕐 ${g.time} (${g.pst})</div>
+                            <div class="player-line">
+                                <span style="${hColor}">${hp || '—'}</span> vs 
+                                <span style="${aColor}">${ap || '—'}</span>
+                            </div>
+                        </div>
+                        <div class="score-badge${!sc?' pending':''}">${sc ? g.homeScore + ' - ' + g.awayScore : 'vs'}</div>
+                      </div>`;
+            });
+            
+            h += `</div><button class="daily-close-btn" id="playerCloseBtn">✕ Close Dashboard</button>`;
+            
+            modal.innerHTML = h;
+            overlay.classList.add('open');
+            document.getElementById('playerCloseBtn').addEventListener('click', () => overlay.classList.remove('open'));
+        }
+        document.getElementById('playerOverlay').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
 
         function calculateStandings(gid){
             const teams=GROUPS[gid],stats={};teams.forEach(t=>{stats[t]={team:t,person:peopleMap[t]||'',gp:0,w:0,d:0,l:0,gf:0,ga:0,gd:0,pts:0};});
@@ -536,8 +625,20 @@
             const legendEl=document.getElementById('playerLegend');if(!legendEl)return;
             const order=['Moni','Grampa','Grama','Anthony','Nancy','Irma','Mari','Michael'];
             let h=`<div class="legend-section"><h3>👥 Player Legend</h3><div class="legend-grid">`;
-            order.forEach(person=>{if(legendData[person]){const c=legendData[person].color;h+=`<div class="legend-player"><div class="legend-name"><span class="legend-dot" style="background:${c}"></span>${person}</div><div class="legend-teams">${legendData[person].teams.join(', ')}</div></div>`;}});
-            h+=`</div></div>`;legendEl.innerHTML=h;
+            order.forEach(person=>{
+                if(legendData[person]){
+                    const c=legendData[person].color;
+                    // Add data attribute for the click listener
+                    h+=`<div class="legend-player" data-player="${person}"><div class="legend-name"><span class="legend-dot" style="background:${c}"></span>${person}</div><div class="legend-teams">${legendData[person].teams.join(', ')}</div></div>`;
+                }
+            });
+            h+=`</div></div>`;
+            legendEl.innerHTML=h;
+            
+            // Attach click listeners to player cards
+            legendEl.querySelectorAll('.legend-player').forEach(el => {
+                el.addEventListener('click', () => openPlayerModal(el.dataset.player));
+            });
         }
 
         function renderAll(){
@@ -549,8 +650,6 @@
         }
 
         document.querySelectorAll('.tab-btn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');currentView=btn.dataset.view;document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('view-'+currentView).classList.add('active');renderAll();});});
-
-        const legendContainer=document.createElement('div');legendContainer.id='playerLegend';document.querySelector('.content').appendChild(legendContainer);
 
         initializeDefaultScores();syncFromFirebase();
         renderCalendar();renderAll();
