@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>⚽ 2026 FIFA World Cup Tracker · Live Sync + Bracket</title>
     <style>
         :root {
@@ -22,13 +22,14 @@
         .sync-status.offline{color:#f87171;}
         .calendar-wrap{background:#fff;border-bottom:1px solid var(--border);padding:6px 0;position:sticky;top:68px;z-index:99;overflow-x:auto;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,0.05);}
         .calendar-strip{display:flex;gap:3px;padding:0 10px;min-width:fit-content;}
-        .cal-day{flex:0 0 48px;height:54px;border-radius:8px;background:#f8f9fa;border:1px solid #dee2e6;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.85em;transition:all .15s;color:#495057;}
+        .cal-day{flex:0 0 52px;height:62px;border-radius:8px;background:#f8f9fa;border:1px solid #dee2e6;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:all .15s;color:#495057;padding:4px 0;}
         .cal-day:hover{border-color:var(--accent);background:#fff8e1;}
         .cal-day.has-games{border-color:var(--accent);background:#fff8e1;font-weight:600;}
         .cal-day.selected{background:var(--accent);color:#fff;font-weight:bold;border-color:var(--accent2);}
-        .cal-day.today{border:3px solid #e63946;background:#fff0f0;box-shadow:0 0 8px rgba(230,57,70,0.4);}
-        .cal-day .day-num{font-size:1.3em;font-weight:700;}
-        .cal-day .month-text{font-size:.7em;font-weight:500;}
+        .cal-day.today{border:2px solid #e63946;background:#fff0f0;box-shadow:0 0 6px rgba(230,57,70,0.3);}
+        .cal-day .month-text{font-size:.7em;font-weight:500;margin-bottom:2px;}
+        .cal-day .day-num{font-size:1.1em;font-weight:700;line-height:1;}
+        .cal-day .weekday-text{font-size:.55em;font-weight:400;margin-top:3px;text-transform:uppercase;}
         .tabs{display:flex;gap:3px;padding:0 12px;margin:10px 0;flex-wrap:wrap;}
         .tab-btn{padding:8px 14px;border:1px solid #dee2e6;background:#f8f9fa;color:#495057;cursor:pointer;font-size:.8em;font-weight:600;border-radius:8px 8px 0 0;transition:all .15s;}
         .tab-btn.active{background:var(--accent);color:#fff;border-color:var(--accent2);}
@@ -36,25 +37,32 @@
         .content{padding:6px 12px 20px;max-width:1400px;margin:0 auto;}
         .view{display:none;}
         .view.active{display:block;}
-        .groups-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px;}
-        .group-card{background:#fff;border:1px solid #dee2e6;border-radius:10px;overflow:hidden;box-shadow:var(--shadow);}
-        .group-card h3{background:#f8f9fa;padding:8px 12px;font-size:.85em;color:#1a1a2e;border-bottom:2px solid var(--accent);font-weight:700;}
-        .group-standings{width:100%;border-collapse:collapse;font-size:.72em;}
-        .group-standings th{background:#f1f3f5;padding:5px 2px;text-align:center;font-size:.68em;color:#6c757d;font-weight:600;border-bottom:1px solid #dee2e6;}
+        /* FIX: Horizontal grid layout for group cards - side by side, as many as fit */
+        .groups-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+            align-items: start;
+        }
+        .group-card{background:#fff;border:1px solid #dee2e6;border-radius:12px;overflow:hidden;box-shadow:var(--shadow);}
+        .group-card h3{background:#f8f9fa;padding:8px 12px;font-size:.9em;color:#1a1a2e;border-bottom:2px solid var(--accent);font-weight:700;}
+        .group-standings{width:100%;border-collapse:collapse;font-size:.75em;}
+        .group-standings th{background:#f1f3f5;padding:5px 2px;text-align:center;font-size:.7em;color:#6c757d;font-weight:600;border-bottom:1px solid #dee2e6;}
         .group-standings th:first-child{text-align:left;padding-left:8px;}
-        .group-standings td{padding:5px 2px;text-align:center;border-bottom:1px solid #f1f3f5;color:#495057;}
+        .group-standings td{padding:5px 2px;text-align:center;border-bottom:1px solid #f1f3f5;color:#495057;font-size:.8em;}
         .group-standings td:first-child{text-align:left;padding-left:8px;font-weight:600;color:#212529;}
-        .player-name{font-size:.75em;font-weight:700;color:#6c3bd4;display:block;}
+        .player-name{font-size:.8em;font-weight:700;color:#6c3bd4;display:block;}
         .group-standings .pts{font-weight:700;color:var(--accent2);}
         .group-standings tr:hover td{background:#fff8e1;}
-        .group-games{padding:4px 8px 8px;border-top:1px solid #e9ecef;}
-        .game-row{display:flex;align-items:center;justify-content:space-between;padding:5px 3px;cursor:pointer;border-radius:4px;font-size:.7em;gap:4px;transition:all .1s;}
+        .group-games{padding:6px 8px 10px;border-top:1px solid #e9ecef;}
+        .game-row{display:flex;align-items:center;justify-content:space-between;padding:8px 5px;cursor:pointer;border-radius:6px;font-size:.85em;gap:6px;transition:all .1s;}
         .game-row:hover{background:#f8f9fa;border-left:3px solid var(--accent);}
-        .game-row .teams{flex:1;min-width:0;}
-        .game-row .player-inline{font-size:.75em;font-weight:700;}
-        .game-row .score{font-weight:700;min-width:32px;text-align:center;color:var(--accent2);}
-        .game-row .score.pending{color:#adb5bd;font-weight:400;font-size:.62em;}
-        .game-row .date-sm{font-size:.58em;color:#adb5bd;min-width:34px;text-align:right;}
+        .game-row .teams{flex:1;min-width:0;font-size:.9em;}
+        .game-row .player-inline{font-size:.85em;font-weight:700;}
+        .game-row .score{font-weight:700;min-width:40px;text-align:center;color:var(--accent2);font-size:1em;}
+        .game-row .score.pending{color:#adb5bd;font-weight:400;font-size:.8em;}
+        .game-row .date-sm{font-size:.7em;color:#adb5bd;min-width:38px;text-align:right;}
+        .game-row .teams br+span{font-size:.7em;color:#6c757d;display:block;margin-top:2px;}
         .daily-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:150;justify-content:center;align-items:center;padding:16px;}
         .daily-overlay.open{display:flex;}
         .daily-modal{background:#fff;border-radius:14px;padding:18px;max-width:580px;width:100%;max-height:82vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.2);}
@@ -80,7 +88,7 @@
         .ko-round{margin-bottom:14px;background:#fff;border-radius:8px;border:1px solid #dee2e6;overflow:hidden;box-shadow:var(--shadow);}
         .ko-round h3{background:#f8f9fa;padding:8px 12px;font-size:.85em;color:#1a1a2e;border-bottom:2px solid var(--accent);}
         .ko-games{padding:6px 10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:4px;}
-        .ko-game{display:flex;align-items:center;justify-content:space-between;padding:8px;cursor:pointer;border-radius:6px;background:#f8f9fa;border:1px solid #e9ecef;font-size:.72em;}
+        .ko-game{display:flex;align-items:center;justify-content:space-between;padding:8px;cursor:pointer;border-radius:6px;background:#f8f9fa;border:1px solid #e9ecef;font-size:.75em;}
         .ko-game:hover{border-color:var(--accent);background:#fff8e1;}
         .ko-game .ko-score{font-weight:700;color:var(--accent2);}
         .ko-game .ko-score.pending{color:#adb5bd;font-weight:400;}
@@ -107,7 +115,7 @@
         .clear-filter{cursor:pointer;text-decoration:underline;color:#0d6efd;margin-left:4px;}
         .legend-section{background:#fff;border:2px solid #dee2e6;border-radius:12px;padding:16px;margin:10px 12px 10px;box-shadow:var(--shadow);}
         .legend-section h3{color:#1a1a2e;margin-bottom:12px;font-size:.9em;text-align:center;}
-        .legend-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;}
+        .legend-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));gap:12px;}
         .legend-player{border:1px solid #e9ecef;border-radius:8px;padding:10px 12px;background:#fafafa;cursor:pointer;transition:all .15s;}
         .legend-player:hover{border-color:var(--accent);background:#fff8e1;transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,0.05);}
         .legend-player .legend-name{font-weight:700;font-size:.85em;margin-bottom:4px;}
@@ -186,7 +194,24 @@
         .champion-highlight { background: radial-gradient(circle at 30% 10%, #fff3cf, #ffe9b6); border: 2px solid #f5c542; }
         .final-winner { background: #d4af37; color: #1e2a2e; font-weight: bold; text-align: center; padding: 12px; border-radius: 60px; margin-top: 12px; font-size: 0.85rem; }
         
-        @media(max-width:768px){.groups-grid{grid-template-columns:1fr;}.ko-games{grid-template-columns:1fr;}.legend-grid{grid-template-columns:1fr;}}
+        @media (max-width: 720px) {
+            .groups-grid {
+                grid-template-columns: 1fr;
+            }
+            .legend-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        @media (min-width: 721px) and (max-width: 1080px) {
+            .groups-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (min-width: 1081px) {
+            .groups-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
     </style>
 </head>
 <body>
@@ -285,7 +310,7 @@
         }
         const legendData=buildLegendData();
 
-        // Helper Function: Parses PST time string into sortable minutes
+        // Helper: parse PST time string to minutes for sorting
         function parsePST(timeStr) {
             if (!timeStr) return 0;
             const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
@@ -330,7 +355,7 @@
             {id:'G55',group:'E',home:'Curaçao',away:'Ivory Coast',date:'2026-06-25',time:'4:00 PM ET',pst:'1:00 PM PST',stadium:'Lincoln Financial Field, Philadelphia',homeScore:null,awayScore:null},
             {id:'G56',group:'E',home:'Ecuador',away:'Germany',date:'2026-06-25',time:'4:00 PM ET',pst:'1:00 PM PST',stadium:'MetLife Stadium, East Rutherford',homeScore:null,awayScore:null},
             {id:'G11',group:'F',home:'Netherlands',away:'Japan',date:'2026-06-14',time:'3:00 PM CT',pst:'1:00 PM PST',stadium:'AT&T Stadium, Arlington',homeScore:null,awayScore:null},
-            {id:'G12',group:'F',home:'Sweden',away:'Tunisia',date:'2026-06-14',time:'8:00 PM CT',pst:'6:00 PM PST',stadium:'Estadio BBVA, Guadalupe',homeScore:null,awayScore:null},
+            {id:'G12',group:'F',home:'Sweden',away:'Tunisia',date:'2026-06-14',time:'7:00 PM PT',pst:'7:00 PM PST',stadium:'Estadio BBVA, Guadalupe',homeScore:null,awayScore:null},
             {id:'G35',group:'F',home:'Netherlands',away:'Sweden',date:'2026-06-20',time:'12:00 PM CT',pst:'10:00 AM PST',stadium:'NRG Stadium, Houston',homeScore:null,awayScore:null},
             {id:'G36',group:'F',home:'Tunisia',away:'Japan',date:'2026-06-20',time:'10:00 PM CT',pst:'8:00 PM PST',stadium:'Estadio BBVA, Guadalupe',homeScore:null,awayScore:null},
             {id:'G57',group:'F',home:'Japan',away:'Sweden',date:'2026-06-25',time:'6:00 PM CT',pst:'4:00 PM PST',stadium:'AT&T Stadium, Arlington',homeScore:null,awayScore:null},
@@ -469,15 +494,30 @@
             });
         }
 
+        // Get today's date in PST (Pacific Time)
+        function getTodayPST() {
+            const now = new Date();
+            const formatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles', year: 'numeric', month: '2-digit', day: '2-digit' });
+            return formatter.format(now); // returns YYYY-MM-DD
+        }
+
         function renderCalendar(){
-            const strip=document.getElementById('calendarStrip'),dates=new Set(allGames.map(g=>g.date));
-            const s=new Date(2026,5,11),e=new Date(2026,6,19),m=['Jun','Jul'];let h='';const c=new Date(s);
-            const today = new Date();
-            const todayStr = today.toISOString().split('T')[0];
+            const strip=document.getElementById('calendarStrip');
+            const dates=new Set(allGames.map(g=>g.date));
+            const s=new Date(2026,5,11),e=new Date(2026,6,19),m=['Jun','Jul'];
+            let h='';
+            const c=new Date(s);
+            const todayPST = getTodayPST(); // e.g., "2026-06-14"
+            const weekdays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
             while(c<=e){
                 const ds=c.toISOString().split('T')[0];
-                const isToday = (ds === todayStr);
-                h+=`<div class="cal-day${dates.has(ds)?' has-games':''}${selectedDate===ds?' selected':''}${isToday?' today':''}" data-date="${ds}"><span class="month-text">${m[c.getMonth()-5]}</span><span class="day-num">${c.getDate()}</span></div>`;
+                const isToday = (ds === todayPST);
+                const weekdayAbbr = weekdays[c.getUTCDay()];
+                h+=`<div class="cal-day${dates.has(ds)?' has-games':''}${selectedDate===ds?' selected':''}${isToday?' today':''}" data-date="${ds}">
+                        <div class="month-text">${m[c.getMonth()-5]}</div>
+                        <div class="day-num">${c.getDate()}</div>
+                        <div class="weekday-text">${weekdayAbbr}</div>
+                    </div>`;
                 c.setDate(c.getDate()+1);
             }
             strip.innerHTML=h;
@@ -486,12 +526,7 @@
 
         function openDailyModal(dateStr){
             const overlay=document.getElementById('dailyOverlay'),modal=document.getElementById('dailyModal');
-            
-            // Sort matches by their parsed PST start times
-            const dayGames = allGames
-                .filter(g => g.date === dateStr)
-                .sort((a, b) => parsePST(a.pst) - parsePST(b.pst));
-                
+            const dayGames = allGames.filter(g => g.date === dateStr).sort((a,b) => parsePST(a.pst) - parsePST(b.pst));
             const dateObj=new Date(dateStr+'T00:00:00');
             const dn=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],mn=['January','February','March','April','May','June','July'];
             let h=`<h3>📅 ${dn[dateObj.getUTCDay()]}, ${mn[dateObj.getUTCMonth()]} ${dateObj.getUTCDate()}, 2026</h3><div class="daily-date">${dayGames.length} match${dayGames.length!==1?'es':''}</div>`;
@@ -527,18 +562,13 @@
         }
         document.getElementById('dailyOverlay').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
 
-        // Open Player Stats Modal
         function openPlayerModal(playerName) {
             const overlay = document.getElementById('playerOverlay');
             const modal = document.getElementById('playerModal');
             let w = 0, l = 0, d = 0;
-            
-            // Find games where this player owns either the home or away team
             const playerGames = allGames.filter(g => {
                 const isHome = peopleMap[g.home] === playerName;
                 const isAway = peopleMap[g.away] === playerName;
-                
-                // Only count played games towards W/L/D tally
                 if (g.homeScore !== null && g.awayScore !== null && (isHome || isAway)) {
                     if (g.homeScore === g.awayScore) { d++; } 
                     else if (isHome && g.homeScore > g.awayScore) { w++; } 
@@ -547,13 +577,10 @@
                 }
                 return isHome || isAway;
             });
-            
-            // Sort player games chronologically (by date, then time)
             playerGames.sort((a,b) => {
                 if(a.date !== b.date) return a.date.localeCompare(b.date);
                 return parsePST(a.pst) - parsePST(b.pst);
             });
-            
             let h = `<h3>👤 ${playerName}'s Dashboard</h3>
                      <div style="text-align:center; margin: 12px 0;">
                         <span style="font-size: 1.2em; padding: 0 10px; font-weight: bold; color: var(--win);">W: ${w}</span>
@@ -561,16 +588,13 @@
                         <span style="font-size: 1.2em; padding: 0 10px; font-weight: bold; color: var(--draw);">D: ${d}</span>
                      </div>
                      <div style="max-height: 55vh; overflow-y: auto; border-top: 1px solid #e9ecef; padding-top: 10px;">`;
-                     
             if(playerGames.length === 0) h+= `<p style="text-align:center; font-size:0.8em; color: #6c757d;">No games found.</p>`;
-            
             playerGames.forEach(g => {
                 const sc = g.homeScore !== null && g.awayScore !== null;
                 const hp = peopleMap[g.home] || '';
                 const ap = peopleMap[g.away] || '';
                 const hColor = hp === playerName ? 'font-weight:900;text-decoration:underline;' : 'color:#6c757d;';
                 const aColor = ap === playerName ? 'font-weight:900;text-decoration:underline;' : 'color:#6c757d;';
-                
                 h += `<div class="daily-game-card" style="cursor:default;">
                         <div class="match-info">
                             <div class="teams-line">${g.home} vs ${g.away}</div>
@@ -583,9 +607,7 @@
                         <div class="score-badge${!sc?' pending':''}">${sc ? g.homeScore + ' - ' + g.awayScore : 'vs'}</div>
                       </div>`;
             });
-            
             h += `</div><button class="daily-close-btn" id="playerCloseBtn">✕ Close Dashboard</button>`;
-            
             modal.innerHTML = h;
             overlay.classList.add('open');
             document.getElementById('playerCloseBtn').addEventListener('click', () => overlay.classList.remove('open'));
@@ -603,7 +625,7 @@
         function renderGroups(){
             const grid=document.getElementById('groupsGrid'),filtered=allGames.filter(g=>g.date===selectedDate&&g.round==='group'||!selectedDate&&g.round==='group'),fIds=new Set(filtered.map(g=>g.id));let h='';
             Object.keys(GROUPS).sort().forEach(gid=>{const st=calculateStandings(gid),games=allGroupGames.filter(g=>g.group===gid);h+=`<div class="group-card"><h3>🏴 Group ${gid}</h3><table class="group-standings"><thead><tr><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr></thead><tbody>`;st.forEach(s=>{const c=playerColors[s.person]||'#6c3bd4';h+=`<tr><td>${s.team}<span class="player-name" style="color:${c}">${s.person}</span></td><td>${s.gp}</td><td>${s.w}</td><td>${s.d}</td><td>${s.l}</td><td>${s.gf}</td><td>${s.ga}</td><td>${s.gd>=0?'+':''}${s.gd}</td><td class="pts">${s.pts}</td></tr>`;});h+=`</tbody></table><div class="group-games">`;
-            games.forEach(g=>{const hi=fIds.has(g.id)||!selectedDate,sc=g.homeScore!==null&&g.awayScore!==null,hp=peopleMap[g.home]||'',ap=peopleMap[g.away]||'',hc=playerColors[hp]||'#6c3bd4',ac=playerColors[ap]||'#6c3bd4';h+=`<div class="game-row" data-game-id="${g.id}" style="${hi&&selectedDate?'background:#fff8e1;':''}"><span class="teams"><strong>${g.home}</strong> <span class="player-inline" style="color:${hc}">(${hp||'—'})</span> — <strong>${g.away}</strong> <span class="player-inline" style="color:${ac}">(${ap||'—'})</span><br><span style="font-size:.55em;color:#adb5bd;">${g.stadium} · ${g.time} (${g.pst})</span></span><span class="${sc?'score':'score pending'}">${sc?g.homeScore+' - '+g.awayScore:'vs'}</span><span class="date-sm">${g.date.slice(5)}</span></div>`;});h+=`</div></div>`;});
+            games.forEach(g=>{const hi=fIds.has(g.id)||!selectedDate,sc=g.homeScore!==null&&g.awayScore!==null,hp=peopleMap[g.home]||'',ap=peopleMap[g.away]||'',hc=playerColors[hp]||'#6c3bd4',ac=playerColors[ap]||'#6c3bd4';h+=`<div class="game-row" data-game-id="${g.id}" style="${hi&&selectedDate?'background:#fff8e1;':''}"><span class="teams"><strong>${g.home}</strong> <span class="player-inline" style="color:${hc}">(${hp||'—'})</span> — <strong>${g.away}</strong> <span class="player-inline" style="color:${ac}">(${ap||'—'})</span><br><span style="font-size:.65em;color:#adb5bd;">${g.stadium} · ${g.time} (${g.pst})</span></span><span class="${sc?'score':'score pending'}">${sc?g.homeScore+' - '+g.awayScore:'vs'}</span><span class="date-sm">${g.date.slice(5)}</span></div>`;});h+=`</div></div>`;});
             grid.innerHTML=h;grid.querySelectorAll('.game-row').forEach(r=>r.addEventListener('click',()=>openGameModal(r.dataset.gameId)));
         }
 
@@ -628,14 +650,11 @@
             order.forEach(person=>{
                 if(legendData[person]){
                     const c=legendData[person].color;
-                    // Add data attribute for the click listener
                     h+=`<div class="legend-player" data-player="${person}"><div class="legend-name"><span class="legend-dot" style="background:${c}"></span>${person}</div><div class="legend-teams">${legendData[person].teams.join(', ')}</div></div>`;
                 }
             });
             h+=`</div></div>`;
             legendEl.innerHTML=h;
-            
-            // Attach click listeners to player cards
             legendEl.querySelectorAll('.legend-player').forEach(el => {
                 el.addEventListener('click', () => openPlayerModal(el.dataset.player));
             });
