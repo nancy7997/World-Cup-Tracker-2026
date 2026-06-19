@@ -84,25 +84,6 @@
         .third-place-table td{padding:5px 3px;text-align:center;border-bottom:1px solid #f1f3f5;color:#495057;}
         .third-place-table .pts{font-weight:700;color:var(--accent2);}
         .third-place-table .qualifies{color:#198754;font-weight:700;}
-        .players-stats-section{background:#fff;border:2px solid var(--accent);border-radius:12px;padding:16px;margin:10px 0;box-shadow:var(--shadow);}
-        .players-stats-section h3{color:#1a1a2e;margin-bottom:12px;font-size:.9em;text-align:center;}
-        .players-stats-table{width:100%;border-collapse:collapse;font-size:.75em;}
-        .players-stats-table th{background:#f1f3f5;padding:6px 4px;text-align:center;font-size:.7em;color:#6c757d;font-weight:600;border-bottom:2px solid #dee2e6;}
-        .players-stats-table td{padding:6px 4px;text-align:center;border-bottom:1px solid #f1f3f5;color:#495057;}
-        .players-stats-table td:first-child{font-weight:700;color:#212529;width:40px;}
-        .players-stats-table td:nth-child(2){text-align:left;font-weight:600;display:flex;align-items:center;gap:6px;}
-        .players-stats-table .pts-cell{font-weight:700;color:var(--accent2);}
-        .players-stats-table tr:hover td{background:#fff8e1;}
-        .players-stats-table .rank-gold{color:#d4af37;}
-        .players-stats-table .rank-silver{color:#a8a8a8;}
-        .players-stats-table .rank-bronze{color:#cd7f32;}
-        .ko-round{margin-bottom:14px;background:#fff;border-radius:8px;border:1px solid #dee2e6;overflow:hidden;box-shadow:var(--shadow);}
-        .ko-round h3{background:#f8f9fa;padding:8px 12px;font-size:.85em;color:#1a1a2e;border-bottom:2px solid var(--accent);}
-        .ko-games{padding:6px 10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:4px;}
-        .ko-game{display:flex;align-items:center;justify-content:space-between;padding:8px;cursor:pointer;border-radius:6px;background:#f8f9fa;border:1px solid #e9ecef;font-size:.75em;}
-        .ko-game:hover{border-color:var(--accent);background:#fff8e1;}
-        .ko-game .ko-score{font-weight:700;color:var(--accent2);}
-        .ko-game .ko-score.pending{color:#adb5bd;font-weight:400;}
         .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;justify-content:center;align-items:center;padding:16px;}
         .modal-overlay.open{display:flex;}
         .modal{background:#fff;border-radius:14px;padding:18px;max-width:460px;width:100%;max-height:82vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.2);}
@@ -156,75 +137,103 @@
         }
         .bracket-header h2 { font-size: 1.5rem; background: linear-gradient(135deg, #1e2a3a, #2c3e50); background-clip: text; -webkit-background-clip: text; color: transparent; }
         .bracket-note { font-size: 0.7rem; background: #f1f5f9; padding: 5px 12px; border-radius: 30px; color: #3a5468; }
+
         .tournament-bracket {
             display: flex;
             flex-direction: row;
             justify-content: flex-start;
-            gap: 20px;
-            min-width: 1100px;
+            gap: 16px;
+            min-width: fit-content;
             width: max-content;
             padding-bottom: 16px;
+            align-items: stretch;
         }
         .bracket-round-col {
-            flex: 0 0 180px;
+            flex: 0 1 auto;
+            min-width: 140px;
             background: #fefefe;
             border-radius: 20px;
-            padding: 8px 6px;
+            padding: 8px 4px;
             box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+            display: flex;
+            flex-direction: column;
         }
         .round-label {
             font-weight: 800;
             text-align: center;
             background: #0a1c2a;
             color: white;
-            padding: 8px 4px;
+            padding: 6px 4px;
             border-radius: 40px;
             font-size: 0.7rem;
-            margin-bottom: 18px;
+            margin-bottom: 12px;
+            flex-shrink: 0;
         }
         .bracket-matches {
+            flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            padding: 2px 0;
+            gap: 0;
+        }
+        .match-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2px 0;
+            min-height: 0;
         }
         .match-card {
             background: #f8fafc;
-            border-radius: 14px;
-            padding: 10px 8px;
+            border-radius: 12px;
+            padding: 6px 8px;
             border-left: 4px solid var(--accent);
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             cursor: pointer;
             transition: 0.1s;
+            width: 100%;
+            margin: 0 2px;
+            white-space: nowrap;
         }
         .match-card:hover { background: #fff5e3; transform: translateX(2px); }
-        .match-teams { font-weight: 700; font-size: 0.75rem; display: flex; justify-content: space-between; color: #1e2f3c; }
-        .team-abbr { max-width: 90px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .match-score { font-weight: 800; font-family: monospace; font-size: 0.75rem; background: #eef2f6; padding: 2px 6px; border-radius: 30px; color: #2c5a2e; }
+        .match-teams {
+            font-weight: 700;
+            font-size: 0.7rem;
+            display: flex;
+            justify-content: space-between;
+            color: #1e2f3c;
+            align-items: center;
+            gap: 8px;
+        }
+        .team-abbr {
+            white-space: nowrap;
+        }
+        .match-score {
+            font-weight: 800;
+            font-family: monospace;
+            font-size: 0.7rem;
+            background: #eef2f6;
+            padding: 1px 6px;
+            border-radius: 30px;
+            color: #2c5a2e;
+            flex-shrink: 0;
+        }
         .match-score.pending { color: #9aaebf; background: #f1f3f7; }
-        .match-meta { font-size: 0.55rem; color: #6c86a0; margin-top: 6px; text-align: center; }
+        .match-meta { font-size: 0.5rem; color: #6c86a0; margin-top: 4px; text-align: center; }
         .champion-highlight { background: radial-gradient(circle at 30% 10%, #fff3cf, #ffe9b6); border: 2px solid #f5c542; }
         .final-winner { background: #d4af37; color: #1e2a2e; font-weight: bold; text-align: center; padding: 12px; border-radius: 60px; margin-top: 12px; font-size: 0.85rem; }
         
         @media (max-width: 720px) {
-            .groups-grid {
-                grid-template-columns: 1fr;
-            }
-            .legend-grid {
-                grid-template-columns: 1fr;
-            }
-            .players-stats-table {
-                font-size: 0.65em;
-            }
+            .groups-grid { grid-template-columns: 1fr; }
+            .legend-grid { grid-template-columns: 1fr; }
+            .bracket-round-col { min-width: 120px; }
+            .match-teams { font-size: 0.6rem; gap: 4px; }
         }
         @media (min-width: 721px) and (max-width: 1080px) {
-            .groups-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+            .groups-grid { grid-template-columns: repeat(2, 1fr); }
         }
         @media (min-width: 1081px) {
-            .groups-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
+            .groups-grid { grid-template-columns: repeat(3, 1fr); }
         }
     </style>
 </head>
@@ -243,14 +252,10 @@
     <div class="tabs">
         <button class="tab-btn active" data-view="groups">📋 Groups</button>
         <button class="tab-btn" data-view="thirdplace">📊 3rd Place</button>
-        <button class="tab-btn" data-view="knockout">🏆 Knockout</button>
-        <button class="tab-btn" data-view="players">📊 Players</button>
     </div>
     <div class="content">
         <div class="view active" id="view-groups"><div class="groups-grid" id="groupsGrid"></div></div>
         <div class="view" id="view-thirdplace"><div id="thirdPlaceContainer"></div></div>
-        <div class="view" id="view-knockout"><div id="knockoutContainer"></div></div>
-        <div class="view" id="view-players"><div id="playersStatsContainer"></div></div>
     </div>
     
     <div id="globalBracketContainer" class="bracket-wrapper">
@@ -326,7 +331,6 @@
         }
         const legendData=buildLegendData();
 
-        // Helper: parse PST time string to minutes for sorting
         function parsePST(timeStr) {
             if (!timeStr) return 0;
             const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
@@ -340,14 +344,14 @@
         }
 
         const allGroupGames=[
-            // Group A – PST corrected to match my originally provided schedule
+            // Group A – PST corrected
             {id:'G1',group:'A',home:'Mexico',away:'South Africa',date:'2026-06-11',time:'1:00 PM CT',pst:'12:00 PM PST',stadium:'Estadio Azteca, Mexico City',homeScore:2,awayScore:0},
             {id:'G2',group:'A',home:'South Korea',away:'Czech Republic',date:'2026-06-11',time:'8:00 PM CT',pst:'7:00 PM PST',stadium:'Estadio Akron, Zapopan',homeScore:2,awayScore:1},
             {id:'G25',group:'A',home:'Czech Republic',away:'South Africa',date:'2026-06-18',time:'12:00 PM ET',pst:'9:00 AM PST',stadium:'Mercedes-Benz Stadium, Atlanta',homeScore:null,awayScore:null},
             {id:'G28',group:'A',home:'Mexico',away:'South Korea',date:'2026-06-18',time:'7:00 PM CT',pst:'6:00 PM PST',stadium:'Estadio Akron, Zapopan',homeScore:null,awayScore:null},
             {id:'G53',group:'A',home:'Czech Republic',away:'Mexico',date:'2026-06-24',time:'7:00 PM CT',pst:'6:00 PM PST',stadium:'Estadio Azteca, Mexico City',homeScore:null,awayScore:null},
             {id:'G54',group:'A',home:'South Africa',away:'South Korea',date:'2026-06-24',time:'7:00 PM CT',pst:'6:00 PM PST',stadium:'Estadio BBVA, Guadalupe',homeScore:null,awayScore:null},
-            // Group B – L
+            // Group B
             {id:'G3',group:'B',home:'Canada',away:'Bosnia and Herzegovina',date:'2026-06-12',time:'3:00 PM ET',pst:'12:00 PM PST',stadium:'BMO Field, Toronto',homeScore:1,awayScore:1},
             {id:'G8',group:'B',home:'Qatar',away:'Switzerland',date:'2026-06-13',time:'12:00 PM PT',pst:'12:00 PM PST',stadium:"Levi's Stadium, Santa Clara",homeScore:null,awayScore:null},
             {id:'G26',group:'B',home:'Switzerland',away:'Bosnia and Herzegovina',date:'2026-06-18',time:'12:00 PM PT',pst:'12:00 PM PST',stadium:'SoFi Stadium, Inglewood',homeScore:null,awayScore:null},
@@ -428,42 +432,167 @@
         allGroupGames.forEach(g=>{g.round='group';});
 
         const allKoGames=[
-            {id:'K1',round:'Round of 32',home:'Winner A',away:'3rd Best*',date:'2026-06-28',time:'1:00 PM ET',pst:'10:00 AM PST',stadium:'MetLife Stadium, East Rutherford',homeScore:null,awayScore:null,isKo:true},
-            {id:'K2',round:'Round of 32',home:'Winner B',away:'3rd Best*',date:'2026-06-28',time:'4:00 PM CT',pst:'2:00 PM PST',stadium:'AT&T Stadium, Arlington',homeScore:null,awayScore:null,isKo:true},
-            {id:'K3',round:'Round of 32',home:'Winner C',away:'Runner-up D',date:'2026-06-28',time:'7:00 PM PT',pst:'7:00 PM PST',stadium:'SoFi Stadium, Inglewood',homeScore:null,awayScore:null,isKo:true},
-            {id:'K4',round:'Round of 32',home:'Winner D',away:'Runner-up C',date:'2026-06-29',time:'10:00 AM CT',pst:'8:00 AM PST',stadium:'NRG Stadium, Houston',homeScore:null,awayScore:null,isKo:true},
-            {id:'K5',round:'Round of 32',home:'Winner E',away:'Runner-up F',date:'2026-06-29',time:'1:00 PM ET',pst:'10:00 AM PST',stadium:'BMO Field, Toronto',homeScore:null,awayScore:null,isKo:true},
-            {id:'K6',round:'Round of 32',home:'Winner F',away:'Runner-up E',date:'2026-06-29',time:'4:00 PM PT',pst:'4:00 PM PST',stadium:"Levi's Stadium, Santa Clara",homeScore:null,awayScore:null,isKo:true},
-            {id:'K7',round:'Round of 32',home:'Winner G',away:'Runner-up H',date:'2026-06-30',time:'10:00 AM CT',pst:'8:00 AM PST',stadium:'Arrowhead Stadium, Kansas City',homeScore:null,awayScore:null,isKo:true},
-            {id:'K8',round:'Round of 32',home:'Winner H',away:'Runner-up G',date:'2026-06-30',time:'1:00 PM ET',pst:'10:00 AM PST',stadium:'Gillette Stadium, Foxborough',homeScore:null,awayScore:null,isKo:true},
-            {id:'K9',round:'Round of 32',home:'Winner I',away:'Runner-up J',date:'2026-06-30',time:'4:00 PM CT',pst:'2:00 PM PST',stadium:'Estadio Azteca, Mexico City',homeScore:null,awayScore:null,isKo:true},
-            {id:'K10',round:'Round of 32',home:'Winner J',away:'Runner-up I',date:'2026-07-01',time:'10:00 AM ET',pst:'7:00 AM PST',stadium:'Mercedes-Benz Stadium, Atlanta',homeScore:null,awayScore:null,isKo:true},
-            {id:'K11',round:'Round of 32',home:'Winner K',away:'Runner-up L',date:'2026-07-01',time:'1:00 PM ET',pst:'10:00 AM PST',stadium:'Lincoln Financial Field, Philadelphia',homeScore:null,awayScore:null,isKo:true},
-            {id:'K12',round:'Round of 32',home:'Winner L',away:'Runner-up K',date:'2026-07-01',time:'4:00 PM ET',pst:'1:00 PM PST',stadium:'Hard Rock Stadium, Miami Gardens',homeScore:null,awayScore:null,isKo:true},
-            {id:'K13',round:'Round of 32',home:'Runner-up A',away:'Runner-up B',date:'2026-07-02',time:'10:00 AM PT',pst:'10:00 AM PST',stadium:'BC Place, Vancouver',homeScore:null,awayScore:null,isKo:true},
-            {id:'K14',round:'Round of 32',home:'3rd Best*',away:'3rd Best*',date:'2026-07-02',time:'1:00 PM CT',pst:'11:00 AM PST',stadium:'Estadio Akron, Zapopan',homeScore:null,awayScore:null,isKo:true},
-            {id:'K15',round:'Round of 32',home:'3rd Best*',away:'3rd Best*',date:'2026-07-02',time:'4:00 PM PT',pst:'4:00 PM PST',stadium:'Lumen Field, Seattle',homeScore:null,awayScore:null,isKo:true},
-            {id:'K16',round:'Round of 32',home:'3rd Best*',away:'3rd Best*',date:'2026-07-02',time:'7:00 PM CT',pst:'5:00 PM PST',stadium:'NRG Stadium, Houston',homeScore:null,awayScore:null,isKo:true},
-            {id:'K17',round:'Round of 16',home:'W R32-1',away:'W R32-2',date:'2026-07-04',time:'1:00 PM CT',pst:'11:00 AM PST',stadium:'AT&T Stadium, Arlington',homeScore:null,awayScore:null,isKo:true},
-            {id:'K18',round:'Round of 16',home:'W R32-3',away:'W R32-4',date:'2026-07-04',time:'4:00 PM ET',pst:'1:00 PM PST',stadium:'MetLife Stadium, East Rutherford',homeScore:null,awayScore:null,isKo:true},
-            {id:'K19',round:'Round of 16',home:'W R32-5',away:'W R32-6',date:'2026-07-05',time:'10:00 AM PT',pst:'10:00 AM PST',stadium:'SoFi Stadium, Inglewood',homeScore:null,awayScore:null,isKo:true},
-            {id:'K20',round:'Round of 16',home:'W R32-7',away:'W R32-8',date:'2026-07-05',time:'1:00 PM ET',pst:'10:00 AM PST',stadium:'BMO Field, Toronto',homeScore:null,awayScore:null,isKo:true},
-            {id:'K21',round:'Round of 16',home:'W R32-9',away:'W R32-10',date:'2026-07-05',time:'4:00 PM PT',pst:'4:00 PM PST',stadium:"Levi's Stadium, Santa Clara",homeScore:null,awayScore:null,isKo:true},
-            {id:'K22',round:'Round of 16',home:'W R32-11',away:'W R32-12',date:'2026-07-06',time:'1:00 PM CT',pst:'11:00 AM PST',stadium:'Arrowhead Stadium, Kansas City',homeScore:null,awayScore:null,isKo:true},
-            {id:'K23',round:'Round of 16',home:'W R32-13',away:'W R32-14',date:'2026-07-06',time:'4:00 PM ET',pst:'1:00 PM PST',stadium:'Gillette Stadium, Foxborough',homeScore:null,awayScore:null,isKo:true},
-            {id:'K24',round:'Round of 16',home:'W R32-15',away:'W R32-16',date:'2026-07-06',time:'7:00 PM CT',pst:'5:00 PM PST',stadium:'Estadio Azteca, Mexico City',homeScore:null,awayScore:null,isKo:true},
-            {id:'K25',round:'Quarter-finals',home:'W R16-1',away:'W R16-2',date:'2026-07-08',time:'1:00 PM ET',pst:'10:00 AM PST',stadium:'MetLife Stadium, East Rutherford',homeScore:null,awayScore:null,isKo:true},
-            {id:'K26',round:'Quarter-finals',home:'W R16-3',away:'W R16-4',date:'2026-07-08',time:'4:00 PM CT',pst:'2:00 PM PST',stadium:'AT&T Stadium, Arlington',homeScore:null,awayScore:null,isKo:true},
-            {id:'K27',round:'Quarter-finals',home:'W R16-5',away:'W R16-6',date:'2026-07-09',time:'1:00 PM PT',pst:'1:00 PM PST',stadium:'SoFi Stadium, Inglewood',homeScore:null,awayScore:null,isKo:true},
-            {id:'K28',round:'Quarter-finals',home:'W R16-7',away:'W R16-8',date:'2026-07-10',time:'1:00 PM CT',pst:'11:00 AM PST',stadium:'Arrowhead Stadium, Kansas City',homeScore:null,awayScore:null,isKo:true},
-            {id:'K29',round:'Semi-finals',home:'W QF-1',away:'W QF-2',date:'2026-07-14',time:'1:00 PM CT',pst:'11:00 AM PST',stadium:'AT&T Stadium, Arlington',homeScore:null,awayScore:null,isKo:true},
-            {id:'K30',round:'Semi-finals',home:'W QF-3',away:'W QF-4',date:'2026-07-15',time:'1:00 PM ET',pst:'10:00 AM PST',stadium:'Mercedes-Benz Stadium, Atlanta',homeScore:null,awayScore:null,isKo:true},
-            {id:'K31',round:'Third Place',home:'L SF-1',away:'L SF-2',date:'2026-07-18',time:'1:00 PM ET',pst:'10:00 AM PST',stadium:'Hard Rock Stadium, Miami Gardens',homeScore:null,awayScore:null,isKo:true},
-            {id:'K32',round:'Final',home:'W SF-1',away:'W SF-2',date:'2026-07-19',time:'1:00 PM ET',pst:'10:00 AM PST',stadium:'MetLife Stadium, East Rutherford',homeScore:null,awayScore:null,isKo:true}
+            // Round of 32 (K1 - K16)
+            {id:'K1', round:'Round of 32', home:'Runner-up A', away:'Runner-up B', date:'2026-06-28', time:'1:00 PM ET', pst:'10:00 AM PST', stadium:'SoFi Stadium, Inglewood', homeScore:null, awayScore:null, isKo:true},
+            {id:'K2', round:'Round of 32', home:'Winner E', away:'3rd Best*', date:'2026-06-28', time:'4:00 PM ET', pst:'1:00 PM PST', stadium:'Gillette Stadium, Foxborough', homeScore:null, awayScore:null, isKo:true},
+            {id:'K3', round:'Round of 32', home:'Winner F', away:'Runner-up C', date:'2026-06-28', time:'7:00 PM CT', pst:'5:00 PM PST', stadium:'Estadio BBVA, Guadalupe', homeScore:null, awayScore:null, isKo:true},
+            {id:'K4', round:'Round of 32', home:'Winner C', away:'Runner-up F', date:'2026-06-28', time:'7:00 PM CT', pst:'5:00 PM PST', stadium:'NRG Stadium, Houston', homeScore:null, awayScore:null, isKo:true},
+            {id:'K5', round:'Round of 32', home:'Winner I', away:'3rd Best*', date:'2026-06-29', time:'1:00 PM ET', pst:'10:00 AM PST', stadium:'MetLife Stadium, East Rutherford', homeScore:null, awayScore:null, isKo:true},
+            {id:'K6', round:'Round of 32', home:'Runner-up E', away:'Runner-up I', date:'2026-06-29', time:'1:00 PM CT', pst:'11:00 AM PST', stadium:'AT&T Stadium, Arlington', homeScore:null, awayScore:null, isKo:true},
+            {id:'K7', round:'Round of 32', home:'Winner A', away:'3rd Best*', date:'2026-06-29', time:'4:00 PM CT', pst:'2:00 PM PST', stadium:'Estadio Azteca, Mexico City', homeScore:null, awayScore:null, isKo:true},
+            {id:'K8', round:'Round of 32', home:'Winner L', away:'3rd Best*', date:'2026-06-29', time:'7:00 PM ET', pst:'4:00 PM PST', stadium:'Mercedes-Benz Stadium, Atlanta', homeScore:null, awayScore:null, isKo:true},
+            {id:'K9', round:'Round of 32', home:'Winner G', away:'3rd Best*', date:'2026-06-30', time:'4:00 PM PT', pst:'4:00 PM PST', stadium:'Lumen Field, Seattle', homeScore:null, awayScore:null, isKo:true},
+            {id:'K10', round:'Round of 32', home:'Winner D', away:'3rd Best*', date:'2026-06-30', time:'7:00 PM PT', pst:'7:00 PM PST', stadium:"Levi's Stadium, Santa Clara", homeScore:null, awayScore:null, isKo:true},
+            {id:'K11', round:'Round of 32', home:'Winner H', away:'Runner-up J', date:'2026-06-30', time:'7:00 PM PT', pst:'7:00 PM PST', stadium:'SoFi Stadium, Inglewood', homeScore:null, awayScore:null, isKo:true},
+            {id:'K12', round:'Round of 32', home:'Runner-up K', away:'Runner-up L', date:'2026-06-30', time:'7:00 PM ET', pst:'4:00 PM PST', stadium:'BMO Field, Toronto', homeScore:null, awayScore:null, isKo:true},
+            {id:'K13', round:'Round of 32', home:'Winner B', away:'3rd Best*', date:'2026-07-01', time:'4:00 PM PT', pst:'4:00 PM PST', stadium:'BC Place, Vancouver', homeScore:null, awayScore:null, isKo:true},
+            {id:'K14', round:'Round of 32', home:'Runner-up D', away:'Runner-up G', date:'2026-07-01', time:'7:00 PM CT', pst:'5:00 PM PST', stadium:'AT&T Stadium, Arlington', homeScore:null, awayScore:null, isKo:true},
+            {id:'K15', round:'Round of 32', home:'Winner J', away:'Runner-up H', date:'2026-07-01', time:'7:00 PM ET', pst:'4:00 PM PST', stadium:'Hard Rock Stadium, Miami Gardens', homeScore:null, awayScore:null, isKo:true},
+            {id:'K16', round:'Round of 32', home:'Winner K', away:'3rd Best*', date:'2026-07-01', time:'7:00 PM CT', pst:'5:00 PM PST', stadium:'Arrowhead Stadium, Kansas City', homeScore:null, awayScore:null, isKo:true},
+            // Round of 16
+            {id:'K17', round:'Round of 16', home:'W R32-2', away:'W R32-5', date:'2026-07-04', time:'1:00 PM ET', pst:'10:00 AM PST', stadium:'Lincoln Financial Field, Philadelphia', homeScore:null, awayScore:null, isKo:true},
+            {id:'K18', round:'Round of 16', home:'W R32-1', away:'W R32-3', date:'2026-07-04', time:'4:00 PM CT', pst:'2:00 PM PST', stadium:'NRG Stadium, Houston', homeScore:null, awayScore:null, isKo:true},
+            {id:'K19', round:'Round of 16', home:'W R32-4', away:'W R32-6', date:'2026-07-05', time:'1:00 PM ET', pst:'10:00 AM PST', stadium:'MetLife Stadium, East Rutherford', homeScore:null, awayScore:null, isKo:true},
+            {id:'K20', round:'Round of 16', home:'W R32-7', away:'W R32-8', date:'2026-07-05', time:'4:00 PM CT', pst:'2:00 PM PST', stadium:'Estadio Azteca, Mexico City', homeScore:null, awayScore:null, isKo:true},
+            {id:'K21', round:'Round of 16', home:'W R32-9', away:'W R32-11', date:'2026-07-05', time:'7:00 PM PT', pst:'7:00 PM PST', stadium:'Lumen Field, Seattle', homeScore:null, awayScore:null, isKo:true},
+            {id:'K22', round:'Round of 16', home:'W R32-10', away:'W R32-12', date:'2026-07-06', time:'1:00 PM CT', pst:'11:00 AM PST', stadium:'AT&T Stadium, Arlington', homeScore:null, awayScore:null, isKo:true},
+            {id:'K23', round:'Round of 16', home:'W R32-13', away:'W R32-15', date:'2026-07-06', time:'4:00 PM ET', pst:'1:00 PM PST', stadium:'Mercedes-Benz Stadium, Atlanta', homeScore:null, awayScore:null, isKo:true},
+            {id:'K24', round:'Round of 16', home:'W R32-14', away:'W R32-16', date:'2026-07-06', time:'7:00 PM PT', pst:'7:00 PM PST', stadium:'BC Place, Vancouver', homeScore:null, awayScore:null, isKo:true},
+            // Quarter-finals
+            {id:'K25', round:'Quarter-finals', home:'W R16-1', away:'W R16-2', date:'2026-07-09', time:'1:00 PM CT', pst:'11:00 AM PST', stadium:'AT&T Stadium, Arlington', homeScore:null, awayScore:null, isKo:true},
+            {id:'K26', round:'Quarter-finals', home:'W R16-3', away:'W R16-4', date:'2026-07-10', time:'1:00 PM PT', pst:'1:00 PM PST', stadium:'SoFi Stadium, Inglewood', homeScore:null, awayScore:null, isKo:true},
+            {id:'K27', round:'Quarter-finals', home:'W R16-5', away:'W R16-6', date:'2026-07-11', time:'1:00 PM CT', pst:'11:00 AM PST', stadium:'Arrowhead Stadium, Kansas City', homeScore:null, awayScore:null, isKo:true},
+            {id:'K28', round:'Quarter-finals', home:'W R16-7', away:'W R16-8', date:'2026-07-12', time:'1:00 PM ET', pst:'10:00 AM PST', stadium:'Hard Rock Stadium, Miami Gardens', homeScore:null, awayScore:null, isKo:true},
+            // Semi-finals
+            {id:'K29', round:'Semi-finals', home:'W QF-1', away:'W QF-2', date:'2026-07-14', time:'1:00 PM CT', pst:'11:00 AM PST', stadium:'AT&T Stadium, Arlington', homeScore:null, awayScore:null, isKo:true},
+            {id:'K30', round:'Semi-finals', home:'W QF-3', away:'W QF-4', date:'2026-07-15', time:'1:00 PM ET', pst:'10:00 AM PST', stadium:'Mercedes-Benz Stadium, Atlanta', homeScore:null, awayScore:null, isKo:true},
+            // Third Place
+            {id:'K31', round:'Third Place', home:'L SF-1', away:'L SF-2', date:'2026-07-18', time:'1:00 PM ET', pst:'10:00 AM PST', stadium:'Hard Rock Stadium, Miami Gardens', homeScore:null, awayScore:null, isKo:true},
+            // Final
+            {id:'K32', round:'Final', home:'W SF-1', away:'W SF-2', date:'2026-07-19', time:'1:00 PM ET', pst:'10:00 AM PST', stadium:'MetLife Stadium, East Rutherford', homeScore:null, awayScore:null, isKo:true}
         ];
 
         const allGames=[...allGroupGames,...allKoGames];
         let selectedDate=null,currentView='groups';
+
+        function isGroupComplete(gid) {
+            const games = allGroupGames.filter(g => g.group === gid);
+            return games.every(g => g.homeScore !== null && g.awayScore !== null);
+        }
+
+        function updateKnockoutTeams() {
+            const groupStandings = {};
+            const completedGroups = [];
+            Object.keys(GROUPS).forEach(gid => {
+                if (isGroupComplete(gid)) {
+                    completedGroups.push(gid);
+                    groupStandings[gid] = calculateStandings(gid);
+                }
+            });
+            const winners = {};
+            const runnersUp = {};
+            const thirdPlaces = [];
+            completedGroups.forEach(gid => {
+                const st = groupStandings[gid];
+                if (st.length >= 1) winners[gid] = st[0].team;
+                if (st.length >= 2) runnersUp[gid] = st[1].team;
+                if (st.length >= 3) thirdPlaces.push({ ...st[2], group: gid });
+            });
+            thirdPlaces.sort((a,b) => b.pts - a.pts || b.gd - a.gd || b.gf - a.gf);
+            const bestThird = thirdPlaces.slice(0,8);
+            const allComplete = completedGroups.length === 12;
+            const koMap = {};
+            allKoGames.forEach(m => { koMap[m.id] = m; });
+            if (koMap['K1']) { koMap['K1'].home = runnersUp['A'] || 'Runner-up A'; koMap['K1'].away = runnersUp['B'] || 'Runner-up B'; }
+            if (koMap['K2']) { koMap['K2'].home = winners['E'] || 'Winner E'; koMap['K2'].away = (allComplete && bestThird[0]) ? bestThird[0].team : '3rd Best*'; }
+            if (koMap['K3']) { koMap['K3'].home = winners['F'] || 'Winner F'; koMap['K3'].away = runnersUp['C'] || 'Runner-up C'; }
+            if (koMap['K4']) { koMap['K4'].home = winners['C'] || 'Winner C'; koMap['K4'].away = runnersUp['F'] || 'Runner-up F'; }
+            if (koMap['K5']) { koMap['K5'].home = winners['I'] || 'Winner I'; koMap['K5'].away = (allComplete && bestThird[1]) ? bestThird[1].team : '3rd Best*'; }
+            if (koMap['K6']) { koMap['K6'].home = runnersUp['E'] || 'Runner-up E'; koMap['K6'].away = runnersUp['I'] || 'Runner-up I'; }
+            if (koMap['K7']) { koMap['K7'].home = winners['A'] || 'Winner A'; koMap['K7'].away = (allComplete && bestThird[2]) ? bestThird[2].team : '3rd Best*'; }
+            if (koMap['K8']) { koMap['K8'].home = winners['L'] || 'Winner L'; koMap['K8'].away = (allComplete && bestThird[3]) ? bestThird[3].team : '3rd Best*'; }
+            if (koMap['K9']) { koMap['K9'].home = winners['G'] || 'Winner G'; koMap['K9'].away = (allComplete && bestThird[4]) ? bestThird[4].team : '3rd Best*'; }
+            if (koMap['K10']) { koMap['K10'].home = winners['D'] || 'Winner D'; koMap['K10'].away = (allComplete && bestThird[5]) ? bestThird[5].team : '3rd Best*'; }
+            if (koMap['K11']) { koMap['K11'].home = winners['H'] || 'Winner H'; koMap['K11'].away = runnersUp['J'] || 'Runner-up J'; }
+            if (koMap['K12']) { koMap['K12'].home = runnersUp['K'] || 'Runner-up K'; koMap['K12'].away = runnersUp['L'] || 'Runner-up L'; }
+            if (koMap['K13']) { koMap['K13'].home = winners['B'] || 'Winner B'; koMap['K13'].away = (allComplete && bestThird[6]) ? bestThird[6].team : '3rd Best*'; }
+            if (koMap['K14']) { koMap['K14'].home = runnersUp['D'] || 'Runner-up D'; koMap['K14'].away = runnersUp['G'] || 'Runner-up G'; }
+            if (koMap['K15']) { koMap['K15'].home = winners['J'] || 'Winner J'; koMap['K15'].away = runnersUp['H'] || 'Runner-up H'; }
+            if (koMap['K16']) { koMap['K16'].home = winners['K'] || 'Winner K'; koMap['K16'].away = (allComplete && bestThird[7]) ? bestThird[7].team : '3rd Best*'; }
+        }
+
+        function propagateKnockoutResults() {
+            const winners = {};
+            const losers = {};
+            allKoGames.forEach(m => {
+                if (m.homeScore !== null && m.awayScore !== null && m.homeScore !== m.awayScore) {
+                    if (m.homeScore > m.awayScore) {
+                        winners[m.id] = m.home;
+                        losers[m.id] = m.away;
+                    } else {
+                        winners[m.id] = m.away;
+                        losers[m.id] = m.home;
+                    }
+                }
+            });
+            const r16Map = [ ['K2','K5'], ['K1','K3'], ['K4','K6'], ['K7','K8'], ['K9','K11'], ['K10','K12'], ['K13','K15'], ['K14','K16'] ];
+            const r16Ids = ['K17','K18','K19','K20','K21','K22','K23','K24'];
+            r16Ids.forEach((mid, idx) => {
+                const m = allKoGames.find(g => g.id === mid);
+                if (!m) return;
+                const childIds = r16Map[idx];
+                if (m.home && m.home.startsWith('W R32-')) {
+                    m.home = winners[childIds[0]] || winners[childIds[1]] || m.home;
+                }
+                if (m.away && m.away.startsWith('W R32-')) {
+                    m.away = winners[childIds[0]] || winners[childIds[1]] || m.away;
+                }
+            });
+            const qfMap = [ ['K17','K18'], ['K19','K20'], ['K21','K22'], ['K23','K24'] ];
+            const qfIds = ['K25','K26','K27','K28'];
+            qfIds.forEach((mid, idx) => {
+                const m = allKoGames.find(g => g.id === mid);
+                if (!m) return;
+                const childIds = qfMap[idx];
+                if (m.home && m.home.startsWith('W R16-')) {
+                    m.home = winners[childIds[0]] || winners[childIds[1]] || m.home;
+                }
+                if (m.away && m.away.startsWith('W R16-')) {
+                    m.away = winners[childIds[0]] || winners[childIds[1]] || m.away;
+                }
+            });
+            const sfMap = [ ['K25','K26'], ['K27','K28'] ];
+            const sfIds = ['K29','K30'];
+            sfIds.forEach((mid, idx) => {
+                const m = allKoGames.find(g => g.id === mid);
+                if (!m) return;
+                const childIds = sfMap[idx];
+                if (m.home && m.home.startsWith('W QF-')) {
+                    m.home = winners[childIds[0]] || winners[childIds[1]] || m.home;
+                }
+                if (m.away && m.away.startsWith('W QF-')) {
+                    m.away = winners[childIds[0]] || winners[childIds[1]] || m.away;
+                }
+            });
+            const finalMatch = allKoGames.find(g => g.id === 'K32');
+            if (finalMatch) {
+                if (finalMatch.home && finalMatch.home.startsWith('W SF-')) {
+                    finalMatch.home = winners['K29'] || winners['K30'] || finalMatch.home;
+                }
+                if (finalMatch.away && finalMatch.away.startsWith('W SF-')) {
+                    finalMatch.away = winners['K29'] || winners['K30'] || finalMatch.away;
+                }
+            }
+            const thirdMatch = allKoGames.find(g => g.id === 'K31');
+            if (thirdMatch) {
+                if (thirdMatch.home && thirdMatch.home.startsWith('L SF-')) {
+                    thirdMatch.home = losers['K29'] || losers['K30'] || thirdMatch.home;
+                }
+                if (thirdMatch.away && thirdMatch.away.startsWith('L SF-')) {
+                    thirdMatch.away = losers['K29'] || losers['K30'] || thirdMatch.away;
+                }
+            }
+        }
 
         function syncFromFirebase(){
             const statusEl=document.getElementById('syncStatus');
@@ -484,52 +613,60 @@
                 if(!snapshot.exists()){const defaults={};allGroupGames.forEach(g=>{if(g.homeScore!==null||g.awayScore!==null)defaults[g.id]={homeScore:g.homeScore,awayScore:g.awayScore};});if(Object.keys(defaults).length>0)set(scoresRef,defaults);}
             });
         }
-        
+
         function renderBracket() {
+            updateKnockoutTeams();
+            propagateKnockoutResults();
+
             const container = document.getElementById('dynamicBracketTree');
             if (!container) return;
+
             const rounds = ['Round of 32', 'Round of 16', 'Quarter-finals', 'Semi-finals', 'Final', 'Third Place'];
+            const factors = [1, 2, 4, 8, 16, 16];
             let html = '';
-            rounds.forEach(rnd => {
+            rounds.forEach((rnd, idx) => {
                 const matches = allKoGames.filter(m => m.round === rnd);
                 if (matches.length === 0) return;
+                const factor = factors[idx];
                 html += `<div class="bracket-round-col"><div class="round-label">${rnd}</div><div class="bracket-matches">`;
                 matches.forEach(m => {
                     const hasScore = (m.homeScore !== null && m.awayScore !== null);
                     const scoreText = hasScore ? `${m.homeScore} - ${m.awayScore}` : '—';
-                    html += `<div class="match-card" data-game-id="${m.id}">
-                                <div class="match-teams">
-                                    <span class="team-abbr">${m.home}</span>
-                                    <span class="match-score ${!hasScore ? 'pending' : ''}">${scoreText}</span>
-                                    <span class="team-abbr">${m.away}</span>
+                    html += `<div class="match-wrapper" style="flex: ${factor};" data-match-id="${m.id}">
+                                <div class="match-card" data-game-id="${m.id}">
+                                    <div class="match-teams">
+                                        <span class="team-abbr">${m.home}</span>
+                                        <span class="match-score ${!hasScore ? 'pending' : ''}">${scoreText}</span>
+                                        <span class="team-abbr">${m.away}</span>
+                                    </div>
+                                    <div class="match-meta">${m.date.slice(5)}</div>
                                 </div>
-                                <div class="match-meta">${m.date.slice(5)}</div>
-                             </div>`;
+                            </div>`;
                 });
                 html += `</div></div>`;
             });
+
             const finalMatch = allKoGames.find(g => g.round === 'Final');
             let champHtml = '';
             if (finalMatch && finalMatch.homeScore !== null && finalMatch.awayScore !== null) {
                 const champ = finalMatch.homeScore > finalMatch.awayScore ? finalMatch.home : finalMatch.away;
-                champHtml = `<div class="bracket-round-col champion-highlight"><div class="round-label">🏆 CHAMPION</div><div class="final-winner">⭐ ${champ} ⭐</div></div>`;
+                champHtml = `<div class="bracket-round-col champion-highlight" style="flex:0 0 180px;"><div class="round-label">🏆 CHAMPION</div><div class="final-winner">⭐ ${champ} ⭐</div></div>`;
             } else {
-                champHtml = `<div class="bracket-round-col"><div class="round-label">🏆 CHAMPION</div><div class="final-winner">TBD</div></div>`;
+                champHtml = `<div class="bracket-round-col" style="flex:0 0 180px;"><div class="round-label">🏆 CHAMPION</div><div class="final-winner">TBD</div></div>`;
             }
             container.innerHTML = html + champHtml;
-            document.querySelectorAll('#dynamicBracketTree .match-card').forEach(el => {
+
+            container.querySelectorAll('.match-card').forEach(el => {
                 el.addEventListener('click', (e) => { e.stopPropagation(); openGameModal(el.dataset.gameId); });
             });
         }
 
-        // Get today's date in PST (Pacific Time)
         function getTodayPST() {
             const now = new Date();
             const formatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles', year: 'numeric', month: '2-digit', day: '2-digit' });
-            return formatter.format(now); // returns YYYY-MM-DD
+            return formatter.format(now);
         }
 
-        // Auto-scroll calendar to center a date
         function scrollCalendarToDate(dateStr) {
             const container = document.querySelector('.calendar-wrap');
             if (!container) return;
@@ -586,10 +723,7 @@
                 }
                 h+=`<div class="daily-game-card" data-game-id="${game.id}">
                         <div class="match-info">
-                            <div class="teams-line">
-                                ${game.home} vs ${game.away}
-                                ${groupDisplay}
-                            </div>
+                            <div class="teams-line">${game.home} vs ${game.away} ${groupDisplay}</div>
                             <div class="details-line">${game.stadium}</div>
                             <div class="details-line">🕐 ${game.time} (${game.pst})</div>
                             <div class="player-line"><span style="color:${hc}">👤 ${hp||'—'}</span> vs <span style="color:${ac}">👤 ${ap||'—'}</span></div>
@@ -625,13 +759,13 @@
                 return parsePST(a.pst) - parsePST(b.pst);
             });
             let h = `<h3>👤 ${playerName}'s Dashboard</h3>
-                     <div style="text-align:center; margin: 12px 0;">
-                        <span style="font-size: 1.2em; padding: 0 10px; font-weight: bold; color: var(--win);">W: ${w}</span>
-                        <span style="font-size: 1.2em; padding: 0 10px; font-weight: bold; color: var(--loss);">L: ${l}</span>
-                        <span style="font-size: 1.2em; padding: 0 10px; font-weight: bold; color: var(--draw);">D: ${d}</span>
+                     <div style="text-align:center; margin:12px 0;">
+                        <span style="font-size:1.2em; padding:0 10px; font-weight:bold; color:var(--win);">W: ${w}</span>
+                        <span style="font-size:1.2em; padding:0 10px; font-weight:bold; color:var(--loss);">L: ${l}</span>
+                        <span style="font-size:1.2em; padding:0 10px; font-weight:bold; color:var(--draw);">D: ${d}</span>
                      </div>
-                     <div style="max-height: 55vh; overflow-y: auto; border-top: 1px solid #e9ecef; padding-top: 10px;">`;
-            if(playerGames.length === 0) h+= `<p style="text-align:center; font-size:0.8em; color: #6c757d;">No games found.</p>`;
+                     <div style="max-height:55vh; overflow-y:auto; border-top:1px solid #e9ecef; padding-top:10px;">`;
+            if(playerGames.length === 0) h+= `<p style="text-align:center; font-size:0.8em; color:#6c757d;">No games found.</p>`;
             playerGames.forEach(g => {
                 const sc = g.homeScore !== null && g.awayScore !== null;
                 const hp = peopleMap[g.home] || '';
@@ -665,76 +799,6 @@
 
         function getAllThirdPlaceTeams(){const thirds=[];Object.keys(GROUPS).forEach(gid=>{const s=calculateStandings(gid);if(s.length>=3)thirds.push({...s[2],group:gid});});return thirds.sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf);}
 
-        // ----- Player Stats -----
-        function computePlayerStats() {
-            const players = Object.keys(playerColors);
-            const stats = {};
-            players.forEach(p => {
-                stats[p] = { person: p, gp: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 };
-            });
-            allGames.forEach(g => {
-                if (g.homeScore === null || g.awayScore === null) return;
-                const homeP = peopleMap[g.home];
-                const awayP = peopleMap[g.away];
-                if (!homeP || !awayP) return;
-                const hs = g.homeScore, as = g.awayScore;
-                stats[homeP].gp++;
-                stats[homeP].gf += hs;
-                stats[homeP].ga += as;
-                if (hs > as) { stats[homeP].w++; stats[homeP].pts += 3; }
-                else if (hs < as) { stats[homeP].l++; }
-                else { stats[homeP].d++; stats[homeP].pts += 1; }
-                stats[awayP].gp++;
-                stats[awayP].gf += as;
-                stats[awayP].ga += hs;
-                if (as > hs) { stats[awayP].w++; stats[awayP].pts += 3; }
-                else if (as < hs) { stats[awayP].l++; }
-                else { stats[awayP].d++; stats[awayP].pts += 1; }
-            });
-            Object.values(stats).forEach(s => { s.gd = s.gf - s.ga; });
-            return Object.values(stats).sort((a,b) => {
-                if (a.pts !== b.pts) return b.pts - a.pts;
-                if (a.gd !== b.gd) return b.gd - a.gd;
-                return b.gf - a.gf;
-            });
-        }
-
-        function renderPlayersStats() {
-            const container = document.getElementById('playersStatsContainer');
-            const sorted = computePlayerStats();
-            let html = `<div class="players-stats-section"><h3>🏅 Player Standings (All Games)</h3>
-                        <table class="players-stats-table">
-                            <thead><tr>
-                                <th>#</th><th>Player</th><th>GP</th><th>W</th><th>D</th><th>L</th>
-                                <th>GF</th><th>GA</th><th>GD</th><th>Pts</th>
-                            </tr></thead><tbody>`;
-            sorted.forEach((s, idx) => {
-                const rank = idx + 1;
-                let rankClass = '';
-                if (rank === 1) rankClass = 'rank-gold';
-                else if (rank === 2) rankClass = 'rank-silver';
-                else if (rank === 3) rankClass = 'rank-bronze';
-                const color = playerColors[s.person] || '#6c3bd4';
-                html += `<tr>
-                            <td class="${rankClass}">${rank}</td>
-                            <td style="display:flex; align-items:center; gap:6px; padding-left:6px;">
-                                <span class="legend-dot" style="background:${color}; width:12px; height:12px; border-radius:50%; display:inline-block;"></span>
-                                ${s.person}
-                            </td>
-                            <td>${s.gp}</td>
-                            <td style="color:var(--win);">${s.w}</td>
-                            <td style="color:var(--draw);">${s.d}</td>
-                            <td style="color:var(--loss);">${s.l}</td>
-                            <td>${s.gf}</td>
-                            <td>${s.ga}</td>
-                            <td>${s.gd >= 0 ? '+' : ''}${s.gd}</td>
-                            <td class="pts-cell">${s.pts}</td>
-                        </tr>`;
-            });
-            html += `</tbody></table></div>`;
-            container.innerHTML = html;
-        }
-
         function renderGroups(){
             const grid=document.getElementById('groupsGrid'),filtered=allGames.filter(g=>g.date===selectedDate&&g.round==='group'||!selectedDate&&g.round==='group'),fIds=new Set(filtered.map(g=>g.id));let h='';
             Object.keys(GROUPS).sort().forEach(gid=>{const st=calculateStandings(gid),games=allGroupGames.filter(g=>g.group===gid);h+=`<div class="group-card"><h3>🏴 Group ${gid}</h3><table class="group-standings"><thead><tr><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr></thead><tbody>`;st.forEach(s=>{const c=playerColors[s.person]||'#6c3bd4';h+=`<tr><td>${s.team}<span class="player-name" style="color:${c}">${s.person}</span></td><td>${s.gp}</td><td>${s.w}</td><td>${s.d}</td><td>${s.l}</td><td>${s.gf}</td><td>${s.ga}</td><td>${s.gd>=0?'+':''}${s.gd}</td><td class="pts">${s.pts}</td></tr>`;});h+=`</tbody></table><div class="group-games">`;
@@ -743,8 +807,6 @@
         }
 
         function renderThirdPlace(){const container=document.getElementById('thirdPlaceContainer'),thirds=getAllThirdPlaceTeams();let h=`<div class="third-place-section"><h3>📊 Third-Placed Teams Ranking (Top 8 advance)</h3><table class="third-place-table"><thead><tr><th>Pos</th><th>Grp</th><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th><th>Status</th></tr></thead><tbody>`;thirds.forEach((t,i)=>{const q=i<8,c=playerColors[t.person]||'#6c3bd4';h+=`<tr><td>${i+1}</td><td>${t.group}</td><td>${t.team}<span class="player-name" style="color:${c}">${t.person}</span></td><td>${t.gp}</td><td>${t.w}</td><td>${t.d}</td><td>${t.l}</td><td>${t.gf}</td><td>${t.ga}</td><td>${t.gd>=0?'+':''}${t.gd}</td><td class="pts">${t.pts}</td><td class="${q?'qualifies':''}">${q?'✅ Advances':'❌'}</td></tr>`;});h+=`</tbody></table></div>`;container.innerHTML=h;}
-
-        function renderKnockout(){const container=document.getElementById('knockoutContainer'),filtered=allGames.filter(g=>g.isKo&&(g.date===selectedDate||!selectedDate)),fIds=new Set(filtered.map(g=>g.id));const rounds=['Round of 32','Round of 16','Quarter-finals','Semi-finals','Third Place','Final'];let h='';rounds.forEach(rn=>{const games=allKoGames.filter(g=>g.round===rn);if(!games.length)return;h+=`<div class="ko-round"><h3>🏆 ${rn}</h3><div class="ko-games">`;games.forEach(g=>{const hi=fIds.has(g.id),sc=g.homeScore!==null&&g.awayScore!==null;h+=`<div class="ko-game" data-game-id="${g.id}" style="${hi&&selectedDate?'border:2px solid var(--accent);background:#fff8e1;':''}"><span><strong>${g.home}</strong> vs <strong>${g.away}</strong><br><span style="font-size:.55em;color:#adb5bd;">${g.stadium} · ${g.time} (${g.pst})</span></span><span class="${sc?'ko-score':'ko-score pending'}">${sc?g.homeScore+' - '+g.awayScore:'TBD'}</span><span style="font-size:.6em;color:#adb5bd;">${g.date.slice(5)}</span></div>`;});h+=`</div></div>`;});container.innerHTML=h;container.querySelectorAll('.ko-game').forEach(r=>r.addEventListener('click',()=>openGameModal(r.dataset.gameId)));}
 
         function openGameModal(gameId){
             const game=allGames.find(g=>g.id===gameId);if(!game)return;const overlay=document.getElementById('modalOverlay'),modal=document.getElementById('gameModal'),hs=game.homeScore!==null?game.homeScore:'',as=game.awayScore!==null?game.awayScore:'',hp=peopleMap[game.home]||'',ap=peopleMap[game.away]||'',hc=playerColors[hp]||'#6c3bd4',ac=playerColors[ap]||'#6c3bd4';
@@ -774,20 +836,22 @@
         }
 
         function renderAll(){
+            updateKnockoutTeams();
+            propagateKnockoutResults();
             document.getElementById('filterBanner').innerHTML=selectedDate?`🔍 Showing <strong>${selectedDate}</strong> <span class="clear-filter" id="clearFilter">[Show All]</span>`:`📅 Click a date to see games · 🔴 Live Sync Active`;
             if(selectedDate)document.getElementById('clearFilter').addEventListener('click',()=>{selectedDate=null;renderCalendar();renderAll();document.getElementById('dailyOverlay').classList.remove('open');});
             if(currentView==='groups')renderGroups();
             else if(currentView==='thirdplace')renderThirdPlace();
-            else if(currentView==='knockout')renderKnockout();
-            else if(currentView==='players')renderPlayersStats();
             renderLegend();
             renderBracket();
         }
 
         document.querySelectorAll('.tab-btn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');currentView=btn.dataset.view;document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('view-'+currentView).classList.add('active');renderAll();});});
 
-        initializeDefaultScores();syncFromFirebase();
-        renderCalendar();renderAll();
+        initializeDefaultScores();
+        syncFromFirebase();
+        renderCalendar();
+        renderAll();
     </script>
 </body>
 </html>
