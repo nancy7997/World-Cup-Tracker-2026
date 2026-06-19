@@ -20,7 +20,7 @@
         header .subtitle{font-size:.68em;color:#adb5bd;margin-top:2px;}
         .sync-status{font-size:.6em;color:#4ade80;margin-top:2px;}
         .sync-status.offline{color:#f87171;}
-        .calendar-wrap{background:#fff;border-bottom:1px solid var(--border);padding:6px 0;position:sticky;top:68px;z-index:99;overflow-x:auto;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,0.05);}
+        .calendar-wrap{background:#fff;border-bottom:1px solid var(--border);padding:6px 0;position:sticky;top:68px;z-index:99;overflow-x:auto;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,0.05);scroll-behavior:smooth;}
         .calendar-strip{display:flex;gap:3px;padding:0 10px;min-width:fit-content;}
         .cal-day{flex:0 0 52px;height:62px;border-radius:8px;background:#f8f9fa;border:1px solid #dee2e6;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:all .15s;color:#495057;padding:4px 0;}
         .cal-day:hover{border-color:var(--accent);background:#fff8e1;}
@@ -37,6 +37,7 @@
         .content{padding:6px 12px 20px;max-width:1400px;margin:0 auto;}
         .view{display:none;}
         .view.active{display:block;}
+        /* FIX: Horizontal grid layout for group cards - side by side, as many as fit */
         .groups-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
@@ -323,12 +324,12 @@
         }
 
         const allGroupGames=[
-            {id:'G1',group:'A',home:'Mexico',away:'South Africa',date:'2026-06-11',time:'1:00 PM CT',pst:'12:00 PM PST',stadium:'Estadio Azteca, Mexico City',homeScore:2,awayScore:0},
-            {id:'G2',group:'A',home:'South Korea',away:'Czech Republic',date:'2026-06-11',time:'8:00 PM CT',pst:'7:00 PM PST',stadium:'Estadio Akron, Zapopan',homeScore:2,awayScore:1},
+            {id:'G1',group:'A',home:'Mexico',away:'South Africa',date:'2026-06-11',time:'1:00 PM CT',pst:'11:00 AM PST',stadium:'Estadio Azteca, Mexico City',homeScore:2,awayScore:0},
+            {id:'G2',group:'A',home:'South Korea',away:'Czech Republic',date:'2026-06-11',time:'8:00 PM CT',pst:'6:00 PM PST',stadium:'Estadio Akron, Zapopan',homeScore:2,awayScore:1},
             {id:'G25',group:'A',home:'Czech Republic',away:'South Africa',date:'2026-06-18',time:'12:00 PM ET',pst:'9:00 AM PST',stadium:'Mercedes-Benz Stadium, Atlanta',homeScore:null,awayScore:null},
-            {id:'G28',group:'A',home:'Mexico',away:'South Korea',date:'2026-06-18',time:'7:00 PM CT',pst:'6:00 PM PST',stadium:'Estadio Akron, Zapopan',homeScore:null,awayScore:null},
-            {id:'G53',group:'A',home:'Czech Republic',away:'Mexico',date:'2026-06-24',time:'7:00 PM CT',pst:'6:00 PM PST',stadium:'Estadio Azteca, Mexico City',homeScore:null,awayScore:null},
-            {id:'G54',group:'A',home:'South Africa',away:'South Korea',date:'2026-06-24',time:'7:00 PM CT',pst:'6:00 PM PST',stadium:'Estadio BBVA, Guadalupe',homeScore:null,awayScore:null},
+            {id:'G28',group:'A',home:'Mexico',away:'South Korea',date:'2026-06-18',time:'7:00 PM CT',pst:'5:00 PM PST',stadium:'Estadio Akron, Zapopan',homeScore:null,awayScore:null},
+            {id:'G53',group:'A',home:'Czech Republic',away:'Mexico',date:'2026-06-24',time:'7:00 PM CT',pst:'5:00 PM PST',stadium:'Estadio Azteca, Mexico City',homeScore:null,awayScore:null},
+            {id:'G54',group:'A',home:'South Africa',away:'South Korea',date:'2026-06-24',time:'7:00 PM CT',pst:'5:00 PM PST',stadium:'Estadio BBVA, Guadalupe',homeScore:null,awayScore:null},
             {id:'G3',group:'B',home:'Canada',away:'Bosnia and Herzegovina',date:'2026-06-12',time:'3:00 PM ET',pst:'12:00 PM PST',stadium:'BMO Field, Toronto',homeScore:1,awayScore:1},
             {id:'G8',group:'B',home:'Qatar',away:'Switzerland',date:'2026-06-13',time:'12:00 PM PT',pst:'12:00 PM PST',stadium:"Levi's Stadium, Santa Clara",homeScore:null,awayScore:null},
             {id:'G26',group:'B',home:'Switzerland',away:'Bosnia and Herzegovina',date:'2026-06-18',time:'12:00 PM PT',pst:'12:00 PM PST',stadium:'SoFi Stadium, Inglewood',homeScore:null,awayScore:null},
@@ -500,6 +501,20 @@
             return formatter.format(now); // returns YYYY-MM-DD
         }
 
+        // ----- NEW: Auto-scroll calendar to center a date -----
+        function scrollCalendarToDate(dateStr) {
+            const container = document.querySelector('.calendar-wrap');
+            if (!container) return;
+            const target = container.querySelector(`.cal-day[data-date="${dateStr}"]`);
+            if (!target) return;
+            const containerWidth = container.clientWidth;
+            const targetOffsetLeft = target.offsetLeft;
+            const targetWidth = target.offsetWidth || 52; // fallback
+            // Calculate scroll position to center the element
+            const scrollPos = targetOffsetLeft - (containerWidth / 2) + (targetWidth / 2);
+            container.scrollLeft = Math.max(0, scrollPos);
+        }
+
         function renderCalendar(){
             const strip=document.getElementById('calendarStrip');
             const dates=new Set(allGames.map(g=>g.date));
@@ -520,7 +535,12 @@
                 c.setDate(c.getDate()+1);
             }
             strip.innerHTML=h;
+            // Add click listeners
             strip.querySelectorAll('.cal-day').forEach(el=>el.addEventListener('click',()=>{const d=el.dataset.date;if(selectedDate===d){selectedDate=null;renderCalendar();renderAll();document.getElementById('dailyOverlay').classList.remove('open');}else{selectedDate=d;renderCalendar();renderAll();openDailyModal(d);}}));
+            // Scroll to the active date (selected or today)
+            const focusDate = selectedDate || todayPST;
+            // Use setTimeout to ensure DOM layout is updated
+            setTimeout(() => scrollCalendarToDate(focusDate), 50);
         }
 
         function openDailyModal(dateStr){
