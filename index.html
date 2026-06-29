@@ -850,8 +850,8 @@
         .admin-modal {
             background: #fff;
             border-radius: 14px;
-            padding: 20px;
-            max-width: 900px;
+            padding: 24px;
+            max-width: 960px;
             width: 100%;
             max-height: 85vh;
             overflow-y: auto;
@@ -904,49 +904,80 @@
         .admin-editor.show {
             display: block;
         }
+        .admin-filter-note {
+            text-align: center;
+            font-size: 0.75rem;
+            color: #6c757d;
+            margin-bottom: 12px;
+            font-style: italic;
+            background: #f8f9fa;
+            padding: 6px;
+            border-radius: 6px;
+        }
         .admin-editor table {
             width: 100%;
-            border-collapse: collapse;
-            font-size: 0.75rem;
+            border-collapse: separate;
+            border-spacing: 0 8px;          /* increased vertical gap between rows */
+            font-size: 0.78rem;
         }
         .admin-editor th {
             background: #f1f3f5;
-            padding: 6px 4px;
+            padding: 10px 10px;
             text-align: left;
             border-bottom: 2px solid #dee2e6;
             position: sticky;
             top: 0;
             z-index: 2;
+            font-size: 0.75rem;
+            white-space: nowrap;
         }
         .admin-editor td {
-            padding: 4px 2px;
+            padding: 12px 10px;            /* generous cell padding */
             border-bottom: 1px solid #e9ecef;
             vertical-align: middle;
+            background: #fff;
+            border-radius: 6px;
+        }
+        .admin-editor tr:hover td {
+            background: #f8f9fa;
         }
         .admin-editor input {
             width: 100%;
-            padding: 4px 6px;
-            font-size: 0.75rem;
+            padding: 8px 10px;
+            font-size: 0.78rem;
             border: 1px solid #ced4da;
-            border-radius: 4px;
+            border-radius: 5px;
             background: #fff;
+            transition: border-color 0.15s;
         }
         .admin-editor input:focus {
             border-color: var(--accent);
             outline: none;
+            box-shadow: 0 0 0 2px rgba(230, 168, 23, 0.2);
         }
         .admin-editor .match-id {
             font-weight: 600;
             color: #495057;
             white-space: nowrap;
+            min-width: 90px;
         }
         .admin-editor .match-teams-label {
             white-space: nowrap;
             font-weight: 500;
+            min-width: 170px;
+        }
+        .admin-editor .col-date {
+            min-width: 145px;
+        }
+        .admin-editor .col-time {
+            min-width: 160px;
+        }
+        .admin-editor .col-stadium {
+            min-width: 200px;
         }
         .admin-save-btn {
             display: block;
-            margin: 16px auto 8px;
+            margin: 20px auto 8px;
             padding: 10px 40px;
             background: var(--win);
             color: #fff;
@@ -1100,7 +1131,11 @@
             }
             .admin-editor input {
                 font-size: 0.65rem;
-                padding: 2px 4px;
+                padding: 4px 6px;
+            }
+            .admin-editor td,
+            .admin-editor th {
+                padding: 8px 6px;
             }
         }
         @media (min-width: 721px) and (max-width: 1080px) {
@@ -1181,15 +1216,16 @@
                 <div id="adminPasswordError" class="admin-error"></div>
             </div>
             <div id="adminEditor" class="admin-editor">
+                <div class="admin-filter-note">📋 Showing only current & future games (past games are hidden)</div>
                 <div style="overflow-x:auto;">
                     <table>
                         <thead>
                             <tr>
                                 <th>Match</th>
                                 <th>Teams</th>
-                                <th>Date</th>
-                                <th>Time (PST)</th>
-                                <th>Stadium</th>
+                                <th class="col-date">Date</th>
+                                <th class="col-time">Time</th>
+                                <th class="col-stadium">Stadium</th>
                             </tr>
                         </thead>
                         <tbody id="adminTableBody"></tbody>
@@ -1218,7 +1254,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const scoresRef = ref(db, 'scores');
-        const scheduleRef = ref(db, 'schedule'); // For admin schedule overrides
+        const scheduleRef = ref(db, 'schedule');
 
         const GROUPS = {
             'A': ['Mexico', 'South Africa', 'South Korea', 'Czechia'],
@@ -1320,243 +1356,117 @@
 
         // ---- GROUP GAMES (full list) ----
         const allGroupGames = [
-            // Group A
-            { id: 'G1', group: 'A', home: 'Mexico', away: 'South Africa', date: '2026-06-11', time: '1:00 PM CT',
-                pst: '12:00 PM PST', stadium: 'Mexico City Stadium', homeScore: 2, awayScore: 0 },
-            { id: 'G2', group: 'A', home: 'South Korea', away: 'Czechia', date: '2026-06-11', time: '8:00 PM CT',
-                pst: '7:00 PM PST', stadium: 'Estadio Guadalajara', homeScore: 2, awayScore: 1 },
-            { id: 'G25', group: 'A', home: 'Czechia', away: 'South Africa', date: '2026-06-18',
-                time: '12:00 PM ET', pst: '9:00 AM PST', stadium: 'Mercedes-Benz Stadium, Atlanta', homeScore: null,
-                awayScore: null },
-            { id: 'G28', group: 'A', home: 'Mexico', away: 'South Korea', date: '2026-06-18', time: '7:00 PM CT',
-                pst: '6:00 PM PST', stadium: 'Estadio Akron, Zapopan', homeScore: null, awayScore: null },
-            { id: 'G53', group: 'A', home: 'Czechia', away: 'Mexico', date: '2026-06-24', time: '7:00 PM CT',
-                pst: '6:00 PM PST', stadium: 'Mexico City Stadium', homeScore: null, awayScore: null },
-            { id: 'G54', group: 'A', home: 'South Africa', away: 'South Korea', date: '2026-06-24', time: '7:00 PM CT',
-                pst: '6:00 PM PST', stadium: 'Estadio Monterrey', homeScore: null, awayScore: null },
-            // Group B
-            { id: 'G3', group: 'B', home: 'Canada', away: 'Bosnia and Herzegovina', date: '2026-06-12',
-                time: '3:00 PM ET', pst: '12:00 PM PST', stadium: 'Toronto Stadium', homeScore: 1, awayScore: 1 },
-            { id: 'G8', group: 'B', home: 'Qatar', away: 'Switzerland', date: '2026-06-13', time: '12:00 PM PT',
-                pst: '12:00 PM PST', stadium: "San Francisco Bay Area Stadium", homeScore: null, awayScore: null },
-            { id: 'G26', group: 'B', home: 'Switzerland', away: 'Bosnia and Herzegovina', date: '2026-06-18',
-                time: '12:00 PM PT', pst: '12:00 PM PST', stadium: 'Los Angeles Stadium', homeScore: null,
-                awayScore: null },
-            { id: 'G27', group: 'B', home: 'Canada', away: 'Qatar', date: '2026-06-18', time: '3:00 PM PT',
-                pst: '3:00 PM PST', stadium: 'BC Place, Vancouver', homeScore: null, awayScore: null },
-            { id: 'G51', group: 'B', home: 'Switzerland', away: 'Canada', date: '2026-06-24', time: '12:00 PM PT',
-                pst: '12:00 PM PST', stadium: 'BC Place, Vancouver', homeScore: null, awayScore: null },
-            { id: 'G52', group: 'B', home: 'Bosnia and Herzegovina', away: 'Qatar', date: '2026-06-24',
-                time: '12:00 PM PT', pst: '12:00 PM PST', stadium: 'Seattle Stadium', homeScore: null,
-                awayScore: null },
-            // Group C
-            { id: 'G7', group: 'C', home: 'Brazil', away: 'Morocco', date: '2026-06-13', time: '6:00 PM ET',
-                pst: '3:00 PM PST', stadium: 'New York New Jersey Stadium', homeScore: null, awayScore: null },
-            { id: 'G5', group: 'C', home: 'Haiti', away: 'Scotland', date: '2026-06-13', time: '9:00 PM ET',
-                pst: '6:00 PM PST', stadium: 'Boston Stadium', homeScore: null, awayScore: null },
-            { id: 'G30', group: 'C', home: 'Scotland', away: 'Morocco', date: '2026-06-19', time: '6:00 PM ET',
-                pst: '3:00 PM PST', stadium: 'Boston Stadium', homeScore: null, awayScore: null },
-            { id: 'G29', group: 'C', home: 'Brazil', away: 'Haiti', date: '2026-06-19', time: '8:30 PM ET',
-                pst: '5:30 PM PST', stadium: 'Philadelphia Stadium', homeScore: null, awayScore: null },
-            { id: 'G49', group: 'C', home: 'Scotland', away: 'Brazil', date: '2026-06-24', time: '6:00 PM ET',
-                pst: '3:00 PM PST', stadium: 'Miami Stadium', homeScore: null, awayScore: null },
-            { id: 'G50', group: 'C', home: 'Morocco', away: 'Haiti', date: '2026-06-24', time: '6:00 PM ET',
-                pst: '3:00 PM PST', stadium: 'Atlanta Stadium', homeScore: null, awayScore: null },
-            // Group D
-            { id: 'G4', group: 'D', home: 'USA', away: 'Paraguay', date: '2026-06-12', time: '6:00 PM PT',
-                pst: '6:00 PM PST', stadium: 'Los Angeles Stadium', homeScore: 4, awayScore: 1 },
-            { id: 'G6', group: 'D', home: 'Australia', away: 'Türkiye', date: '2026-06-13', time: '9:00 PM PT',
-                pst: '9:00 PM PST', stadium: 'BC Place, Vancouver', homeScore: null, awayScore: null },
-            { id: 'G32', group: 'D', home: 'USA', away: 'Australia', date: '2026-06-19', time: '12:00 PM PT',
-                pst: '12:00 PM PST', stadium: 'Seattle Stadium', homeScore: null, awayScore: null },
-            { id: 'G31', group: 'D', home: 'Türkiye', away: 'Paraguay', date: '2026-06-19', time: '8:00 PM PT',
-                pst: '8:00 PM PST', stadium: "San Francisco Bay Area Stadium", homeScore: null, awayScore: null },
-            { id: 'G59', group: 'D', home: 'Türkiye', away: 'USA', date: '2026-06-25', time: '7:00 PM PT',
-                pst: '7:00 PM PST', stadium: 'Los Angeles Stadium', homeScore: null, awayScore: null },
-            { id: 'G60', group: 'D', home: 'Paraguay', away: 'Australia', date: '2026-06-25', time: '7:00 PM PT',
-                pst: '7:00 PM PST', stadium: "San Francisco Bay Area Stadium", homeScore: null, awayScore: null },
-            // Group E
-            { id: 'G10', group: 'E', home: 'Germany', away: 'Curaçao', date: '2026-06-14', time: '12:00 PM CT',
-                pst: '10:00 AM PST', stadium: 'Houston Stadium', homeScore: null, awayScore: null },
-            { id: 'G9', group: 'E', home: 'Côte d\'Ivoire', away: 'Ecuador', date: '2026-06-14', time: '7:00 PM ET',
-                pst: '4:00 PM PST', stadium: 'Philadelphia Stadium', homeScore: null, awayScore: null },
-            { id: 'G33', group: 'E', home: 'Germany', away: 'Côte d\'Ivoire', date: '2026-06-20', time: '4:00 PM ET',
-                pst: '1:00 PM PST', stadium: 'Toronto Stadium', homeScore: null, awayScore: null },
-            { id: 'G34', group: 'E', home: 'Ecuador', away: 'Curaçao', date: '2026-06-20', time: '7:00 PM CT',
-                pst: '5:00 PM PST', stadium: 'Kansas City Stadium', homeScore: null, awayScore: null },
-            { id: 'G55', group: 'E', home: 'Curaçao', away: 'Côte d\'Ivoire', date: '2026-06-25', time: '4:00 PM ET',
-                pst: '1:00 PM PST', stadium: 'Philadelphia Stadium', homeScore: null, awayScore: null },
-            { id: 'G56', group: 'E', home: 'Ecuador', away: 'Germany', date: '2026-06-25', time: '4:00 PM ET',
-                pst: '1:00 PM PST', stadium: 'New York New Jersey Stadium', homeScore: null, awayScore: null },
-            // Group F
-            { id: 'G11', group: 'F', home: 'Netherlands', away: 'Japan', date: '2026-06-14', time: '3:00 PM CT',
-                pst: '1:00 PM PST', stadium: 'Dallas Stadium', homeScore: null, awayScore: null },
-            { id: 'G12', group: 'F', home: 'Sweden', away: 'Tunisia', date: '2026-06-14', time: '7:00 PM PT',
-                pst: '7:00 PM PST', stadium: 'Estadio Monterrey', homeScore: null, awayScore: null },
-            { id: 'G35', group: 'F', home: 'Netherlands', away: 'Sweden', date: '2026-06-20', time: '12:00 PM CT',
-                pst: '10:00 AM PST', stadium: 'Houston Stadium', homeScore: null, awayScore: null },
-            { id: 'G36', group: 'F', home: 'Tunisia', away: 'Japan', date: '2026-06-20', time: '10:00 PM CT',
-                pst: '8:00 PM PST', stadium: 'Estadio Monterrey', homeScore: null, awayScore: null },
-            { id: 'G57', group: 'F', home: 'Japan', away: 'Sweden', date: '2026-06-25', time: '6:00 PM CT',
-                pst: '4:00 PM PST', stadium: 'Dallas Stadium', homeScore: null, awayScore: null },
-            { id: 'G58', group: 'F', home: 'Tunisia', away: 'Netherlands', date: '2026-06-25', time: '6:00 PM CT',
-                pst: '4:00 PM PST', stadium: 'Kansas City Stadium', homeScore: null, awayScore: null },
-            // Group G
-            { id: 'G16', group: 'G', home: 'Belgium', away: 'Egypt', date: '2026-06-15', time: '12:00 PM PT',
-                pst: '12:00 PM PST', stadium: 'Seattle Stadium', homeScore: null, awayScore: null },
-            { id: 'G15', group: 'G', home: 'IR Iran', away: 'New Zealand', date: '2026-06-15', time: '6:00 PM PT',
-                pst: '6:00 PM PST', stadium: 'Los Angeles Stadium', homeScore: null, awayScore: null },
-            { id: 'G39', group: 'G', home: 'Belgium', away: 'IR Iran', date: '2026-06-21', time: '12:00 PM PT',
-                pst: '12:00 PM PST', stadium: 'Los Angeles Stadium', homeScore: null, awayScore: null },
-            { id: 'G40', group: 'G', home: 'New Zealand', away: 'Egypt', date: '2026-06-21', time: '6:00 PM PT',
-                pst: '6:00 PM PST', stadium: 'BC Place, Vancouver', homeScore: null, awayScore: null },
-            { id: 'G63', group: 'G', home: 'Egypt', away: 'IR Iran', date: '2026-06-26', time: '8:00 PM PT',
-                pst: '8:00 PM PST', stadium: 'Seattle Stadium', homeScore: null, awayScore: null },
-            { id: 'G64', group: 'G', home: 'New Zealand', away: 'Belgium', date: '2026-06-26', time: '8:00 PM PT',
-                pst: '8:00 PM PST', stadium: 'BC Place, Vancouver', homeScore: null, awayScore: null },
-            // Group H
-            { id: 'G14', group: 'H', home: 'Spain', away: 'Cabo Verde', date: '2026-06-15', time: '12:00 PM ET',
-                pst: '9:00 AM PST', stadium: 'Atlanta Stadium', homeScore: null, awayScore: null },
-            { id: 'G13', group: 'H', home: 'Saudi Arabia', away: 'Uruguay', date: '2026-06-15', time: '6:00 PM ET',
-                pst: '3:00 PM PST', stadium: 'Miami Stadium', homeScore: null, awayScore: null },
-            { id: 'G38', group: 'H', home: 'Spain', away: 'Saudi Arabia', date: '2026-06-21', time: '12:00 PM ET',
-                pst: '9:00 AM PST', stadium: 'Atlanta Stadium', homeScore: null, awayScore: null },
-            { id: 'G37', group: 'H', home: 'Uruguay', away: 'Cabo Verde', date: '2026-06-21', time: '6:00 PM ET',
-                pst: '3:00 PM PST', stadium: 'Miami Stadium', homeScore: null, awayScore: null },
-            { id: 'G65', group: 'H', home: 'Cabo Verde', away: 'Saudi Arabia', date: '2026-06-26', time: '7:00 PM CT',
-                pst: '5:00 PM PST', stadium: 'Houston Stadium', homeScore: null, awayScore: null },
-            { id: 'G66', group: 'H', home: 'Uruguay', away: 'Spain', date: '2026-06-26', time: '6:00 PM CT',
-                pst: '4:00 PM PST', stadium: 'Estadio Guadalajara', homeScore: null, awayScore: null },
-            // Group I
-            { id: 'G17', group: 'I', home: 'France', away: 'Senegal', date: '2026-06-16', time: '3:00 PM ET',
-                pst: '12:00 PM PST', stadium: 'New York New Jersey Stadium', homeScore: null, awayScore: null },
-            { id: 'G18', group: 'I', home: 'Iraq', away: 'Norway', date: '2026-06-16', time: '6:00 PM ET',
-                pst: '3:00 PM PST', stadium: 'Boston Stadium', homeScore: null, awayScore: null },
-            { id: 'G42', group: 'I', home: 'France', away: 'Iraq', date: '2026-06-22', time: '5:00 PM ET',
-                pst: '2:00 PM PST', stadium: 'Philadelphia Stadium', homeScore: null, awayScore: null },
-            { id: 'G41', group: 'I', home: 'Norway', away: 'Senegal', date: '2026-06-22', time: '8:00 PM ET',
-                pst: '5:00 PM PST', stadium: 'New York New Jersey Stadium', homeScore: null, awayScore: null },
-            { id: 'G61', group: 'I', home: 'Norway', away: 'France', date: '2026-06-26', time: '3:00 PM ET',
-                pst: '12:00 PM PST', stadium: 'Boston Stadium', homeScore: null, awayScore: null },
-            { id: 'G62', group: 'I', home: 'Senegal', away: 'Iraq', date: '2026-06-26', time: '3:00 PM ET',
-                pst: '12:00 PM PST', stadium: 'Toronto Stadium', homeScore: null, awayScore: null },
-            // Group J
-            { id: 'G19', group: 'J', home: 'Argentina', away: 'Algeria', date: '2026-06-16', time: '8:00 PM CT',
-                pst: '6:00 PM PST', stadium: 'Kansas City Stadium', homeScore: null, awayScore: null },
-            { id: 'G20', group: 'J', home: 'Austria', away: 'Jordan', date: '2026-06-16', time: '9:00 PM PT',
-                pst: '9:00 PM PST', stadium: "San Francisco Bay Area Stadium", homeScore: null, awayScore: null },
-            { id: 'G43', group: 'J', home: 'Argentina', away: 'Austria', date: '2026-06-22', time: '12:00 PM CT',
-                pst: '10:00 AM PST', stadium: 'Dallas Stadium', homeScore: null, awayScore: null },
-            { id: 'G44', group: 'J', home: 'Jordan', away: 'Algeria', date: '2026-06-22', time: '8:00 PM PT',
-                pst: '8:00 PM PST', stadium: "San Francisco Bay Area Stadium", homeScore: null, awayScore: null },
-            { id: 'G69', group: 'J', home: 'Algeria', away: 'Austria', date: '2026-06-27', time: '9:00 PM CT',
-                pst: '7:00 PM PST', stadium: 'Kansas City Stadium', homeScore: null, awayScore: null },
-            { id: 'G70', group: 'J', home: 'Jordan', away: 'Argentina', date: '2026-06-27', time: '9:00 PM CT',
-                pst: '7:00 PM PST', stadium: 'Dallas Stadium', homeScore: null, awayScore: null },
-            // Group K
-            { id: 'G23', group: 'K', home: 'Portugal', away: 'Congo DR', date: '2026-06-17', time: '12:00 PM CT',
-                pst: '10:00 AM PST', stadium: 'Houston Stadium', homeScore: null, awayScore: null },
-            { id: 'G24', group: 'K', home: 'Uzbekistan', away: 'Colombia', date: '2026-06-17', time: '8:00 PM CT',
-                pst: '6:00 PM PST', stadium: 'Mexico City Stadium', homeScore: null, awayScore: null },
-            { id: 'G47', group: 'K', home: 'Portugal', away: 'Uzbekistan', date: '2026-06-23', time: '12:00 PM CT',
-                pst: '10:00 AM PST', stadium: 'Houston Stadium', homeScore: null, awayScore: null },
-            { id: 'G48', group: 'K', home: 'Colombia', away: 'Congo DR', date: '2026-06-23', time: '8:00 PM CT',
-                pst: '6:00 PM PST', stadium: 'Estadio Guadalajara', homeScore: null, awayScore: null },
-            { id: 'G71', group: 'K', home: 'Colombia', away: 'Portugal', date: '2026-06-27', time: '7:30 PM ET',
-                pst: '4:30 PM PST', stadium: 'Miami Stadium', homeScore: null, awayScore: null },
-            { id: 'G72', group: 'K', home: 'Congo DR', away: 'Uzbekistan', date: '2026-06-27', time: '7:30 PM ET',
-                pst: '4:30 PM PST', stadium: 'Atlanta Stadium', homeScore: null, awayScore: null },
-            // Group L
-            { id: 'G22', group: 'L', home: 'England', away: 'Croatia', date: '2026-06-17', time: '3:00 PM CT',
-                pst: '1:00 PM PST', stadium: 'Dallas Stadium', homeScore: null, awayScore: null },
-            { id: 'G21', group: 'L', home: 'Ghana', away: 'Panama', date: '2026-06-17', time: '7:00 PM ET',
-                pst: '4:00 PM PST', stadium: 'Toronto Stadium', homeScore: null, awayScore: null },
-            { id: 'G45', group: 'L', home: 'England', away: 'Ghana', date: '2026-06-23', time: '4:00 PM ET',
-                pst: '1:00 PM PST', stadium: 'Boston Stadium', homeScore: null, awayScore: null },
-            { id: 'G46', group: 'L', home: 'Panama', away: 'Croatia', date: '2026-06-23', time: '7:00 PM ET',
-                pst: '4:00 PM PST', stadium: 'Toronto Stadium', homeScore: null, awayScore: null },
-            { id: 'G67', group: 'L', home: 'Panama', away: 'England', date: '2026-06-27', time: '5:00 PM ET',
-                pst: '2:00 PM PST', stadium: 'New York New Jersey Stadium', homeScore: null, awayScore: null },
-            { id: 'G68', group: 'L', home: 'Croatia', away: 'Ghana', date: '2026-06-27', time: '5:00 PM ET',
-                pst: '2:00 PM PST', stadium: 'Philadelphia Stadium', homeScore: null, awayScore: null }
+            { id: 'G1', group: 'A', home: 'Mexico', away: 'South Africa', date: '2026-06-11', time: '1:00 PM CT', pst: '12:00 PM PST', stadium: 'Mexico City Stadium', homeScore: 2, awayScore: 0 },
+            { id: 'G2', group: 'A', home: 'South Korea', away: 'Czechia', date: '2026-06-11', time: '8:00 PM CT', pst: '7:00 PM PST', stadium: 'Estadio Guadalajara', homeScore: 2, awayScore: 1 },
+            { id: 'G25', group: 'A', home: 'Czechia', away: 'South Africa', date: '2026-06-18', time: '12:00 PM ET', pst: '9:00 AM PST', stadium: 'Mercedes-Benz Stadium, Atlanta', homeScore: null, awayScore: null },
+            { id: 'G28', group: 'A', home: 'Mexico', away: 'South Korea', date: '2026-06-18', time: '7:00 PM CT', pst: '6:00 PM PST', stadium: 'Estadio Akron, Zapopan', homeScore: null, awayScore: null },
+            { id: 'G53', group: 'A', home: 'Czechia', away: 'Mexico', date: '2026-06-24', time: '7:00 PM CT', pst: '6:00 PM PST', stadium: 'Mexico City Stadium', homeScore: null, awayScore: null },
+            { id: 'G54', group: 'A', home: 'South Africa', away: 'South Korea', date: '2026-06-24', time: '7:00 PM CT', pst: '6:00 PM PST', stadium: 'Estadio Monterrey', homeScore: null, awayScore: null },
+            { id: 'G3', group: 'B', home: 'Canada', away: 'Bosnia and Herzegovina', date: '2026-06-12', time: '3:00 PM ET', pst: '12:00 PM PST', stadium: 'Toronto Stadium', homeScore: 1, awayScore: 1 },
+            { id: 'G8', group: 'B', home: 'Qatar', away: 'Switzerland', date: '2026-06-13', time: '12:00 PM PT', pst: '12:00 PM PST', stadium: "San Francisco Bay Area Stadium", homeScore: null, awayScore: null },
+            { id: 'G26', group: 'B', home: 'Switzerland', away: 'Bosnia and Herzegovina', date: '2026-06-18', time: '12:00 PM PT', pst: '12:00 PM PST', stadium: 'Los Angeles Stadium', homeScore: null, awayScore: null },
+            { id: 'G27', group: 'B', home: 'Canada', away: 'Qatar', date: '2026-06-18', time: '3:00 PM PT', pst: '3:00 PM PST', stadium: 'BC Place, Vancouver', homeScore: null, awayScore: null },
+            { id: 'G51', group: 'B', home: 'Switzerland', away: 'Canada', date: '2026-06-24', time: '12:00 PM PT', pst: '12:00 PM PST', stadium: 'BC Place, Vancouver', homeScore: null, awayScore: null },
+            { id: 'G52', group: 'B', home: 'Bosnia and Herzegovina', away: 'Qatar', date: '2026-06-24', time: '12:00 PM PT', pst: '12:00 PM PST', stadium: 'Seattle Stadium', homeScore: null, awayScore: null },
+            { id: 'G7', group: 'C', home: 'Brazil', away: 'Morocco', date: '2026-06-13', time: '6:00 PM ET', pst: '3:00 PM PST', stadium: 'New York New Jersey Stadium', homeScore: null, awayScore: null },
+            { id: 'G5', group: 'C', home: 'Haiti', away: 'Scotland', date: '2026-06-13', time: '9:00 PM ET', pst: '6:00 PM PST', stadium: 'Boston Stadium', homeScore: null, awayScore: null },
+            { id: 'G30', group: 'C', home: 'Scotland', away: 'Morocco', date: '2026-06-19', time: '6:00 PM ET', pst: '3:00 PM PST', stadium: 'Boston Stadium', homeScore: null, awayScore: null },
+            { id: 'G29', group: 'C', home: 'Brazil', away: 'Haiti', date: '2026-06-19', time: '8:30 PM ET', pst: '5:30 PM PST', stadium: 'Philadelphia Stadium', homeScore: null, awayScore: null },
+            { id: 'G49', group: 'C', home: 'Scotland', away: 'Brazil', date: '2026-06-24', time: '6:00 PM ET', pst: '3:00 PM PST', stadium: 'Miami Stadium', homeScore: null, awayScore: null },
+            { id: 'G50', group: 'C', home: 'Morocco', away: 'Haiti', date: '2026-06-24', time: '6:00 PM ET', pst: '3:00 PM PST', stadium: 'Atlanta Stadium', homeScore: null, awayScore: null },
+            { id: 'G4', group: 'D', home: 'USA', away: 'Paraguay', date: '2026-06-12', time: '6:00 PM PT', pst: '6:00 PM PST', stadium: 'Los Angeles Stadium', homeScore: 4, awayScore: 1 },
+            { id: 'G6', group: 'D', home: 'Australia', away: 'Türkiye', date: '2026-06-13', time: '9:00 PM PT', pst: '9:00 PM PST', stadium: 'BC Place, Vancouver', homeScore: null, awayScore: null },
+            { id: 'G32', group: 'D', home: 'USA', away: 'Australia', date: '2026-06-19', time: '12:00 PM PT', pst: '12:00 PM PST', stadium: 'Seattle Stadium', homeScore: null, awayScore: null },
+            { id: 'G31', group: 'D', home: 'Türkiye', away: 'Paraguay', date: '2026-06-19', time: '8:00 PM PT', pst: '8:00 PM PST', stadium: "San Francisco Bay Area Stadium", homeScore: null, awayScore: null },
+            { id: 'G59', group: 'D', home: 'Türkiye', away: 'USA', date: '2026-06-25', time: '7:00 PM PT', pst: '7:00 PM PST', stadium: 'Los Angeles Stadium', homeScore: null, awayScore: null },
+            { id: 'G60', group: 'D', home: 'Paraguay', away: 'Australia', date: '2026-06-25', time: '7:00 PM PT', pst: '7:00 PM PST', stadium: "San Francisco Bay Area Stadium", homeScore: null, awayScore: null },
+            { id: 'G10', group: 'E', home: 'Germany', away: 'Curaçao', date: '2026-06-14', time: '12:00 PM CT', pst: '10:00 AM PST', stadium: 'Houston Stadium', homeScore: null, awayScore: null },
+            { id: 'G9', group: 'E', home: 'Côte d\'Ivoire', away: 'Ecuador', date: '2026-06-14', time: '7:00 PM ET', pst: '4:00 PM PST', stadium: 'Philadelphia Stadium', homeScore: null, awayScore: null },
+            { id: 'G33', group: 'E', home: 'Germany', away: 'Côte d\'Ivoire', date: '2026-06-20', time: '4:00 PM ET', pst: '1:00 PM PST', stadium: 'Toronto Stadium', homeScore: null, awayScore: null },
+            { id: 'G34', group: 'E', home: 'Ecuador', away: 'Curaçao', date: '2026-06-20', time: '7:00 PM CT', pst: '5:00 PM PST', stadium: 'Kansas City Stadium', homeScore: null, awayScore: null },
+            { id: 'G55', group: 'E', home: 'Curaçao', away: 'Côte d\'Ivoire', date: '2026-06-25', time: '4:00 PM ET', pst: '1:00 PM PST', stadium: 'Philadelphia Stadium', homeScore: null, awayScore: null },
+            { id: 'G56', group: 'E', home: 'Ecuador', away: 'Germany', date: '2026-06-25', time: '4:00 PM ET', pst: '1:00 PM PST', stadium: 'New York New Jersey Stadium', homeScore: null, awayScore: null },
+            { id: 'G11', group: 'F', home: 'Netherlands', away: 'Japan', date: '2026-06-14', time: '3:00 PM CT', pst: '1:00 PM PST', stadium: 'Dallas Stadium', homeScore: null, awayScore: null },
+            { id: 'G12', group: 'F', home: 'Sweden', away: 'Tunisia', date: '2026-06-14', time: '7:00 PM PT', pst: '7:00 PM PST', stadium: 'Estadio Monterrey', homeScore: null, awayScore: null },
+            { id: 'G35', group: 'F', home: 'Netherlands', away: 'Sweden', date: '2026-06-20', time: '12:00 PM CT', pst: '10:00 AM PST', stadium: 'Houston Stadium', homeScore: null, awayScore: null },
+            { id: 'G36', group: 'F', home: 'Tunisia', away: 'Japan', date: '2026-06-20', time: '10:00 PM CT', pst: '8:00 PM PST', stadium: 'Estadio Monterrey', homeScore: null, awayScore: null },
+            { id: 'G57', group: 'F', home: 'Japan', away: 'Sweden', date: '2026-06-25', time: '6:00 PM CT', pst: '4:00 PM PST', stadium: 'Dallas Stadium', homeScore: null, awayScore: null },
+            { id: 'G58', group: 'F', home: 'Tunisia', away: 'Netherlands', date: '2026-06-25', time: '6:00 PM CT', pst: '4:00 PM PST', stadium: 'Kansas City Stadium', homeScore: null, awayScore: null },
+            { id: 'G16', group: 'G', home: 'Belgium', away: 'Egypt', date: '2026-06-15', time: '12:00 PM PT', pst: '12:00 PM PST', stadium: 'Seattle Stadium', homeScore: null, awayScore: null },
+            { id: 'G15', group: 'G', home: 'IR Iran', away: 'New Zealand', date: '2026-06-15', time: '6:00 PM PT', pst: '6:00 PM PST', stadium: 'Los Angeles Stadium', homeScore: null, awayScore: null },
+            { id: 'G39', group: 'G', home: 'Belgium', away: 'IR Iran', date: '2026-06-21', time: '12:00 PM PT', pst: '12:00 PM PST', stadium: 'Los Angeles Stadium', homeScore: null, awayScore: null },
+            { id: 'G40', group: 'G', home: 'New Zealand', away: 'Egypt', date: '2026-06-21', time: '6:00 PM PT', pst: '6:00 PM PST', stadium: 'BC Place, Vancouver', homeScore: null, awayScore: null },
+            { id: 'G63', group: 'G', home: 'Egypt', away: 'IR Iran', date: '2026-06-26', time: '8:00 PM PT', pst: '8:00 PM PST', stadium: 'Seattle Stadium', homeScore: null, awayScore: null },
+            { id: 'G64', group: 'G', home: 'New Zealand', away: 'Belgium', date: '2026-06-26', time: '8:00 PM PT', pst: '8:00 PM PST', stadium: 'BC Place, Vancouver', homeScore: null, awayScore: null },
+            { id: 'G14', group: 'H', home: 'Spain', away: 'Cabo Verde', date: '2026-06-15', time: '12:00 PM ET', pst: '9:00 AM PST', stadium: 'Atlanta Stadium', homeScore: null, awayScore: null },
+            { id: 'G13', group: 'H', home: 'Saudi Arabia', away: 'Uruguay', date: '2026-06-15', time: '6:00 PM ET', pst: '3:00 PM PST', stadium: 'Miami Stadium', homeScore: null, awayScore: null },
+            { id: 'G38', group: 'H', home: 'Spain', away: 'Saudi Arabia', date: '2026-06-21', time: '12:00 PM ET', pst: '9:00 AM PST', stadium: 'Atlanta Stadium', homeScore: null, awayScore: null },
+            { id: 'G37', group: 'H', home: 'Uruguay', away: 'Cabo Verde', date: '2026-06-21', time: '6:00 PM ET', pst: '3:00 PM PST', stadium: 'Miami Stadium', homeScore: null, awayScore: null },
+            { id: 'G65', group: 'H', home: 'Cabo Verde', away: 'Saudi Arabia', date: '2026-06-26', time: '7:00 PM CT', pst: '5:00 PM PST', stadium: 'Houston Stadium', homeScore: null, awayScore: null },
+            { id: 'G66', group: 'H', home: 'Uruguay', away: 'Spain', date: '2026-06-26', time: '6:00 PM CT', pst: '4:00 PM PST', stadium: 'Estadio Guadalajara', homeScore: null, awayScore: null },
+            { id: 'G17', group: 'I', home: 'France', away: 'Senegal', date: '2026-06-16', time: '3:00 PM ET', pst: '12:00 PM PST', stadium: 'New York New Jersey Stadium', homeScore: null, awayScore: null },
+            { id: 'G18', group: 'I', home: 'Iraq', away: 'Norway', date: '2026-06-16', time: '6:00 PM ET', pst: '3:00 PM PST', stadium: 'Boston Stadium', homeScore: null, awayScore: null },
+            { id: 'G42', group: 'I', home: 'France', away: 'Iraq', date: '2026-06-22', time: '5:00 PM ET', pst: '2:00 PM PST', stadium: 'Philadelphia Stadium', homeScore: null, awayScore: null },
+            { id: 'G41', group: 'I', home: 'Norway', away: 'Senegal', date: '2026-06-22', time: '8:00 PM ET', pst: '5:00 PM PST', stadium: 'New York New Jersey Stadium', homeScore: null, awayScore: null },
+            { id: 'G61', group: 'I', home: 'Norway', away: 'France', date: '2026-06-26', time: '3:00 PM ET', pst: '12:00 PM PST', stadium: 'Boston Stadium', homeScore: null, awayScore: null },
+            { id: 'G62', group: 'I', home: 'Senegal', away: 'Iraq', date: '2026-06-26', time: '3:00 PM ET', pst: '12:00 PM PST', stadium: 'Toronto Stadium', homeScore: null, awayScore: null },
+            { id: 'G19', group: 'J', home: 'Argentina', away: 'Algeria', date: '2026-06-16', time: '8:00 PM CT', pst: '6:00 PM PST', stadium: 'Kansas City Stadium', homeScore: null, awayScore: null },
+            { id: 'G20', group: 'J', home: 'Austria', away: 'Jordan', date: '2026-06-16', time: '9:00 PM PT', pst: '9:00 PM PST', stadium: "San Francisco Bay Area Stadium", homeScore: null, awayScore: null },
+            { id: 'G43', group: 'J', home: 'Argentina', away: 'Austria', date: '2026-06-22', time: '12:00 PM CT', pst: '10:00 AM PST', stadium: 'Dallas Stadium', homeScore: null, awayScore: null },
+            { id: 'G44', group: 'J', home: 'Jordan', away: 'Algeria', date: '2026-06-22', time: '8:00 PM PT', pst: '8:00 PM PST', stadium: "San Francisco Bay Area Stadium", homeScore: null, awayScore: null },
+            { id: 'G69', group: 'J', home: 'Algeria', away: 'Austria', date: '2026-06-27', time: '9:00 PM CT', pst: '7:00 PM PST', stadium: 'Kansas City Stadium', homeScore: null, awayScore: null },
+            { id: 'G70', group: 'J', home: 'Jordan', away: 'Argentina', date: '2026-06-27', time: '9:00 PM CT', pst: '7:00 PM PST', stadium: 'Dallas Stadium', homeScore: null, awayScore: null },
+            { id: 'G23', group: 'K', home: 'Portugal', away: 'Congo DR', date: '2026-06-17', time: '12:00 PM CT', pst: '10:00 AM PST', stadium: 'Houston Stadium', homeScore: null, awayScore: null },
+            { id: 'G24', group: 'K', home: 'Uzbekistan', away: 'Colombia', date: '2026-06-17', time: '8:00 PM CT', pst: '6:00 PM PST', stadium: 'Mexico City Stadium', homeScore: null, awayScore: null },
+            { id: 'G47', group: 'K', home: 'Portugal', away: 'Uzbekistan', date: '2026-06-23', time: '12:00 PM CT', pst: '10:00 AM PST', stadium: 'Houston Stadium', homeScore: null, awayScore: null },
+            { id: 'G48', group: 'K', home: 'Colombia', away: 'Congo DR', date: '2026-06-23', time: '8:00 PM CT', pst: '6:00 PM PST', stadium: 'Estadio Guadalajara', homeScore: null, awayScore: null },
+            { id: 'G71', group: 'K', home: 'Colombia', away: 'Portugal', date: '2026-06-27', time: '7:30 PM ET', pst: '4:30 PM PST', stadium: 'Miami Stadium', homeScore: null, awayScore: null },
+            { id: 'G72', group: 'K', home: 'Congo DR', away: 'Uzbekistan', date: '2026-06-27', time: '7:30 PM ET', pst: '4:30 PM PST', stadium: 'Atlanta Stadium', homeScore: null, awayScore: null },
+            { id: 'G22', group: 'L', home: 'England', away: 'Croatia', date: '2026-06-17', time: '3:00 PM CT', pst: '1:00 PM PST', stadium: 'Dallas Stadium', homeScore: null, awayScore: null },
+            { id: 'G21', group: 'L', home: 'Ghana', away: 'Panama', date: '2026-06-17', time: '7:00 PM ET', pst: '4:00 PM PST', stadium: 'Toronto Stadium', homeScore: null, awayScore: null },
+            { id: 'G45', group: 'L', home: 'England', away: 'Ghana', date: '2026-06-23', time: '4:00 PM ET', pst: '1:00 PM PST', stadium: 'Boston Stadium', homeScore: null, awayScore: null },
+            { id: 'G46', group: 'L', home: 'Panama', away: 'Croatia', date: '2026-06-23', time: '7:00 PM ET', pst: '4:00 PM PST', stadium: 'Toronto Stadium', homeScore: null, awayScore: null },
+            { id: 'G67', group: 'L', home: 'Panama', away: 'England', date: '2026-06-27', time: '5:00 PM ET', pst: '2:00 PM PST', stadium: 'New York New Jersey Stadium', homeScore: null, awayScore: null },
+            { id: 'G68', group: 'L', home: 'Croatia', away: 'Ghana', date: '2026-06-27', time: '5:00 PM ET', pst: '2:00 PM PST', stadium: 'Philadelphia Stadium', homeScore: null, awayScore: null }
         ];
         allGroupGames.forEach(g => { g.round = 'group'; });
 
         // ---- KNOCKOUT GAMES ----
         const allKoGames = [
-            // Round of 32 – reordered in pairs that feed into each Round of 16 match:
-            { id: 'K2', round: 'Round of 32', home: 'Germany', away: 'Paraguay', date: '2026-06-29',
-                time: '1:30 PM PST', stadium: 'Boston Stadium', matchNumber: '74', homeScore: null, awayScore: null, isKo: true },
-            { id: 'K5', round: 'Round of 32', home: 'France', away: 'Sweden', date: '2026-06-30',
-                time: '2:00 PM PST', stadium: 'New York New Jersey Stadium', matchNumber: '77', homeScore: null, awayScore: null, isKo: true },
-            { id: 'K1', round: 'Round of 32', home: 'South Africa', away: 'Canada', date: '2026-06-28',
-                time: '12:00 PM PST', stadium: 'Los Angeles Stadium', matchNumber: '73', homeScore: null, awayScore: null, isKo: true },
-            { id: 'K3', round: 'Round of 32', home: 'Netherlands', away: 'Morocco', date: '2026-06-29',
-                time: '10:00 AM PST', stadium: 'Estadio Monterrey', matchNumber: '75', homeScore: null, awayScore: null, isKo: true },
-            { id: 'K4', round: 'Round of 32', home: 'Brazil', away: 'Japan', date: '2026-06-29',
-                time: '6:00 PM PST', stadium: 'Houston Stadium', matchNumber: '76', homeScore: null, awayScore: null, isKo: true },
-            { id: 'K6', round: 'Round of 32', home: 'Côte d\'Ivoire', away: 'Norway', date: '2026-06-30',
-                time: '10:00 AM PST', stadium: 'Dallas Stadium', matchNumber: '78', homeScore: null, awayScore: null, isKo: true },
-            { id: 'K7', round: 'Round of 32', home: 'Mexico', away: 'Ecuador', date: '2026-06-30',
-                time: '6:00 PM PST', stadium: 'Mexico City Stadium', matchNumber: '79', homeScore: null, awayScore: null, isKo: true },
-            { id: 'K8', round: 'Round of 32', home: 'England', away: 'Congo DR', date: '2026-07-01',
-                time: '9:00 AM PST', stadium: 'Atlanta Stadium', matchNumber: '80', homeScore: null, awayScore: null, isKo: true },
-            { id: 'K11', round: 'Round of 32', home: 'Portugal', away: 'Croatia', date: '2026-07-02',
-                time: '4:00 PM PST', stadium: 'Toronto Stadium', matchNumber: '83', homeScore: null, awayScore: null, isKo: true },
-            { id: 'K12', round: 'Round of 32', home: 'Spain', away: 'Austria', date: '2026-07-02',
-                time: '12:00 PM PST', stadium: 'Los Angeles Stadium', matchNumber: '84', homeScore: null, awayScore: null, isKo: true },
-            { id: 'K9', round: 'Round of 32', home: 'USA', away: 'Bosnia and Herzegovina', date: '2026-07-01',
-                time: '5:00 PM PST', stadium: 'San Francisco Bay Area Stadium', matchNumber: '81', homeScore: null, awayScore: null, isKo: true },
-            { id: 'K10', round: 'Round of 32', home: 'Belgium', away: 'Senegal', date: '2026-07-01',
-                time: '1:00 PM PST', stadium: 'Seattle Stadium', matchNumber: '82', homeScore: null, awayScore: null, isKo: true },
-            { id: 'K14', round: 'Round of 32', home: 'Argentina', away: 'Cabo Verde', date: '2026-07-03',
-                time: '11:00 AM PST', stadium: 'Miami Stadium', matchNumber: '86', homeScore: null, awayScore: null, isKo: true },
-            { id: 'K16', round: 'Round of 32', home: 'Australia', away: 'Egypt', date: '2026-07-03',
-                time: '6:30 PM PST', stadium: 'Dallas Stadium', matchNumber: '88', homeScore: null, awayScore: null, isKo: true },
-            { id: 'K13', round: 'Round of 32', home: 'Switzerland', away: 'Algeria', date: '2026-07-02',
-                time: '8:00 PM PST', stadium: 'BC Place Vancouver', matchNumber: '85', homeScore: null, awayScore: null, isKo: true },
-            { id: 'K15', round: 'Round of 32', home: 'Colombia', away: 'Ghana', date: '2026-07-03',
-                time: '3:00 PM PST', stadium: 'Kansas City Stadium', matchNumber: '87', homeScore: null, awayScore: null, isKo: true },
-            // Round of 16
-            { id: 'K17', round: 'Round of 16', home: 'Winner Match 74', away: 'Winner Match 77', date: '2026-07-04',
-                time: '2:00 PM PST', stadium: 'Philadelphia Stadium', matchNumber: '89', homeScore: null, awayScore: null, isKo: true },
-            { id: 'K18', round: 'Round of 16', home: 'Winner Match 73', away: 'Winner Match 75', date: '2026-07-04',
-                time: '10:00 AM PST', stadium: 'Houston Stadium', matchNumber: '90', homeScore: null, awayScore: null, isKo: true },
-            { id: 'K19', round: 'Round of 16', home: 'Winner Match 76', away: 'Winner Match 78', date: '2026-07-05',
-                time: '1:00 PM PST', stadium: 'New York New Jersey Stadium', matchNumber: '91', homeScore: null, awayScore: null, isKo: true },
-            { id: 'K20', round: 'Round of 16', home: 'Winner Match 79', away: 'Winner Match 80', date: '2026-07-05',
-                time: '5:00 PM PST', stadium: 'Mexico City Stadium', matchNumber: '92', homeScore: null, awayScore: null, isKo: true },
-            { id: 'K21', round: 'Round of 16', home: 'Winner Match 83', away: 'Winner Match 84', date: '2026-07-06',
-                time: '12:00 PM PST', stadium: 'Dallas Stadium', matchNumber: '93', homeScore: null, awayScore: null, isKo: true },
-            { id: 'K22', round: 'Round of 16', home: 'Winner Match 81', away: 'Winner Match 82', date: '2026-07-06',
-                time: '5:00 PM PST', stadium: 'Seattle Stadium', matchNumber: '94', homeScore: null, awayScore: null, isKo: true },
-            { id: 'K23', round: 'Round of 16', home: 'Winner Match 86', away: 'Winner Match 88', date: '2026-07-07',
-                time: '9:00 AM PST', stadium: 'Atlanta Stadium', matchNumber: '95', homeScore: null, awayScore: null, isKo: true },
-            { id: 'K24', round: 'Round of 16', home: 'Winner Match 85', away: 'Winner Match 87', date: '2026-07-07',
-                time: '1:00 PM PST', stadium: 'BC Place Vancouver', matchNumber: '96', homeScore: null, awayScore: null, isKo: true },
-            // Quarter-finals
-            { id: 'K25', round: 'Quarter-finals', home: 'Winner Match 89', away: 'Winner Match 90', date: '2026-07-09',
-                time: '1:00 PM PST', stadium: 'Boston Stadium', matchNumber: '97', homeScore: null, awayScore: null, isKo: true },
-            { id: 'K26', round: 'Quarter-finals', home: 'Winner Match 93', away: 'Winner Match 94', date: '2026-07-10',
-                time: '12:00 PM PST', stadium: 'Los Angeles Stadium', matchNumber: '98', homeScore: null, awayScore: null, isKo: true },
-            { id: 'K27', round: 'Quarter-finals', home: 'Winner Match 91', away: 'Winner Match 92', date: '2026-07-11',
-                time: '2:00 PM PST', stadium: 'Miami Stadium', matchNumber: '99', homeScore: null, awayScore: null, isKo: true },
-            { id: 'K28', round: 'Quarter-finals', home: 'Winner Match 95', away: 'Winner Match 96', date: '2026-07-11',
-                time: '6:00 PM PST', stadium: 'Kansas City Stadium', matchNumber: '100', homeScore: null, awayScore: null, isKo: true },
-            // Semi-finals
-            { id: 'K29', round: 'Semi-finals', home: 'Winner Match 97', away: 'Winner Match 98', date: '2026-07-14',
-                time: '12:00 PM PST', stadium: 'Dallas Stadium', matchNumber: '101', homeScore: null, awayScore: null, isKo: true },
-            { id: 'K30', round: 'Semi-finals', home: 'Winner Match 99', away: 'Winner Match 100', date: '2026-07-15',
-                time: '12:00 PM PST', stadium: 'Atlanta Stadium', matchNumber: '102', homeScore: null, awayScore: null, isKo: true },
-            // Third Place
-            { id: 'K31', round: 'Third Place', home: 'Runner-up Match 101', away: 'Runner-up Match 102', date: '2026-07-18',
-                time: '2:00 PM PST', stadium: 'Miami Stadium', matchNumber: '103', homeScore: null, awayScore: null, isKo: true },
-            // Final
-            { id: 'K32', round: 'Final', home: 'Winner Match 101', away: 'Winner Match 102', date: '2026-07-19',
-                time: '12:00 PM PST', stadium: 'New York New Jersey Stadium', matchNumber: '104', homeScore: null, awayScore: null, isKo: true }
+            { id: 'K2', round: 'Round of 32', home: 'Germany', away: 'Paraguay', date: '2026-06-29', time: '1:30 PM PST', stadium: 'Boston Stadium', matchNumber: '74', homeScore: null, awayScore: null, isKo: true },
+            { id: 'K5', round: 'Round of 32', home: 'France', away: 'Sweden', date: '2026-06-30', time: '2:00 PM PST', stadium: 'New York New Jersey Stadium', matchNumber: '77', homeScore: null, awayScore: null, isKo: true },
+            { id: 'K1', round: 'Round of 32', home: 'South Africa', away: 'Canada', date: '2026-06-28', time: '12:00 PM PST', stadium: 'Los Angeles Stadium', matchNumber: '73', homeScore: null, awayScore: null, isKo: true },
+            { id: 'K3', round: 'Round of 32', home: 'Netherlands', away: 'Morocco', date: '2026-06-29', time: '10:00 AM PST', stadium: 'Estadio Monterrey', matchNumber: '75', homeScore: null, awayScore: null, isKo: true },
+            { id: 'K4', round: 'Round of 32', home: 'Brazil', away: 'Japan', date: '2026-06-29', time: '6:00 PM PST', stadium: 'Houston Stadium', matchNumber: '76', homeScore: null, awayScore: null, isKo: true },
+            { id: 'K6', round: 'Round of 32', home: 'Côte d\'Ivoire', away: 'Norway', date: '2026-06-30', time: '10:00 AM PST', stadium: 'Dallas Stadium', matchNumber: '78', homeScore: null, awayScore: null, isKo: true },
+            { id: 'K7', round: 'Round of 32', home: 'Mexico', away: 'Ecuador', date: '2026-06-30', time: '6:00 PM PST', stadium: 'Mexico City Stadium', matchNumber: '79', homeScore: null, awayScore: null, isKo: true },
+            { id: 'K8', round: 'Round of 32', home: 'England', away: 'Congo DR', date: '2026-07-01', time: '9:00 AM PST', stadium: 'Atlanta Stadium', matchNumber: '80', homeScore: null, awayScore: null, isKo: true },
+            { id: 'K11', round: 'Round of 32', home: 'Portugal', away: 'Croatia', date: '2026-07-02', time: '4:00 PM PST', stadium: 'Toronto Stadium', matchNumber: '83', homeScore: null, awayScore: null, isKo: true },
+            { id: 'K12', round: 'Round of 32', home: 'Spain', away: 'Austria', date: '2026-07-02', time: '12:00 PM PST', stadium: 'Los Angeles Stadium', matchNumber: '84', homeScore: null, awayScore: null, isKo: true },
+            { id: 'K9', round: 'Round of 32', home: 'USA', away: 'Bosnia and Herzegovina', date: '2026-07-01', time: '5:00 PM PST', stadium: 'San Francisco Bay Area Stadium', matchNumber: '81', homeScore: null, awayScore: null, isKo: true },
+            { id: 'K10', round: 'Round of 32', home: 'Belgium', away: 'Senegal', date: '2026-07-01', time: '1:00 PM PST', stadium: 'Seattle Stadium', matchNumber: '82', homeScore: null, awayScore: null, isKo: true },
+            { id: 'K14', round: 'Round of 32', home: 'Argentina', away: 'Cabo Verde', date: '2026-07-03', time: '11:00 AM PST', stadium: 'Miami Stadium', matchNumber: '86', homeScore: null, awayScore: null, isKo: true },
+            { id: 'K16', round: 'Round of 32', home: 'Australia', away: 'Egypt', date: '2026-07-03', time: '6:30 PM PST', stadium: 'Dallas Stadium', matchNumber: '88', homeScore: null, awayScore: null, isKo: true },
+            { id: 'K13', round: 'Round of 32', home: 'Switzerland', away: 'Algeria', date: '2026-07-02', time: '8:00 PM PST', stadium: 'BC Place Vancouver', matchNumber: '85', homeScore: null, awayScore: null, isKo: true },
+            { id: 'K15', round: 'Round of 32', home: 'Colombia', away: 'Ghana', date: '2026-07-03', time: '3:00 PM PST', stadium: 'Kansas City Stadium', matchNumber: '87', homeScore: null, awayScore: null, isKo: true },
+            { id: 'K17', round: 'Round of 16', home: 'Winner Match 74', away: 'Winner Match 77', date: '2026-07-04', time: '2:00 PM PST', stadium: 'Philadelphia Stadium', matchNumber: '89', homeScore: null, awayScore: null, isKo: true },
+            { id: 'K18', round: 'Round of 16', home: 'Winner Match 73', away: 'Winner Match 75', date: '2026-07-04', time: '10:00 AM PST', stadium: 'Houston Stadium', matchNumber: '90', homeScore: null, awayScore: null, isKo: true },
+            { id: 'K19', round: 'Round of 16', home: 'Winner Match 76', away: 'Winner Match 78', date: '2026-07-05', time: '1:00 PM PST', stadium: 'New York New Jersey Stadium', matchNumber: '91', homeScore: null, awayScore: null, isKo: true },
+            { id: 'K20', round: 'Round of 16', home: 'Winner Match 79', away: 'Winner Match 80', date: '2026-07-05', time: '5:00 PM PST', stadium: 'Mexico City Stadium', matchNumber: '92', homeScore: null, awayScore: null, isKo: true },
+            { id: 'K21', round: 'Round of 16', home: 'Winner Match 83', away: 'Winner Match 84', date: '2026-07-06', time: '12:00 PM PST', stadium: 'Dallas Stadium', matchNumber: '93', homeScore: null, awayScore: null, isKo: true },
+            { id: 'K22', round: 'Round of 16', home: 'Winner Match 81', away: 'Winner Match 82', date: '2026-07-06', time: '5:00 PM PST', stadium: 'Seattle Stadium', matchNumber: '94', homeScore: null, awayScore: null, isKo: true },
+            { id: 'K23', round: 'Round of 16', home: 'Winner Match 86', away: 'Winner Match 88', date: '2026-07-07', time: '9:00 AM PST', stadium: 'Atlanta Stadium', matchNumber: '95', homeScore: null, awayScore: null, isKo: true },
+            { id: 'K24', round: 'Round of 16', home: 'Winner Match 85', away: 'Winner Match 87', date: '2026-07-07', time: '1:00 PM PST', stadium: 'BC Place Vancouver', matchNumber: '96', homeScore: null, awayScore: null, isKo: true },
+            { id: 'K25', round: 'Quarter-finals', home: 'Winner Match 89', away: 'Winner Match 90', date: '2026-07-09', time: '1:00 PM PST', stadium: 'Boston Stadium', matchNumber: '97', homeScore: null, awayScore: null, isKo: true },
+            { id: 'K26', round: 'Quarter-finals', home: 'Winner Match 93', away: 'Winner Match 94', date: '2026-07-10', time: '12:00 PM PST', stadium: 'Los Angeles Stadium', matchNumber: '98', homeScore: null, awayScore: null, isKo: true },
+            { id: 'K27', round: 'Quarter-finals', home: 'Winner Match 91', away: 'Winner Match 92', date: '2026-07-11', time: '2:00 PM PST', stadium: 'Miami Stadium', matchNumber: '99', homeScore: null, awayScore: null, isKo: true },
+            { id: 'K28', round: 'Quarter-finals', home: 'Winner Match 95', away: 'Winner Match 96', date: '2026-07-11', time: '6:00 PM PST', stadium: 'Kansas City Stadium', matchNumber: '100', homeScore: null, awayScore: null, isKo: true },
+            { id: 'K29', round: 'Semi-finals', home: 'Winner Match 97', away: 'Winner Match 98', date: '2026-07-14', time: '12:00 PM PST', stadium: 'Dallas Stadium', matchNumber: '101', homeScore: null, awayScore: null, isKo: true },
+            { id: 'K30', round: 'Semi-finals', home: 'Winner Match 99', away: 'Winner Match 100', date: '2026-07-15', time: '12:00 PM PST', stadium: 'Atlanta Stadium', matchNumber: '102', homeScore: null, awayScore: null, isKo: true },
+            { id: 'K31', round: 'Third Place', home: 'Runner-up Match 101', away: 'Runner-up Match 102', date: '2026-07-18', time: '2:00 PM PST', stadium: 'Miami Stadium', matchNumber: '103', homeScore: null, awayScore: null, isKo: true },
+            { id: 'K32', round: 'Final', home: 'Winner Match 101', away: 'Winner Match 102', date: '2026-07-19', time: '12:00 PM PST', stadium: 'New York New Jersey Stadium', matchNumber: '104', homeScore: null, awayScore: null, isKo: true }
         ];
 
-        // Combine all games for easy lookup
         let allGames = [...allGroupGames, ...allKoGames];
         let selectedDate = null,
             currentView = 'bracket';
@@ -1564,11 +1474,9 @@
         let confettiAnimationId = null;
         let confettiPieces = [];
 
-        // Admin password
         const ADMIN_PASSWORD = 'admin123';
         let adminAuthenticated = false;
 
-        // --- Helper functions ---
         function isGroupComplete(gid) {
             const games = allGroupGames.filter(g => g.group === gid);
             return games.every(g => g.homeScore !== null && g.awayScore !== null);
@@ -1577,8 +1485,7 @@
         function calculateStandings(gid) {
             const teams = GROUPS[gid],
                 stats = {};
-            teams.forEach(t => { stats[t] = { team: t, person: peopleMap[t] || '', gp: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0,
-                    gd: 0, pts: 0 }; });
+            teams.forEach(t => { stats[t] = { team: t, person: peopleMap[t] || '', gp: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 }; });
             allGroupGames.filter(g => g.group === gid).forEach(g => {
                 if (g.homeScore !== null && g.awayScore !== null && stats[g.home] && stats[g.away]) {
                     stats[g.home].gp++;
@@ -1587,14 +1494,9 @@
                     stats[g.home].ga += g.awayScore;
                     stats[g.away].gf += g.awayScore;
                     stats[g.away].ga += g.homeScore;
-                    if (g.homeScore > g.awayScore) { stats[g.home].w++;
-                        stats[g.home].pts += 3;
-                        stats[g.away].l++; } else if (g.homeScore < g.awayScore) { stats[g.away].w++;
-                        stats[g.away].pts += 3;
-                        stats[g.home].l++; } else { stats[g.home].d++;
-                        stats[g.away].d++;
-                        stats[g.home].pts += 1;
-                        stats[g.away].pts += 1; }
+                    if (g.homeScore > g.awayScore) { stats[g.home].w++; stats[g.home].pts += 3; stats[g.away].l++; }
+                    else if (g.homeScore < g.awayScore) { stats[g.away].w++; stats[g.away].pts += 3; stats[g.home].l++; }
+                    else { stats[g.home].d++; stats[g.away].d++; stats[g.home].pts += 1; stats[g.away].pts += 1; }
                 }
             });
             Object.values(stats).forEach(s => { s.gd = s.gf - s.ga; });
@@ -1612,8 +1514,7 @@
 
         function isTeamEliminated(teamName) {
             const finalMatch = allKoGames.find(g => g.round === 'Final');
-            if (finalMatch && finalMatch.homeScore !== null && finalMatch.awayScore !== null && finalMatch.homeScore !==
-                finalMatch.awayScore) {
+            if (finalMatch && finalMatch.homeScore !== null && finalMatch.awayScore !== null && finalMatch.homeScore !== finalMatch.awayScore) {
                 if (finalMatch.homeScore > finalMatch.awayScore && finalMatch.home === teamName) return false;
                 if (finalMatch.awayScore > finalMatch.homeScore && finalMatch.away === teamName) return false;
             }
@@ -1639,118 +1540,66 @@
             return false;
         }
 
-        // --- Propagation ---
         function propagateKnockoutResults() {
-            const winners = {},
-                losers = {};
+            const winners = {}, losers = {};
             allKoGames.forEach(m => {
                 if (m.homeScore !== null && m.awayScore !== null && m.homeScore !== m.awayScore) {
-                    if (m.homeScore > m.awayScore) { winners[m.id] = m.home;
-                        losers[m.id] = m.away; } else { winners[m.id] = m.away;
-                        losers[m.id] = m.home; }
+                    if (m.homeScore > m.awayScore) { winners[m.id] = m.home; losers[m.id] = m.away; }
+                    else { winners[m.id] = m.away; losers[m.id] = m.home; }
                 }
             });
-            const r16Map = [
-                ['K2', 'K5'],
-                ['K1', 'K3'],
-                ['K4', 'K6'],
-                ['K7', 'K8'],
-                ['K11', 'K12'],
-                ['K9', 'K10'],
-                ['K14', 'K16'],
-                ['K13', 'K15']
-            ];
+            const r16Map = [['K2', 'K5'], ['K1', 'K3'], ['K4', 'K6'], ['K7', 'K8'], ['K11', 'K12'], ['K9', 'K10'], ['K14', 'K16'], ['K13', 'K15']];
             const r16Ids = ['K17', 'K18', 'K19', 'K20', 'K21', 'K22', 'K23', 'K24'];
             r16Ids.forEach((mid, idx) => {
                 const m = allKoGames.find(g => g.id === mid);
                 if (!m) return;
                 const childIds = r16Map[idx];
-                if (m.home && m.home.startsWith('Winner Match')) {
-                    m.home = winners[childIds[0]] || m.home;
-                }
-                if (m.away && m.away.startsWith('Winner Match')) {
-                    m.away = winners[childIds[1]] || m.away;
-                }
+                if (m.home && m.home.startsWith('Winner Match')) m.home = winners[childIds[0]] || m.home;
+                if (m.away && m.away.startsWith('Winner Match')) m.away = winners[childIds[1]] || m.away;
             });
-            const qfMap = [
-                ['K17', 'K18'],
-                ['K21', 'K22'],
-                ['K19', 'K20'],
-                ['K23', 'K24']
-            ];
+            const qfMap = [['K17', 'K18'], ['K21', 'K22'], ['K19', 'K20'], ['K23', 'K24']];
             const qfIds = ['K25', 'K26', 'K27', 'K28'];
             qfIds.forEach((mid, idx) => {
                 const m = allKoGames.find(g => g.id === mid);
                 if (!m) return;
                 const childIds = qfMap[idx];
-                if (m.home && m.home.startsWith('Winner Match')) {
-                    m.home = winners[childIds[0]] || m.home;
-                }
-                if (m.away && m.away.startsWith('Winner Match')) {
-                    m.away = winners[childIds[1]] || m.away;
-                }
+                if (m.home && m.home.startsWith('Winner Match')) m.home = winners[childIds[0]] || m.home;
+                if (m.away && m.away.startsWith('Winner Match')) m.away = winners[childIds[1]] || m.away;
             });
-            const sfMap = [
-                ['K25', 'K26'],
-                ['K27', 'K28']
-            ];
+            const sfMap = [['K25', 'K26'], ['K27', 'K28']];
             const sfIds = ['K29', 'K30'];
             sfIds.forEach((mid, idx) => {
                 const m = allKoGames.find(g => g.id === mid);
                 if (!m) return;
                 const childIds = sfMap[idx];
-                if (m.home && m.home.startsWith('Winner Match')) {
-                    m.home = winners[childIds[0]] || m.home;
-                }
-                if (m.away && m.away.startsWith('Winner Match')) {
-                    m.away = winners[childIds[1]] || m.away;
-                }
+                if (m.home && m.home.startsWith('Winner Match')) m.home = winners[childIds[0]] || m.home;
+                if (m.away && m.away.startsWith('Winner Match')) m.away = winners[childIds[1]] || m.away;
             });
             const thirdMatch = allKoGames.find(g => g.id === 'K31');
             if (thirdMatch) {
-                if (thirdMatch.home && thirdMatch.home.startsWith('Runner-up Match')) {
-                    thirdMatch.home = losers['K29'] || thirdMatch.home;
-                }
-                if (thirdMatch.away && thirdMatch.away.startsWith('Runner-up Match')) {
-                    thirdMatch.away = losers['K30'] || thirdMatch.away;
-                }
+                if (thirdMatch.home && thirdMatch.home.startsWith('Runner-up Match')) thirdMatch.home = losers['K29'] || thirdMatch.home;
+                if (thirdMatch.away && thirdMatch.away.startsWith('Runner-up Match')) thirdMatch.away = losers['K30'] || thirdMatch.away;
             }
             const finalMatch = allKoGames.find(g => g.id === 'K32');
             if (finalMatch) {
-                if (finalMatch.home && finalMatch.home.startsWith('Winner Match')) {
-                    finalMatch.home = winners['K29'] || finalMatch.home;
-                }
-                if (finalMatch.away && finalMatch.away.startsWith('Winner Match')) {
-                    finalMatch.away = winners['K30'] || finalMatch.away;
-                }
+                if (finalMatch.home && finalMatch.home.startsWith('Winner Match')) finalMatch.home = winners['K29'] || finalMatch.home;
+                if (finalMatch.away && finalMatch.away.startsWith('Winner Match')) finalMatch.away = winners['K30'] || finalMatch.away;
             }
         }
 
-        // --- Confetti ---
         function startConfetti() {
             const canvas = document.getElementById('confettiCanvas');
             const ctx = canvas.getContext('2d');
-            const W = window.innerWidth;
-            const H = window.innerHeight;
+            const W = window.innerWidth, H = window.innerHeight;
             canvas.width = W;
             canvas.height = H;
-            const colors = ['#f44336', '#e91e63', '#9c27b0', '#3f51b5', '#03a9f4', '#009688', '#8bc34a', '#ffeb3b', '#ff9800',
-                '#ff5722'
-            ];
+            const colors = ['#f44336', '#e91e63', '#9c27b0', '#3f51b5', '#03a9f4', '#009688', '#8bc34a', '#ffeb3b', '#ff9800', '#ff5722'];
             const pieces = [];
-            const NUM_PIECES = 250;
-            for (let i = 0; i < NUM_PIECES; i++) {
+            for (let i = 0; i < 250; i++) {
                 pieces.push({
-                    x: Math.random() * W,
-                    y: Math.random() * H - H,
-                    w: Math.random() * 12 + 4,
-                    h: Math.random() * 8 + 4,
-                    color: colors[Math.floor(Math.random() * colors.length)],
-                    vx: (Math.random() - 0.5) * 3,
-                    vy: Math.random() * 4 + 2,
-                    rot: Math.random() * 360,
-                    rotSpeed: (Math.random() - 0.5) * 10,
-                    opacity: Math.random() * 0.7 + 0.3
+                    x: Math.random() * W, y: Math.random() * H - H, w: Math.random() * 12 + 4, h: Math.random() * 8 + 4,
+                    color: colors[Math.floor(Math.random() * colors.length)], vx: (Math.random() - 0.5) * 3,
+                    vy: Math.random() * 4 + 2, rot: Math.random() * 360, rotSpeed: (Math.random() - 0.5) * 10, opacity: Math.random() * 0.7 + 0.3
                 });
             }
             confettiPieces = pieces;
@@ -1760,12 +1609,7 @@
                     p.x += p.vx;
                     p.y += p.vy;
                     p.rot += p.rotSpeed;
-                    if (p.y > H) {
-                        p.y = -20;
-                        p.x = Math.random() * W;
-                        p.vy = Math.random() * 4 + 2;
-                        p.vx = (Math.random() - 0.5) * 3;
-                    }
+                    if (p.y > H) { p.y = -20; p.x = Math.random() * W; p.vy = Math.random() * 4 + 2; p.vx = (Math.random() - 0.5) * 3; }
                     ctx.save();
                     ctx.translate(p.x, p.y);
                     ctx.rotate((p.rot * Math.PI) / 180);
@@ -1780,10 +1624,7 @@
         }
 
         function stopConfetti() {
-            if (confettiAnimationId) {
-                cancelAnimationFrame(confettiAnimationId);
-                confettiAnimationId = null;
-            }
+            if (confettiAnimationId) { cancelAnimationFrame(confettiAnimationId); confettiAnimationId = null; }
             const canvas = document.getElementById('confettiCanvas');
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -1792,18 +1633,14 @@
         function showCelebration(team, player) {
             if (celebrationShown) return;
             celebrationShown = true;
-            const overlay = document.getElementById('celebrationOverlay');
-            const teamEl = document.getElementById('championTeam');
-            const playerEl = document.getElementById('championPlayer');
-            teamEl.textContent = team;
-            playerEl.textContent = '👤 ' + player;
-            overlay.classList.add('show');
+            document.getElementById('championTeam').textContent = team;
+            document.getElementById('championPlayer').textContent = '👤 ' + player;
+            document.getElementById('celebrationOverlay').classList.add('show');
             startConfetti();
         }
 
         function hideCelebration() {
-            const overlay = document.getElementById('celebrationOverlay');
-            overlay.classList.remove('show');
+            document.getElementById('celebrationOverlay').classList.remove('show');
             stopConfetti();
         }
         document.getElementById('celebrationCloseBtn').addEventListener('click', hideCelebration);
@@ -1811,34 +1648,25 @@
         function checkAndCelebrate() {
             const finalMatch = allKoGames.find(g => g.id === 'K32');
             if (!finalMatch) return;
-            if (finalMatch.homeScore !== null && finalMatch.awayScore !== null && finalMatch.homeScore !== finalMatch
-                .awayScore) {
+            if (finalMatch.homeScore !== null && finalMatch.awayScore !== null && finalMatch.homeScore !== finalMatch.awayScore) {
                 const championTeam = finalMatch.homeScore > finalMatch.awayScore ? finalMatch.home : finalMatch.away;
                 const player = peopleMap[championTeam];
-                if (player && !celebrationShown) {
-                    showCelebration(championTeam, player);
-                }
+                if (player && !celebrationShown) showCelebration(championTeam, player);
             }
         }
 
-        // --- Firebase Sync ---
         function syncFromFirebase() {
             const statusEl = document.getElementById('syncStatus');
             statusEl.textContent = '🟡 Syncing...';
-            // Load scores
             onValue(scoresRef, (snapshot) => {
                 const data = snapshot.val() || {};
-                allGames.forEach(g => { if (data[g.id] !== undefined) { g.homeScore = data[g.id].homeScore;
-                        g.awayScore = data[g.id].awayScore; } });
+                allGames.forEach(g => { if (data[g.id] !== undefined) { g.homeScore = data[g.id].homeScore; g.awayScore = data[g.id].awayScore; } });
                 statusEl.textContent = '🟢 Live Sync Connected';
                 statusEl.className = 'sync-status';
                 renderAll();
                 renderBracket();
                 checkAndCelebrate();
-            }, () => { statusEl.textContent = '🔴 Sync Error';
-                statusEl.className = 'sync-status offline';
-                renderAll(); });
-            // Load schedule overrides
+            }, () => { statusEl.textContent = '🔴 Sync Error'; statusEl.className = 'sync-status offline'; renderAll(); });
             onValue(scheduleRef, (snapshot) => {
                 const data = snapshot.val() || {};
                 allGames.forEach(g => {
@@ -1850,7 +1678,6 @@
                         if (s.pst) g.pst = s.pst;
                     }
                 });
-                // Re-render after schedule load
                 renderCalendar();
                 renderAll();
                 renderBracket();
@@ -1868,8 +1695,7 @@
                 if (!snapshot.exists()) {
                     const defaults = {};
                     allGroupGames.forEach(g => {
-                        if (g.homeScore !== null || g.awayScore !== null) defaults[g.id] = { homeScore: g
-                                .homeScore, awayScore: g.awayScore };
+                        if (g.homeScore !== null || g.awayScore !== null) defaults[g.id] = { homeScore: g.homeScore, awayScore: g.awayScore };
                     });
                     if (Object.keys(defaults).length > 0) set(scoresRef, defaults);
                 }
@@ -1877,22 +1703,15 @@
         }
 
         function getPlayerRecord(playerName) {
-            let wins = 0,
-                losses = 0,
-                draws = 0;
+            let wins = 0, losses = 0, draws = 0;
             allGames.forEach(g => {
                 if (g.homeScore === null || g.awayScore === null) return;
                 const isHome = peopleMap[g.home] === playerName;
                 const isAway = peopleMap[g.away] === playerName;
                 if (!isHome && !isAway) return;
                 let playerScore, opponentScore;
-                if (isHome) {
-                    playerScore = g.homeScore;
-                    opponentScore = g.awayScore;
-                } else {
-                    playerScore = g.awayScore;
-                    opponentScore = g.homeScore;
-                }
+                if (isHome) { playerScore = g.homeScore; opponentScore = g.awayScore; }
+                else { playerScore = g.awayScore; opponentScore = g.homeScore; }
                 if (playerScore > opponentScore) wins++;
                 else if (playerScore < opponentScore) losses++;
                 else draws++;
@@ -1900,7 +1719,6 @@
             return { wins, losses, draws };
         }
 
-        // --- Render functions ---
         function renderBracket() {
             propagateKnockoutResults();
             const container = document.getElementById('dynamicBracketTree');
@@ -1912,60 +1730,51 @@
                 const matches = allKoGames.filter(m => m.round === rnd);
                 if (matches.length === 0) return;
                 const factor = factors[idx];
-                html +=
-                    `<div class="bracket-round-col"><div class="round-label">${rnd}</div><div class="bracket-matches">`;
+                html += `<div class="bracket-round-col"><div class="round-label">${rnd}</div><div class="bracket-matches">`;
                 matches.forEach(m => {
                     const hasScore = (m.homeScore !== null && m.awayScore !== null);
                     const scoreText = hasScore ? `${m.homeScore} – ${m.awayScore}` : '—';
                     const dateObj = new Date(m.date + 'T00:00:00');
-                    const month = dateObj.getMonth() + 1;
-                    const day = dateObj.getDate();
-                    const formattedDate = `${month}/${day}`;
+                    const formattedDate = `${dateObj.getMonth() + 1}/${dateObj.getDate()}`;
                     const timePST = m.time || m.pst || '';
                     const stadium = m.stadium || '';
                     const matchNum = m.matchNumber || '';
-                    html +=
-                        `<div class="match-wrapper" style="flex: ${factor};" data-match-id="${m.id}">
-                                    <div class="match-card" data-game-id="${m.id}">
-                                        <div class="match-teams">
-                                            <span class="team-abbr">${m.home}</span>
-                                            <span class="match-score ${!hasScore ? 'pending' : ''}">${scoreText}</span>
-                                            <span class="team-abbr">${m.away}</span>
-                                        </div>
-                                        <div class="match-meta">
-                                            <div class="left">
-                                                <div class="date-time">${formattedDate}${timePST ? ' · ' + timePST : ''}</div>
-                                                <div class="stadium">${stadium}</div>
-                                            </div>
-                                            <div class="match-number">Match ${matchNum}</div>
-                                        </div>
+                    html += `<div class="match-wrapper" style="flex: ${factor};" data-match-id="${m.id}">
+                                <div class="match-card" data-game-id="${m.id}">
+                                    <div class="match-teams">
+                                        <span class="team-abbr">${m.home}</span>
+                                        <span class="match-score ${!hasScore ? 'pending' : ''}">${scoreText}</span>
+                                        <span class="team-abbr">${m.away}</span>
                                     </div>
-                                </div>`;
+                                    <div class="match-meta">
+                                        <div class="left">
+                                            <div class="date-time">${formattedDate}${timePST ? ' · ' + timePST : ''}</div>
+                                            <div class="stadium">${stadium}</div>
+                                        </div>
+                                        <div class="match-number">Match ${matchNum}</div>
+                                    </div>
+                                </div>
+                            </div>`;
                 });
                 html += `</div></div>`;
             });
             const finalMatch = allKoGames.find(g => g.round === 'Final');
             let champHtml = '';
-            if (finalMatch && finalMatch.homeScore !== null && finalMatch.awayScore !== null && finalMatch.homeScore !==
-                finalMatch.awayScore) {
+            if (finalMatch && finalMatch.homeScore !== null && finalMatch.awayScore !== null && finalMatch.homeScore !== finalMatch.awayScore) {
                 const champ = finalMatch.homeScore > finalMatch.awayScore ? finalMatch.home : finalMatch.away;
-                champHtml =
-                    `<div class="bracket-round-col champion-highlight" style="flex:0 0 200px;"><div class="round-label">🏆 CHAMPION</div><div class="final-winner">⭐ ${champ} ⭐</div></div>`;
+                champHtml = `<div class="bracket-round-col champion-highlight" style="flex:0 0 200px;"><div class="round-label">🏆 CHAMPION</div><div class="final-winner">⭐ ${champ} ⭐</div></div>`;
             } else {
-                champHtml =
-                    `<div class="bracket-round-col" style="flex:0 0 200px;"><div class="round-label">🏆 CHAMPION</div><div class="final-winner">TBD</div></div>`;
+                champHtml = `<div class="bracket-round-col" style="flex:0 0 200px;"><div class="round-label">🏆 CHAMPION</div><div class="final-winner">TBD</div></div>`;
             }
             container.innerHTML = html + champHtml;
             container.querySelectorAll('.match-card').forEach(el => {
-                el.addEventListener('click', (e) => { e.stopPropagation();
-                    openGameModal(el.dataset.gameId); });
+                el.addEventListener('click', (e) => { e.stopPropagation(); openGameModal(el.dataset.gameId); });
             });
         }
 
         function getTodayPST() {
             const now = new Date();
-            const formatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles', year: 'numeric',
-                month: '2-digit', day: '2-digit' });
+            const formatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles', year: 'numeric', month: '2-digit', day: '2-digit' });
             return formatter.format(now);
         }
 
@@ -1984,9 +1793,7 @@
         function renderCalendar() {
             const strip = document.getElementById('calendarStrip');
             const dates = new Set(allGames.map(g => g.date));
-            const s = new Date(2026, 5, 11),
-                e = new Date(2026, 6, 19),
-                m = ['Jun', 'Jul'];
+            const s = new Date(2026, 5, 11), e = new Date(2026, 6, 19), m = ['Jun', 'Jul'];
             let h = '';
             const c = new Date(s);
             const todayPST = getTodayPST();
@@ -1995,90 +1802,66 @@
                 const ds = c.toISOString().split('T')[0];
                 const isToday = (ds === todayPST);
                 const weekdayAbbr = weekdays[c.getUTCDay()];
-                h +=
-                    `<div class="cal-day${dates.has(ds) ? ' has-games' : ''}${selectedDate === ds ? ' selected' : ''}${isToday ? ' today' : ''}" data-date="${ds}">
-                            <div class="month-text">${m[c.getMonth() - 5]}</div>
-                            <div class="day-num">${c.getDate()}</div>
-                            <div class="weekday-text">${weekdayAbbr}</div>
-                        </div>`;
+                h += `<div class="cal-day${dates.has(ds) ? ' has-games' : ''}${selectedDate === ds ? ' selected' : ''}${isToday ? ' today' : ''}" data-date="${ds}">
+                        <div class="month-text">${m[c.getMonth() - 5]}</div>
+                        <div class="day-num">${c.getDate()}</div>
+                        <div class="weekday-text">${weekdayAbbr}</div>
+                    </div>`;
                 c.setDate(c.getDate() + 1);
             }
             strip.innerHTML = h;
             strip.querySelectorAll('.cal-day').forEach(el => el.addEventListener('click', () => {
                 const d = el.dataset.date;
-                if (selectedDate === d) { selectedDate = null;
-                    renderCalendar();
-                    renderAll();
-                    document.getElementById('dailyOverlay').classList.remove('open'); } else { selectedDate =
-                        d;
-                    renderCalendar();
-                    renderAll();
-                    openDailyModal(d); }
+                if (selectedDate === d) { selectedDate = null; renderCalendar(); renderAll(); document.getElementById('dailyOverlay').classList.remove('open'); }
+                else { selectedDate = d; renderCalendar(); renderAll(); openDailyModal(d); }
             }));
             const focusDate = selectedDate || todayPST;
             setTimeout(() => scrollCalendarToDate(focusDate), 50);
         }
 
         function openDailyModal(dateStr) {
-            const overlay = document.getElementById('dailyOverlay'),
-                modal = document.getElementById('dailyModal');
-            const dayGames = allGames.filter(g => g.date === dateStr).sort((a, b) => parsePST(a.pst) - parsePST(b.pst));
+            const overlay = document.getElementById('dailyOverlay'), modal = document.getElementById('dailyModal');
+            const dayGames = allGames.filter(g => g.date === dateStr).sort((a, b) => parsePST(a.pst || a.time) - parsePST(b.pst || b.time));
             const dateObj = new Date(dateStr + 'T00:00:00');
             const dn = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-                mn = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
-            let h =
-                `<h3>📅 ${dn[dateObj.getUTCDay()]}, ${mn[dateObj.getUTCMonth()]} ${dateObj.getUTCDate()}, 2026</h3><div class="daily-date">${dayGames.length} match${dayGames.length !== 1 ? 'es' : ''}</div>`;
+                  mn = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
+            let h = `<h3>📅 ${dn[dateObj.getUTCDay()]}, ${mn[dateObj.getUTCMonth()]} ${dateObj.getUTCDate()}, 2026</h3><div class="daily-date">${dayGames.length} match${dayGames.length !== 1 ? 'es' : ''}</div>`;
             if (dayGames.length === 0) h += `<div class="daily-empty">No matches today.</div>`;
             else dayGames.forEach(game => {
                 const sc = game.homeScore !== null && game.awayScore !== null;
-                const hp = peopleMap[game.home] || '',
-                    ap = peopleMap[game.away] || '';
-                const hc = playerColors[hp] || '#6c3bd4',
-                    ac = playerColors[ap] || '#6c3bd4';
+                const hp = peopleMap[game.home] || '', ap = peopleMap[game.away] || '';
+                const hc = playerColors[hp] || '#6c3bd4', ac = playerColors[ap] || '#6c3bd4';
                 let groupDisplay = '';
-                if (game.round === 'group') {
-                    groupDisplay = `<span class="group-badge">Group ${game.group}</span>`;
-                } else {
-                    groupDisplay = `<span class="group-badge" style="background:#6c757d;">${game.round}</span>`;
-                }
+                if (game.round === 'group') groupDisplay = `<span class="group-badge">Group ${game.group}</span>`;
+                else groupDisplay = `<span class="group-badge" style="background:#6c757d;">${game.round}</span>`;
+                // Show only one time string (the main time field)
                 const displayTime = game.time || game.pst || '';
-                const displayPST = game.pst || game.time || '';
                 let matchLine = '';
-                if (game.matchNumber) {
-                    matchLine = `Match ${game.matchNumber}`;
-                } else if (game.group) {
-                    matchLine = `Group ${game.group}`;
-                }
-                h +=
-                    `<div class="daily-game-card" data-game-id="${game.id}">
-                            <div class="match-info">
-                                <div class="teams-line">${game.home} vs ${game.away} ${groupDisplay}</div>
-                                <div class="details-line">${game.stadium}</div>
-                                ${matchLine ? `<div class="details-line">${matchLine}</div>` : ''}
-                                <div class="details-line">🕐 ${displayTime}${displayPST && displayPST !== displayTime ? ' (' + displayPST + ')' : ''}</div>
-                                <div class="player-line"><span style="color:${hc}">👤 ${hp || '—'}</span> vs <span style="color:${ac}">👤 ${ap || '—'}</span></div>
-                            </div>
-                            <div class="score-badge${!sc ? ' pending' : ''}">${sc ? game.homeScore + ' - ' + game.awayScore : 'vs'}</div>
-                        </div>`;
+                if (game.matchNumber) matchLine = `Match ${game.matchNumber}`;
+                else if (game.group) matchLine = `Group ${game.group}`;
+                h += `<div class="daily-game-card" data-game-id="${game.id}">
+                        <div class="match-info">
+                            <div class="teams-line">${game.home} vs ${game.away} ${groupDisplay}</div>
+                            <div class="details-line">${game.stadium}</div>
+                            ${matchLine ? `<div class="details-line">${matchLine}</div>` : ''}
+                            <div class="details-line">🕐 ${displayTime}</div>
+                            <div class="player-line"><span style="color:${hc}">👤 ${hp || '—'}</span> vs <span style="color:${ac}">👤 ${ap || '—'}</span></div>
+                        </div>
+                        <div class="score-badge${!sc ? ' pending' : ''}">${sc ? game.homeScore + ' - ' + game.awayScore : 'vs'}</div>
+                    </div>`;
             });
             h += `<button class="daily-close-btn" id="dailyCloseBtn">✕ Close</button>`;
             modal.innerHTML = h;
             overlay.classList.add('open');
             document.getElementById('dailyCloseBtn').addEventListener('click', () => overlay.classList.remove('open'));
-            modal.querySelectorAll('.daily-game-card').forEach(c => c.addEventListener('click', () => { overlay
-                    .classList.remove('open');
-                openGameModal(c.dataset.gameId); }));
+            modal.querySelectorAll('.daily-game-card').forEach(c => c.addEventListener('click', () => { overlay.classList.remove('open'); openGameModal(c.dataset.gameId); }));
         }
-        document.getElementById('dailyOverlay').addEventListener('click', function(e) { if (e.target === this) this
-                .classList.remove('open'); });
+        document.getElementById('dailyOverlay').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
 
         function openPlayerModal(playerName) {
             const overlay = document.getElementById('playerOverlay');
             const modal = document.getElementById('playerModal');
             const record = getPlayerRecord(playerName);
-            const w = record.wins,
-                l = record.losses,
-                d = record.draws;
             const playerGames = allGames.filter(g => {
                 const isHome = peopleMap[g.home] === playerName;
                 const isAway = peopleMap[g.away] === playerName;
@@ -2086,79 +1869,65 @@
             });
             playerGames.sort((a, b) => {
                 if (a.date !== b.date) return a.date.localeCompare(b.date);
-                return parsePST(a.pst) - parsePST(b.pst);
+                return parsePST(a.pst || a.time) - parsePST(b.pst || b.time);
             });
-            let h =
-                `<h3>👤 ${playerName}'s Dashboard</h3>
-                         <div style="text-align:center; margin:12px 0;">
-                            <span style="font-size:1.2em; padding:0 10px; font-weight:bold; color:var(--win);">W: ${w}</span>
-                            <span style="font-size:1.2em; padding:0 10px; font-weight:bold; color:var(--loss);">L: ${l}</span>
-                            <span style="font-size:1.2em; padding:0 10px; font-weight:bold; color:var(--draw);">D: ${d}</span>
-                         </div>
-                         <div style="max-height:55vh; overflow-y:auto; border-top:1px solid #e9ecef; padding-top:10px;">`;
+            let h = `<h3>👤 ${playerName}'s Dashboard</h3>
+                     <div style="text-align:center; margin:12px 0;">
+                        <span style="font-size:1.2em; padding:0 10px; font-weight:bold; color:var(--win);">W: ${record.wins}</span>
+                        <span style="font-size:1.2em; padding:0 10px; font-weight:bold; color:var(--loss);">L: ${record.losses}</span>
+                        <span style="font-size:1.2em; padding:0 10px; font-weight:bold; color:var(--draw);">D: ${record.draws}</span>
+                     </div>
+                     <div style="max-height:55vh; overflow-y:auto; border-top:1px solid #e9ecef; padding-top:10px;">`;
             if (playerGames.length === 0) h += `<p style="text-align:center; font-size:0.8em; color:#6c757d;">No games found.</p>`;
             playerGames.forEach(g => {
                 const sc = g.homeScore !== null && g.awayScore !== null;
-                const hp = peopleMap[g.home] || '';
-                const ap = peopleMap[g.away] || '';
-                const hColor = hp === playerName ? 'font-weight:900;text-decoration:underline;' :
-                'color:#6c757d;';
-                const aColor = ap === playerName ? 'font-weight:900;text-decoration:underline;' :
-                'color:#6c757d;';
+                const hp = peopleMap[g.home] || '', ap = peopleMap[g.away] || '';
+                const hColor = hp === playerName ? 'font-weight:900;text-decoration:underline;' : 'color:#6c757d;';
+                const aColor = ap === playerName ? 'font-weight:900;text-decoration:underline;' : 'color:#6c757d;';
                 const displayTime = g.time || g.pst || '';
-                h +=
-                    `<div class="daily-game-card" style="cursor:default;">
-                            <div class="match-info">
-                                <div class="teams-line">${g.home} vs ${g.away}</div>
-                                <div class="details-line">📅 ${g.date} | 🕐 ${displayTime}</div>
-                                <div class="player-line">
-                                    <span style="${hColor}">${hp || '—'}</span> vs 
-                                    <span style="${aColor}">${ap || '—'}</span>
-                                </div>
+                h += `<div class="daily-game-card" style="cursor:default;">
+                        <div class="match-info">
+                            <div class="teams-line">${g.home} vs ${g.away}</div>
+                            <div class="details-line">📅 ${g.date} | 🕐 ${displayTime}</div>
+                            <div class="player-line">
+                                <span style="${hColor}">${hp || '—'}</span> vs 
+                                <span style="${aColor}">${ap || '—'}</span>
                             </div>
-                            <div class="score-badge${!sc ? ' pending' : ''}">${sc ? g.homeScore + ' - ' + g.awayScore : 'vs'}</div>
-                          </div>`;
+                        </div>
+                        <div class="score-badge${!sc ? ' pending' : ''}">${sc ? g.homeScore + ' - ' + g.awayScore : 'vs'}</div>
+                      </div>`;
             });
             h += `</div><button class="daily-close-btn" id="playerCloseBtn">✕ Close Dashboard</button>`;
             modal.innerHTML = h;
             overlay.classList.add('open');
             document.getElementById('playerCloseBtn').addEventListener('click', () => overlay.classList.remove('open'));
         }
-        document.getElementById('playerOverlay').addEventListener('click', function(e) { if (e.target === this) this
-                .classList.remove('open'); });
+        document.getElementById('playerOverlay').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
 
         function renderGroups() {
             const grid = document.getElementById('groupsGrid');
-            const filtered = allGames.filter(g => g.date === selectedDate && g.round === 'group' || !selectedDate && g
-                .round === 'group');
+            const filtered = allGames.filter(g => g.date === selectedDate && g.round === 'group' || !selectedDate && g.round === 'group');
             const fIds = new Set(filtered.map(g => g.id));
             let h = '';
             Object.keys(GROUPS).sort().forEach(gid => {
-                const st = calculateStandings(gid),
-                    games = allGroupGames.filter(g => g.group === gid);
-                h +=
-                    `<div class="group-card"><h3>🏴 Group ${gid}</h3><table class="group-standings"><thead><tr><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr></thead><tbody>`;
+                const st = calculateStandings(gid), games = allGroupGames.filter(g => g.group === gid);
+                h += `<div class="group-card"><h3>🏴 Group ${gid}</h3><table class="group-standings"><thead><tr><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GF</th><th>GA</th><th>GD</th><th>Pts</th></tr></thead><tbody>`;
                 st.forEach(s => {
                     const c = playerColors[s.person] || '#6c3bd4';
-                    h +=
-                        `<tr><td>${s.team}<span class="player-name" style="color:${c}">${s.person}</span></td><td>${s.gp}</td><td>${s.w}</td><td>${s.d}</td><td>${s.l}</td><td>${s.gf}</td><td>${s.ga}</td><td>${s.gd >= 0 ? '+' : ''}${s.gd}</td><td class="pts">${s.pts}</td></tr>`;
+                    h += `<tr><td>${s.team}<span class="player-name" style="color:${c}">${s.person}</span></td><td>${s.gp}</td><td>${s.w}</td><td>${s.d}</td><td>${s.l}</td><td>${s.gf}</td><td>${s.ga}</td><td>${s.gd >= 0 ? '+' : ''}${s.gd}</td><td class="pts">${s.pts}</td></tr>`;
                 });
                 h += `</tbody></table><div class="group-games">`;
                 games.forEach(g => {
                     const hi = fIds.has(g.id) || !selectedDate,
-                        sc = g.homeScore !== null && g.awayScore !== null,
-                        hp = peopleMap[g.home] || '',
-                        ap = peopleMap[g.away] || '',
-                        hc = playerColors[hp] || '#6c3bd4',
-                        ac = playerColors[ap] || '#6c3bd4';
-                    h +=
-                        `<div class="game-row" data-game-id="${g.id}" style="${hi && selectedDate ? 'background:#fff8e1;' : ''}"><span class="teams"><strong>${g.home}</strong> <span class="player-inline" style="color:${hc}">(${hp || '—'})</span> — <strong>${g.away}</strong> <span class="player-inline" style="color:${ac}">(${ap || '—'})</span><br><span style="font-size:.65em;color:#adb5bd;">${g.stadium} · ${g.time} (${g.pst})</span></span><span class="${sc ? 'score' : 'score pending'}">${sc ? g.homeScore + ' - ' + g.awayScore : 'vs'}</span><span class="date-sm">${g.date.slice(5)}</span></div>`;
+                          sc = g.homeScore !== null && g.awayScore !== null,
+                          hp = peopleMap[g.home] || '', ap = peopleMap[g.away] || '',
+                          hc = playerColors[hp] || '#6c3bd4', ac = playerColors[ap] || '#6c3bd4';
+                    h += `<div class="game-row" data-game-id="${g.id}" style="${hi && selectedDate ? 'background:#fff8e1;' : ''}"><span class="teams"><strong>${g.home}</strong> <span class="player-inline" style="color:${hc}">(${hp || '—'})</span> — <strong>${g.away}</strong> <span class="player-inline" style="color:${ac}">(${ap || '—'})</span><br><span style="font-size:.65em;color:#adb5bd;">${g.stadium} · ${g.time || g.pst || ''}</span></span><span class="${sc ? 'score' : 'score pending'}">${sc ? g.homeScore + ' - ' + g.awayScore : 'vs'}</span><span class="date-sm">${g.date.slice(5)}</span></div>`;
                 });
                 h += `</div></div>`;
             });
             grid.innerHTML = h;
-            grid.querySelectorAll('.game-row').forEach(r => r.addEventListener('click', () => openGameModal(r.dataset
-                .gameId)));
+            grid.querySelectorAll('.game-row').forEach(r => r.addEventListener('click', () => openGameModal(r.dataset.gameId)));
         }
 
         function renderThirdPlace() {
@@ -2177,14 +1946,12 @@
                 { pos: 11, group: 'C', team: 'Scotland', pts: 3, gd: '-3', status: 'Eliminated' },
                 { pos: 12, group: 'H', team: 'Uruguay', pts: 2, gd: '-1', status: 'Eliminated' }
             ];
-            let h =
-                `<div class="third-place-section"><h3>📊 Third-Placed Teams Ranking (Top 8 advance)</h3><table class="third-place-table"><thead><tr><th>Pos</th><th>Grp</th><th>Team</th><th>Pts</th><th>GD</th><th>Status</th></tr></thead><tbody>`;
+            let h = `<div class="third-place-section"><h3>📊 Third-Placed Teams Ranking (Top 8 advance)</h3><table class="third-place-table"><thead><tr><th>Pos</th><th>Grp</th><th>Team</th><th>Pts</th><th>GD</th><th>Status</th></tr></thead><tbody>`;
             officialList.forEach(t => {
                 const q = t.status === 'Qualified';
                 const person = peopleMap[t.team] || '';
                 const c = person ? playerColors[person] || '#6c3bd4' : '#6c3bd4';
-                h +=
-                    `<tr><td>${t.pos}</td><td>${t.group}</td><td>${t.team}<span class="player-name" style="color:${c}">${person}</span></td><td class="pts">${t.pts}</td><td>${t.gd}</td><td class="${q ? 'qualifies' : ''}">${q ? '✅ Qualified' : '❌ Eliminated'}</td></tr>`;
+                h += `<tr><td>${t.pos}</td><td>${t.group}</td><td>${t.team}<span class="player-name" style="color:${c}">${person}</span></td><td class="pts">${t.pts}</td><td>${t.gd}</td><td class="${q ? 'qualifies' : ''}">${q ? '✅ Qualified' : '❌ Eliminated'}</td></tr>`;
             });
             h += `</tbody></table></div>`;
             container.innerHTML = h;
@@ -2193,62 +1960,44 @@
         function openGameModal(gameId) {
             const game = allGames.find(g => g.id === gameId);
             if (!game) return;
-            const overlay = document.getElementById('modalOverlay'),
-                modal = document.getElementById('gameModal'),
-                hs = game.homeScore !== null ? game.homeScore : '',
-                as = game.awayScore !== null ? game.awayScore : '',
-                hp = peopleMap[game.home] || '',
-                ap = peopleMap[game.away] || '',
-                hc = playerColors[hp] || '#6c3bd4',
-                ac = playerColors[ap] || '#6c3bd4';
+            const overlay = document.getElementById('modalOverlay'), modal = document.getElementById('gameModal');
+            const hs = game.homeScore !== null ? game.homeScore : '', as = game.awayScore !== null ? game.awayScore : '';
+            const hp = peopleMap[game.home] || '', ap = peopleMap[game.away] || '';
+            const hc = playerColors[hp] || '#6c3bd4', ac = playerColors[ap] || '#6c3bd4';
             const displayTime = game.time || game.pst || '';
-            modal.innerHTML =
-                `<h3>${game.round === 'group' ? 'Group ' + game.group + ' · ' : ''}${game.home} vs ${game.away}</h3><div class="modal-date">📅 ${game.date} | 🏟 ${game.stadium} | 🕐 ${displayTime}</div><div class="matchup"><div class="team-block"><div style="font-size:2em;">⚽</div><div class="country">${game.home}</div><div class="owner" style="color:${hc}">${hp || '—'}</div></div><div class="vs">VS</div><div class="team-block"><div style="font-size:2em;">⚽</div><div class="country">${game.away}</div><div class="owner" style="color:${ac}">${ap || '—'}</div></div></div><div class="score-inputs"><input type="number" id="modalHomeScore" value="${hs}" placeholder="-" min="0" max="99"><span>—</span><input type="number" id="modalAwayScore" value="${as}" placeholder="-" min="0" max="99"></div><div class="btn-row"><button class="btn btn-save" id="modalSave">💾 Save</button><button class="btn btn-reset" id="modalReset">Clear</button><button class="btn btn-close" id="modalClose">Close</button></div>`;
+            modal.innerHTML = `<h3>${game.round === 'group' ? 'Group ' + game.group + ' · ' : ''}${game.home} vs ${game.away}</h3><div class="modal-date">📅 ${game.date} | 🏟 ${game.stadium} | 🕐 ${displayTime}</div><div class="matchup"><div class="team-block"><div style="font-size:2em;">⚽</div><div class="country">${game.home}</div><div class="owner" style="color:${hc}">${hp || '—'}</div></div><div class="vs">VS</div><div class="team-block"><div style="font-size:2em;">⚽</div><div class="country">${game.away}</div><div class="owner" style="color:${ac}">${ap || '—'}</div></div></div><div class="score-inputs"><input type="number" id="modalHomeScore" value="${hs}" placeholder="-" min="0" max="99"><span>—</span><input type="number" id="modalAwayScore" value="${as}" placeholder="-" min="0" max="99"></div><div class="btn-row"><button class="btn btn-save" id="modalSave">💾 Save</button><button class="btn btn-reset" id="modalReset">Clear</button><button class="btn btn-close" id="modalClose">Close</button></div>`;
             overlay.classList.add('open');
             document.getElementById('modalSave').addEventListener('click', () => {
-                const hv = document.getElementById('modalHomeScore').value,
-                    av = document.getElementById('modalAwayScore').value;
-                if (hv !== '' && av !== '' && !isNaN(hv) && !isNaN(av)) { game.homeScore = parseInt(hv);
-                    game.awayScore = parseInt(av); } else if (hv === '' && av === '') { game.homeScore = null;
-                    game.awayScore = null; }
+                const hv = document.getElementById('modalHomeScore').value, av = document.getElementById('modalAwayScore').value;
+                if (hv !== '' && av !== '' && !isNaN(hv) && !isNaN(av)) { game.homeScore = parseInt(hv); game.awayScore = parseInt(av); }
+                else if (hv === '' && av === '') { game.homeScore = null; game.awayScore = null; }
                 saveToFirebase(game.id, game.homeScore, game.awayScore);
                 overlay.classList.remove('open');
                 renderBracket();
             });
             document.getElementById('modalReset').addEventListener('click', () => {
-                game.homeScore = null;
-                game.awayScore = null;
+                game.homeScore = null; game.awayScore = null;
                 saveToFirebase(game.id, null, null);
                 overlay.classList.remove('open');
                 renderBracket();
             });
             document.getElementById('modalClose').addEventListener('click', () => overlay.classList.remove('open'));
         }
-        document.getElementById('modalOverlay').addEventListener('click', function(e) { if (e.target === this) this
-                .classList.remove('open'); });
+        document.getElementById('modalOverlay').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
 
         function renderLegend() {
             const legendEl = document.getElementById('playerLegend');
             if (!legendEl) return;
             const order = ['Moni', 'Grampa', 'Grama', 'Anthony', 'Nancy', 'Irma', 'Mari', 'Michael'];
-            let h =
-                `<div class="legend-section"><h3>👥 Player Legend</h3><div class="legend-sub">🔴 Strikethrough = eliminated · Click a player for full dashboard</div><div class="legend-grid">`;
+            let h = `<div class="legend-section"><h3>👥 Player Legend</h3><div class="legend-sub">🔴 Strikethrough = eliminated · Click a player for full dashboard</div><div class="legend-grid">`;
             order.forEach(person => {
                 if (legendData[person]) {
                     const c = legendData[person].color;
                     const teams = legendData[person].teams;
                     const record = getPlayerRecord(person);
-                    const active = [],
-                        eliminated = [];
-                    teams.forEach(team => {
-                        if (isTeamEliminated(team)) {
-                            eliminated.push(team);
-                        } else {
-                            active.push(team);
-                        }
-                    });
-                    active.sort();
-                    eliminated.sort();
+                    const active = [], eliminated = [];
+                    teams.forEach(team => { if (isTeamEliminated(team)) eliminated.push(team); else active.push(team); });
+                    active.sort(); eliminated.sort();
                     let teamsHtml = '';
                     const allTeams = [...active, ...eliminated];
                     allTeams.forEach((team, idx) => {
@@ -2257,18 +2006,15 @@
                         teamsHtml += `<span class="${cls}">${team}</span>`;
                         if (idx < allTeams.length - 1) teamsHtml += ' · ';
                     });
-                    h +=
-                        `<div class="legend-player" data-player="${person}">
-                                <div class="legend-name">
-                                    <span class="legend-dot" style="background:${c}"></span>${person}
-                                </div>
-                                <div class="legend-teams">${teamsHtml}</div>
-                                <div class="legend-record">
-                                    <span class="wins">W: ${record.wins}</span> ·
-                                    <span class="losses">L: ${record.losses}</span> ·
-                                    <span class="draws">D: ${record.draws}</span>
-                                </div>
-                            </div>`;
+                    h += `<div class="legend-player" data-player="${person}">
+                            <div class="legend-name"><span class="legend-dot" style="background:${c}"></span>${person}</div>
+                            <div class="legend-teams">${teamsHtml}</div>
+                            <div class="legend-record">
+                                <span class="wins">W: ${record.wins}</span> ·
+                                <span class="losses">L: ${record.losses}</span> ·
+                                <span class="draws">D: ${record.draws}</span>
+                            </div>
+                        </div>`;
                 }
             });
             h += `</div></div>`;
@@ -2282,7 +2028,6 @@
         function openAdmin() {
             const overlay = document.getElementById('adminOverlay');
             overlay.classList.add('open');
-            // Reset password section
             document.getElementById('adminPasswordSection').style.display = 'flex';
             document.getElementById('adminEditor').classList.remove('show');
             document.getElementById('adminPasswordInput').value = '';
@@ -2308,51 +2053,53 @@
 
         function populateAdminTable() {
             const tbody = document.getElementById('adminTableBody');
+            const todayPST = getTodayPST();
             let html = '';
-            // Show all games (group and knockout) sorted by date, then time
-            const sorted = [...allGames].sort((a, b) => {
-                if (a.date !== b.date) return a.date.localeCompare(b.date);
-                return parsePST(a.time) - parsePST(b.time);
-            });
-            sorted.forEach(g => {
-                const label = g.matchNumber ? `Match ${g.matchNumber}` : `Group ${g.group}`;
-                const teams = `${g.home} vs ${g.away}`;
-                html += `<tr>
-                            <td class="match-id">${label}</td>
-                            <td class="match-teams-label">${teams}</td>
-                            <td><input type="date" value="${g.date}" data-id="${g.id}" data-field="date" /></td>
-                            <td><input type="text" value="${g.time}" data-id="${g.id}" data-field="time" placeholder="e.g., 1:30 PM PST" /></td>
-                            <td><input type="text" value="${g.stadium}" data-id="${g.id}" data-field="stadium" placeholder="Stadium name" /></td>
-                        </tr>`;
-            });
+            // Filter only current and future games (date >= today PST)
+            const sorted = [...allGames]
+                .filter(g => g.date >= todayPST)
+                .sort((a, b) => {
+                    if (a.date !== b.date) return a.date.localeCompare(b.date);
+                    return parsePST(a.time || a.pst) - parsePST(b.time || b.pst);
+                });
+            if (sorted.length === 0) {
+                html = `<tr><td colspan="5" style="text-align:center; padding:20px; color:#6c757d;">No current or future games to display.</td></tr>`;
+            } else {
+                sorted.forEach(g => {
+                    const label = g.matchNumber ? `Match ${g.matchNumber}` : `Group ${g.group}`;
+                    const teams = `${g.home} vs ${g.away}`;
+                    html += `<tr>
+                                <td class="match-id">${label}</td>
+                                <td class="match-teams-label">${teams}</td>
+                                <td class="col-date"><input type="date" value="${g.date}" data-id="${g.id}" data-field="date" /></td>
+                                <td class="col-time"><input type="text" value="${g.time || g.pst || ''}" data-id="${g.id}" data-field="time" placeholder="e.g., 1:30 PM PST" /></td>
+                                <td class="col-stadium"><input type="text" value="${g.stadium || ''}" data-id="${g.id}" data-field="stadium" placeholder="Stadium name" /></td>
+                            </tr>`;
+                });
+            }
             tbody.innerHTML = html;
         }
 
         function saveAdminChanges() {
             const inputs = document.querySelectorAll('#adminTableBody input');
-            const updates = {};
             inputs.forEach(inp => {
                 const id = inp.dataset.id;
                 const field = inp.dataset.field;
                 const val = inp.value;
                 const game = allGames.find(g => g.id === id);
                 if (game) {
-                    // Update local
                     game[field] = val;
-                    // Prepare for Firebase
-                    if (!updates[id]) updates[id] = {};
-                    updates[id][field] = val;
+                    // Keep pst in sync with time for clean daily modal display
+                    if (field === 'time') game.pst = val;
                 }
             });
-            // Also update pst (time) if time changed
-            // We'll just push the whole schedule object
             const scheduleData = {};
             allGames.forEach(g => {
                 scheduleData[g.id] = {
                     date: g.date,
-                    time: g.time,
-                    stadium: g.stadium,
-                    pst: g.pst || g.time // if pst not set, use time
+                    time: g.time || g.pst || '',
+                    stadium: g.stadium || '',
+                    pst: g.pst || g.time || ''
                 };
             });
             set(scheduleRef, scheduleData).then(() => {
@@ -2365,42 +2112,27 @@
             });
         }
 
-        // --- Render all ---
         function renderAll() {
             propagateKnockoutResults();
             document.getElementById('filterBanner').innerHTML = selectedDate ?
                 `🔍 Showing <strong>${selectedDate}</strong> <span class="clear-filter" id="clearFilter">[Show All]</span>` :
                 `📅 Click a date to see games · 🔴 Live Sync Active`;
             if (selectedDate) document.getElementById('clearFilter').addEventListener('click', () => {
-                selectedDate = null;
-                renderCalendar();
-                renderAll();
-                document.getElementById('dailyOverlay').classList.remove('open');
+                selectedDate = null; renderCalendar(); renderAll(); document.getElementById('dailyOverlay').classList.remove('open');
             });
-            if (currentView === 'bracket') {
-                renderBracket();
-            } else if (currentView === 'groups') {
-                renderGroups();
-            } else if (currentView === 'thirdplace') {
-                renderThirdPlace();
-            }
+            if (currentView === 'bracket') renderBracket();
+            else if (currentView === 'groups') renderGroups();
+            else if (currentView === 'thirdplace') renderThirdPlace();
             renderLegend();
         }
 
-        // --- Event Listeners ---
         document.getElementById('adminBtn').addEventListener('click', openAdmin);
         document.getElementById('adminPasswordSubmit').addEventListener('click', authenticateAdmin);
-        document.getElementById('adminPasswordInput').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') authenticateAdmin();
-        });
+        document.getElementById('adminPasswordInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') authenticateAdmin(); });
         document.getElementById('adminSaveBtn').addEventListener('click', saveAdminChanges);
         document.getElementById('adminCloseBtn').addEventListener('click', closeAdmin);
-        // Close admin on overlay background click
-        document.getElementById('adminOverlay').addEventListener('click', function(e) {
-            if (e.target === this) closeAdmin();
-        });
+        document.getElementById('adminOverlay').addEventListener('click', function(e) { if (e.target === this) closeAdmin(); });
 
-        // Tab switching
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
