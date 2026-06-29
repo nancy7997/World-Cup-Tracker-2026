@@ -501,7 +501,7 @@
             align-items: stretch;
             font-size: 0.85rem;
             line-height: 1.3;
-            min-height: 95px; /* slightly increased for penalty line */
+            min-height: 95px;
             justify-content: center;
         }
         .match-card:hover {
@@ -524,6 +524,10 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+        }
+        .team-abbr.team-eliminated {
+            text-decoration: line-through;
+            color: #dc3545;
         }
         .match-score {
             font-weight: 800;
@@ -1798,14 +1802,24 @@
                     const hasScore = (m.homeScore !== null && m.awayScore !== null);
                     let scoreText = '—';
                     let penaltyHtml = '';
+                    let homeClass = 'team-abbr';
+                    let awayClass = 'team-abbr';
                     if (hasScore) {
                         if (m.homeScore === m.awayScore) {
                             scoreText = `${m.homeScore} – ${m.awayScore}`;
                             if (m.homePenalties != null && m.awayPenalties != null && m.homePenalties !== m.awayPenalties) {
                                 penaltyHtml = `<div class="penalty-line">Penalties: ${m.homePenalties} – ${m.awayPenalties}</div>`;
+                                // cross out loser
+                                const loser = m.homePenalties < m.awayPenalties ? m.home : m.away;
+                                if (loser === m.home && !m.home.startsWith('Winner') && !m.home.startsWith('Runner-up')) homeClass += ' team-eliminated';
+                                else if (loser === m.away && !m.away.startsWith('Winner') && !m.away.startsWith('Runner-up')) awayClass += ' team-eliminated';
                             }
                         } else {
                             scoreText = `${m.homeScore} – ${m.awayScore}`;
+                            // cross out loser in regular time
+                            const loser = m.homeScore < m.awayScore ? m.home : m.away;
+                            if (loser === m.home && !m.home.startsWith('Winner') && !m.home.startsWith('Runner-up')) homeClass += ' team-eliminated';
+                            else if (loser === m.away && !m.away.startsWith('Winner') && !m.away.startsWith('Runner-up')) awayClass += ' team-eliminated';
                         }
                     }
                     const dateObj = new Date(m.date + 'T00:00:00');
@@ -1816,9 +1830,9 @@
                     html += `<div class="match-wrapper" style="flex: ${factor};" data-match-id="${m.id}">
                                 <div class="match-card" data-game-id="${m.id}">
                                     <div class="match-teams">
-                                        <span class="team-abbr">${m.home}</span>
+                                        <span class="${homeClass}">${m.home}</span>
                                         <span class="match-score ${!hasScore ? 'pending' : ''}">${scoreText}</span>
-                                        <span class="team-abbr">${m.away}</span>
+                                        <span class="${awayClass}">${m.away}</span>
                                     </div>
                                     ${penaltyHtml}
                                     <div class="match-meta">
