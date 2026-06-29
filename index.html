@@ -705,7 +705,7 @@
             background: #fff;
             border-radius: 14px;
             padding: 18px;
-            max-width: 460px;
+            max-width: 500px;
             width: 100%;
             max-height: 82vh;
             overflow-y: auto;
@@ -769,11 +769,38 @@
             border-color: var(--accent);
             outline: none;
         }
+        .modal .penalty-section {
+            margin: 8px 0 4px;
+            text-align: center;
+        }
+        .modal .penalty-section label {
+            font-size: 0.8em;
+            color: #6c757d;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .modal .penalty-inputs {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .modal .penalty-inputs input {
+            width: 54px;
+            height: 36px;
+            text-align: center;
+            font-size: 1em;
+            font-weight: 600;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            background: #f8f9fa;
+        }
         .modal .btn-row {
             display: flex;
             gap: 6px;
             justify-content: center;
             flex-wrap: wrap;
+            margin-top: 12px;
         }
         .btn {
             padding: 8px 18px;
@@ -917,7 +944,7 @@
         .admin-editor table {
             width: 100%;
             border-collapse: separate;
-            border-spacing: 0 8px;          /* increased vertical gap between rows */
+            border-spacing: 0 8px;
             font-size: 0.78rem;
         }
         .admin-editor th {
@@ -932,7 +959,7 @@
             white-space: nowrap;
         }
         .admin-editor td {
-            padding: 12px 10px;            /* generous cell padding */
+            padding: 12px 10px;
             border-bottom: 1px solid #e9ecef;
             vertical-align: middle;
             background: #fff;
@@ -1172,7 +1199,7 @@
             <div class="bracket-wrapper" style="margin-top:0;">
                 <div class="bracket-header">
                     <h2>🏆 WORLD CUP 2026 · KNOCKOUT BRACKET</h2>
-                    <div class="bracket-note">⚡ Click any match to edit score · Results auto-fill from Round of 32 → Final</div>
+                    <div class="bracket-note">⚡ Click any match to edit score · Penalties decide ties</div>
                 </div>
                 <div id="dynamicBracketTree" class="tournament-bracket"></div>
             </div>
@@ -1466,6 +1493,10 @@
             { id: 'K31', round: 'Third Place', home: 'Runner-up Match 101', away: 'Runner-up Match 102', date: '2026-07-18', time: '2:00 PM PST', stadium: 'Miami Stadium', matchNumber: '103', homeScore: null, awayScore: null, isKo: true },
             { id: 'K32', round: 'Final', home: 'Winner Match 101', away: 'Winner Match 102', date: '2026-07-19', time: '12:00 PM PST', stadium: 'New York New Jersey Stadium', matchNumber: '104', homeScore: null, awayScore: null, isKo: true }
         ];
+        allKoGames.forEach(g => {
+            g.homePenalties = g.homePenalties ?? null;
+            g.awayPenalties = g.awayPenalties ?? null;
+        });
 
         let allGames = [...allGroupGames, ...allKoGames];
         let selectedDate = null,
@@ -1532,7 +1563,8 @@
                 }
             }
             for (const game of allKoGames) {
-                if (game.homeScore !== null && game.awayScore !== null && game.homeScore !== game.awayScore) {
+                if (game.homeScore !== null && game.awayScore !== null) {
+                    if (game.homeScore === game.awayScore) continue;
                     if (game.home === teamName && game.homeScore < game.awayScore) return true;
                     if (game.away === teamName && game.awayScore < game.homeScore) return true;
                 }
@@ -1543,9 +1575,16 @@
         function propagateKnockoutResults() {
             const winners = {}, losers = {};
             allKoGames.forEach(m => {
-                if (m.homeScore !== null && m.awayScore !== null && m.homeScore !== m.awayScore) {
-                    if (m.homeScore > m.awayScore) { winners[m.id] = m.home; losers[m.id] = m.away; }
-                    else { winners[m.id] = m.away; losers[m.id] = m.home; }
+                if (m.homeScore !== null && m.awayScore !== null) {
+                    if (m.homeScore !== m.awayScore) {
+                        if (m.homeScore > m.awayScore) { winners[m.id] = m.home; losers[m.id] = m.away; }
+                        else { winners[m.id] = m.away; losers[m.id] = m.home; }
+                    } else {
+                        if (m.homePenalties != null && m.awayPenalties != null && m.homePenalties !== m.awayPenalties) {
+                            if (m.homePenalties > m.awayPenalties) { winners[m.id] = m.home; losers[m.id] = m.away; }
+                            else { winners[m.id] = m.away; losers[m.id] = m.home; }
+                        }
+                    }
                 }
             });
             const r16Map = [['K2', 'K5'], ['K1', 'K3'], ['K4', 'K6'], ['K7', 'K8'], ['K11', 'K12'], ['K9', 'K10'], ['K14', 'K16'], ['K13', 'K15']];
@@ -1652,6 +1691,10 @@
                 const championTeam = finalMatch.homeScore > finalMatch.awayScore ? finalMatch.home : finalMatch.away;
                 const player = peopleMap[championTeam];
                 if (player && !celebrationShown) showCelebration(championTeam, player);
+            } else if (finalMatch.homePenalties != null && finalMatch.awayPenalties != null && finalMatch.homePenalties !== finalMatch.awayPenalties) {
+                const champ = finalMatch.homePenalties > finalMatch.awayPenalties ? finalMatch.home : finalMatch.away;
+                const player = peopleMap[champ];
+                if (player && !celebrationShown) showCelebration(champ, player);
             }
         }
 
@@ -1660,7 +1703,14 @@
             statusEl.textContent = '🟡 Syncing...';
             onValue(scoresRef, (snapshot) => {
                 const data = snapshot.val() || {};
-                allGames.forEach(g => { if (data[g.id] !== undefined) { g.homeScore = data[g.id].homeScore; g.awayScore = data[g.id].awayScore; } });
+                allGames.forEach(g => {
+                    if (data[g.id] !== undefined) {
+                        g.homeScore = data[g.id].homeScore;
+                        g.awayScore = data[g.id].awayScore;
+                        if (data[g.id].homePenalties !== undefined) g.homePenalties = data[g.id].homePenalties;
+                        if (data[g.id].awayPenalties !== undefined) g.awayPenalties = data[g.id].awayPenalties;
+                    }
+                });
                 statusEl.textContent = '🟢 Live Sync Connected';
                 statusEl.className = 'sync-status';
                 renderAll();
@@ -1684,9 +1734,9 @@
             });
         }
 
-        function saveToFirebase(gameId, homeScore, awayScore) {
+        function saveGameResult(gameId, resultData) {
             const updates = {};
-            updates[gameId] = { homeScore, awayScore };
+            updates[gameId] = resultData;
             update(scoresRef, updates);
         }
 
@@ -1733,7 +1783,18 @@
                 html += `<div class="bracket-round-col"><div class="round-label">${rnd}</div><div class="bracket-matches">`;
                 matches.forEach(m => {
                     const hasScore = (m.homeScore !== null && m.awayScore !== null);
-                    const scoreText = hasScore ? `${m.homeScore} – ${m.awayScore}` : '—';
+                    let scoreText = '—';
+                    if (hasScore) {
+                        if (m.homeScore === m.awayScore) {
+                            if (m.homePenalties != null && m.awayPenalties != null && m.homePenalties !== m.awayPenalties) {
+                                scoreText = `${m.homeScore} – ${m.awayScore} (${m.homePenalties}-${m.awayPenalties} pens)`;
+                            } else {
+                                scoreText = `${m.homeScore} – ${m.awayScore}`;
+                            }
+                        } else {
+                            scoreText = `${m.homeScore} – ${m.awayScore}`;
+                        }
+                    }
                     const dateObj = new Date(m.date + 'T00:00:00');
                     const formattedDate = `${dateObj.getMonth() + 1}/${dateObj.getDate()}`;
                     const timePST = m.time || m.pst || '';
@@ -1760,9 +1821,18 @@
             });
             const finalMatch = allKoGames.find(g => g.round === 'Final');
             let champHtml = '';
-            if (finalMatch && finalMatch.homeScore !== null && finalMatch.awayScore !== null && finalMatch.homeScore !== finalMatch.awayScore) {
-                const champ = finalMatch.homeScore > finalMatch.awayScore ? finalMatch.home : finalMatch.away;
-                champHtml = `<div class="bracket-round-col champion-highlight" style="flex:0 0 200px;"><div class="round-label">🏆 CHAMPION</div><div class="final-winner">⭐ ${champ} ⭐</div></div>`;
+            if (finalMatch && finalMatch.homeScore !== null && finalMatch.awayScore !== null) {
+                let champ = null;
+                if (finalMatch.homeScore !== finalMatch.awayScore) {
+                    champ = finalMatch.homeScore > finalMatch.awayScore ? finalMatch.home : finalMatch.away;
+                } else if (finalMatch.homePenalties != null && finalMatch.awayPenalties != null && finalMatch.homePenalties !== finalMatch.awayPenalties) {
+                    champ = finalMatch.homePenalties > finalMatch.awayPenalties ? finalMatch.home : finalMatch.away;
+                }
+                if (champ) {
+                    champHtml = `<div class="bracket-round-col champion-highlight" style="flex:0 0 200px;"><div class="round-label">🏆 CHAMPION</div><div class="final-winner">⭐ ${champ} ⭐</div></div>`;
+                } else {
+                    champHtml = `<div class="bracket-round-col" style="flex:0 0 200px;"><div class="round-label">🏆 CHAMPION</div><div class="final-winner">TBD</div></div>`;
+                }
             } else {
                 champHtml = `<div class="bracket-round-col" style="flex:0 0 200px;"><div class="round-label">🏆 CHAMPION</div><div class="final-winner">TBD</div></div>`;
             }
@@ -1834,11 +1904,18 @@
                 let groupDisplay = '';
                 if (game.round === 'group') groupDisplay = `<span class="group-badge">Group ${game.group}</span>`;
                 else groupDisplay = `<span class="group-badge" style="background:#6c757d;">${game.round}</span>`;
-                // Show only one time string (the main time field)
                 const displayTime = game.time || game.pst || '';
                 let matchLine = '';
                 if (game.matchNumber) matchLine = `Match ${game.matchNumber}`;
                 else if (game.group) matchLine = `Group ${game.group}`;
+                let scoreDisplay = 'vs';
+                if (sc) {
+                    if (game.homeScore === game.awayScore && game.homePenalties != null && game.awayPenalties != null && game.homePenalties !== game.awayPenalties) {
+                        scoreDisplay = `${game.homeScore} – ${game.awayScore} (${game.homePenalties}-${game.awayPenalties} pens)`;
+                    } else {
+                        scoreDisplay = `${game.homeScore} - ${game.awayScore}`;
+                    }
+                }
                 h += `<div class="daily-game-card" data-game-id="${game.id}">
                         <div class="match-info">
                             <div class="teams-line">${game.home} vs ${game.away} ${groupDisplay}</div>
@@ -1847,7 +1924,7 @@
                             <div class="details-line">🕐 ${displayTime}</div>
                             <div class="player-line"><span style="color:${hc}">👤 ${hp || '—'}</span> vs <span style="color:${ac}">👤 ${ap || '—'}</span></div>
                         </div>
-                        <div class="score-badge${!sc ? ' pending' : ''}">${sc ? game.homeScore + ' - ' + game.awayScore : 'vs'}</div>
+                        <div class="score-badge${!sc ? ' pending' : ''}">${scoreDisplay}</div>
                     </div>`;
             });
             h += `<button class="daily-close-btn" id="dailyCloseBtn">✕ Close</button>`;
@@ -1885,6 +1962,14 @@
                 const hColor = hp === playerName ? 'font-weight:900;text-decoration:underline;' : 'color:#6c757d;';
                 const aColor = ap === playerName ? 'font-weight:900;text-decoration:underline;' : 'color:#6c757d;';
                 const displayTime = g.time || g.pst || '';
+                let scoreDisplay = 'vs';
+                if (sc) {
+                    if (g.homeScore === g.awayScore && g.homePenalties != null && g.awayPenalties != null && g.homePenalties !== g.awayPenalties) {
+                        scoreDisplay = `${g.homeScore} – ${g.awayScore} (${g.homePenalties}-${g.awayPenalties} pens)`;
+                    } else {
+                        scoreDisplay = `${g.homeScore} - ${g.awayScore}`;
+                    }
+                }
                 h += `<div class="daily-game-card" style="cursor:default;">
                         <div class="match-info">
                             <div class="teams-line">${g.home} vs ${g.away}</div>
@@ -1894,7 +1979,7 @@
                                 <span style="${aColor}">${ap || '—'}</span>
                             </div>
                         </div>
-                        <div class="score-badge${!sc ? ' pending' : ''}">${sc ? g.homeScore + ' - ' + g.awayScore : 'vs'}</div>
+                        <div class="score-badge${!sc ? ' pending' : ''}">${scoreDisplay}</div>
                       </div>`;
             });
             h += `</div><button class="daily-close-btn" id="playerCloseBtn">✕ Close Dashboard</button>`;
@@ -1965,19 +2050,107 @@
             const hp = peopleMap[game.home] || '', ap = peopleMap[game.away] || '';
             const hc = playerColors[hp] || '#6c3bd4', ac = playerColors[ap] || '#6c3bd4';
             const displayTime = game.time || game.pst || '';
-            modal.innerHTML = `<h3>${game.round === 'group' ? 'Group ' + game.group + ' · ' : ''}${game.home} vs ${game.away}</h3><div class="modal-date">📅 ${game.date} | 🏟 ${game.stadium} | 🕐 ${displayTime}</div><div class="matchup"><div class="team-block"><div style="font-size:2em;">⚽</div><div class="country">${game.home}</div><div class="owner" style="color:${hc}">${hp || '—'}</div></div><div class="vs">VS</div><div class="team-block"><div style="font-size:2em;">⚽</div><div class="country">${game.away}</div><div class="owner" style="color:${ac}">${ap || '—'}</div></div></div><div class="score-inputs"><input type="number" id="modalHomeScore" value="${hs}" placeholder="-" min="0" max="99"><span>—</span><input type="number" id="modalAwayScore" value="${as}" placeholder="-" min="0" max="99"></div><div class="btn-row"><button class="btn btn-save" id="modalSave">💾 Save</button><button class="btn btn-reset" id="modalReset">Clear</button><button class="btn btn-close" id="modalClose">Close</button></div>`;
+            const isKnockout = game.isKo || game.round !== 'group';
+            const scoresTied = (hs !== '' && as !== '' && hs === as);
+            let penaltyHTML = '';
+            if (isKnockout) {
+                const hpens = game.homePenalties != null ? game.homePenalties : '';
+                const apens = game.awayPenalties != null ? game.awayPenalties : '';
+                penaltyHTML = `
+                <div class="penalty-section" id="penaltySection" style="display:${scoresTied ? 'block' : 'none'};">
+                    <label>⚽ Penalties (if tied after regular time)</label>
+                    <div class="penalty-inputs">
+                        <input type="number" id="modalHomePenalties" value="${hpens}" placeholder="-" min="0" max="99">
+                        <span>—</span>
+                        <input type="number" id="modalAwayPenalties" value="${apens}" placeholder="-" min="0" max="99">
+                    </div>
+                </div>`;
+            }
+            modal.innerHTML = `
+                <h3>${game.round === 'group' ? 'Group ' + game.group + ' · ' : ''}${game.home} vs ${game.away}</h3>
+                <div class="modal-date">📅 ${game.date} | 🏟 ${game.stadium} | 🕐 ${displayTime}</div>
+                <div class="matchup">
+                    <div class="team-block"><div style="font-size:2em;">⚽</div><div class="country">${game.home}</div><div class="owner" style="color:${hc}">${hp || '—'}</div></div>
+                    <div class="vs">VS</div>
+                    <div class="team-block"><div style="font-size:2em;">⚽</div><div class="country">${game.away}</div><div class="owner" style="color:${ac}">${ap || '—'}</div></div>
+                </div>
+                <div class="score-inputs">
+                    <input type="number" id="modalHomeScore" value="${hs}" placeholder="-" min="0" max="99">
+                    <span>—</span>
+                    <input type="number" id="modalAwayScore" value="${as}" placeholder="-" min="0" max="99">
+                </div>
+                ${penaltyHTML}
+                <div class="btn-row">
+                    <button class="btn btn-save" id="modalSave">💾 Save</button>
+                    <button class="btn btn-reset" id="modalReset">Clear All</button>
+                    <button class="btn btn-close" id="modalClose">Close</button>
+                </div>`;
             overlay.classList.add('open');
+
+            // Add dynamic toggle for penalties
+            if (isKnockout) {
+                const homeInput = document.getElementById('modalHomeScore');
+                const awayInput = document.getElementById('modalAwayScore');
+                const penaltySection = document.getElementById('penaltySection');
+                function togglePenalties() {
+                    const hv = homeInput.value, av = awayInput.value;
+                    if (hv !== '' && av !== '' && hv === av) {
+                        penaltySection.style.display = 'block';
+                    } else {
+                        penaltySection.style.display = 'none';
+                        // clear penalty inputs when hiding
+                        document.getElementById('modalHomePenalties').value = '';
+                        document.getElementById('modalAwayPenalties').value = '';
+                    }
+                }
+                homeInput.addEventListener('input', togglePenalties);
+                awayInput.addEventListener('input', togglePenalties);
+            }
+
             document.getElementById('modalSave').addEventListener('click', () => {
                 const hv = document.getElementById('modalHomeScore').value, av = document.getElementById('modalAwayScore').value;
-                if (hv !== '' && av !== '' && !isNaN(hv) && !isNaN(av)) { game.homeScore = parseInt(hv); game.awayScore = parseInt(av); }
-                else if (hv === '' && av === '') { game.homeScore = null; game.awayScore = null; }
-                saveToFirebase(game.id, game.homeScore, game.awayScore);
+                if (hv !== '' && av !== '' && !isNaN(hv) && !isNaN(av)) {
+                    game.homeScore = parseInt(hv);
+                    game.awayScore = parseInt(av);
+                } else if (hv === '' && av === '') {
+                    game.homeScore = null;
+                    game.awayScore = null;
+                }
+                if (isKnockout && game.homeScore !== null && game.awayScore !== null && game.homeScore === game.awayScore) {
+                    const hpv = document.getElementById('modalHomePenalties').value, apv = document.getElementById('modalAwayPenalties').value;
+                    if (hpv !== '' && apv !== '' && !isNaN(hpv) && !isNaN(apv)) {
+                        game.homePenalties = parseInt(hpv);
+                        game.awayPenalties = parseInt(apv);
+                    } else {
+                        game.homePenalties = null;
+                        game.awayPenalties = null;
+                    }
+                } else {
+                    game.homePenalties = null;
+                    game.awayPenalties = null;
+                }
+                saveGameResult(game.id, {
+                    homeScore: game.homeScore,
+                    awayScore: game.awayScore,
+                    homePenalties: game.homePenalties ?? null,
+                    awayPenalties: game.awayPenalties ?? null
+                });
                 overlay.classList.remove('open');
                 renderBracket();
             });
             document.getElementById('modalReset').addEventListener('click', () => {
-                game.homeScore = null; game.awayScore = null;
-                saveToFirebase(game.id, null, null);
+                game.homeScore = null;
+                game.awayScore = null;
+                if (isKnockout) {
+                    game.homePenalties = null;
+                    game.awayPenalties = null;
+                }
+                saveGameResult(game.id, {
+                    homeScore: null,
+                    awayScore: null,
+                    homePenalties: null,
+                    awayPenalties: null
+                });
                 overlay.classList.remove('open');
                 renderBracket();
             });
@@ -2055,7 +2228,6 @@
             const tbody = document.getElementById('adminTableBody');
             const todayPST = getTodayPST();
             let html = '';
-            // Filter only current and future games (date >= today PST)
             const sorted = [...allGames]
                 .filter(g => g.date >= todayPST)
                 .sort((a, b) => {
@@ -2089,7 +2261,6 @@
                 const game = allGames.find(g => g.id === id);
                 if (game) {
                     game[field] = val;
-                    // Keep pst in sync with time for clean daily modal display
                     if (field === 'time') game.pst = val;
                 }
             });
