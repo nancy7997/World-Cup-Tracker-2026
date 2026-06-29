@@ -816,6 +816,165 @@
             margin-left: 4px;
         }
 
+        /* Admin button and panel */
+        .admin-btn-container {
+            text-align: center;
+            margin: 20px 0 10px;
+        }
+        .admin-btn {
+            padding: 8px 20px;
+            background: #2c3e50;
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background 0.2s;
+        }
+        .admin-btn:hover {
+            background: #1a2a3a;
+        }
+        .admin-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 300;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+        .admin-overlay.open {
+            display: flex;
+        }
+        .admin-modal {
+            background: #fff;
+            border-radius: 14px;
+            padding: 20px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+        .admin-modal h3 {
+            color: #1a1a2e;
+            margin-bottom: 8px;
+            font-size: 1.4em;
+            text-align: center;
+        }
+        .admin-modal .admin-sub {
+            text-align: center;
+            color: #6c757d;
+            margin-bottom: 16px;
+            font-size: 0.8rem;
+        }
+        .admin-password-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            margin: 20px 0;
+        }
+        .admin-password-container input {
+            padding: 8px 12px;
+            font-size: 1rem;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            width: 200px;
+            text-align: center;
+        }
+        .admin-password-container button {
+            padding: 8px 24px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .admin-password-container .admin-error {
+            color: #dc3545;
+            font-size: 0.8rem;
+            margin-top: 4px;
+        }
+        .admin-editor {
+            display: none;
+        }
+        .admin-editor.show {
+            display: block;
+        }
+        .admin-editor table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+        }
+        .admin-editor th {
+            background: #f1f3f5;
+            padding: 6px 4px;
+            text-align: left;
+            border-bottom: 2px solid #dee2e6;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+        .admin-editor td {
+            padding: 4px 2px;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: middle;
+        }
+        .admin-editor input {
+            width: 100%;
+            padding: 4px 6px;
+            font-size: 0.75rem;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            background: #fff;
+        }
+        .admin-editor input:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+        .admin-editor .match-id {
+            font-weight: 600;
+            color: #495057;
+            white-space: nowrap;
+        }
+        .admin-editor .match-teams-label {
+            white-space: nowrap;
+            font-weight: 500;
+        }
+        .admin-save-btn {
+            display: block;
+            margin: 16px auto 8px;
+            padding: 10px 40px;
+            background: var(--win);
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .admin-save-btn:hover {
+            background: #157347;
+        }
+        .admin-close-btn {
+            display: block;
+            margin: 8px auto;
+            padding: 6px 20px;
+            background: #6c757d;
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .admin-close-btn:hover {
+            background: #5a6268;
+        }
+
         /* Celebration overlay */
         #celebrationOverlay {
             display: none;
@@ -933,6 +1092,16 @@
             .celebration-content .champ-player {
                 font-size: 2rem;
             }
+            .admin-modal {
+                padding: 12px;
+            }
+            .admin-editor table {
+                font-size: 0.65rem;
+            }
+            .admin-editor input {
+                font-size: 0.65rem;
+                padding: 2px 4px;
+            }
         }
         @media (min-width: 721px) and (max-width: 1080px) {
             .groups-grid {
@@ -979,6 +1148,11 @@
         <div class="view" id="view-thirdplace">
             <div id="thirdPlaceContainer"></div>
         </div>
+
+        <!-- Admin Button -->
+        <div class="admin-btn-container">
+            <button class="admin-btn" id="adminBtn">⚙️ Admin</button>
+        </div>
     </div>
 
     <!-- Celebration Overlay -->
@@ -995,6 +1169,37 @@
     <div class="daily-overlay" id="dailyOverlay"><div class="daily-modal" id="dailyModal"></div></div>
     <div class="modal-overlay" id="modalOverlay"><div class="modal" id="gameModal"></div></div>
     <div class="modal-overlay" id="playerOverlay"><div class="modal" id="playerModal"></div></div>
+
+    <!-- Admin Overlay -->
+    <div class="admin-overlay" id="adminOverlay">
+        <div class="admin-modal">
+            <h3>⚙️ Admin Panel</h3>
+            <div class="admin-sub">Edit match dates, times, and stadiums</div>
+            <div id="adminPasswordSection" class="admin-password-container">
+                <input type="password" id="adminPasswordInput" placeholder="Enter password" />
+                <button id="adminPasswordSubmit">Unlock</button>
+                <div id="adminPasswordError" class="admin-error"></div>
+            </div>
+            <div id="adminEditor" class="admin-editor">
+                <div style="overflow-x:auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Match</th>
+                                <th>Teams</th>
+                                <th>Date</th>
+                                <th>Time (PST)</th>
+                                <th>Stadium</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminTableBody"></tbody>
+                    </table>
+                </div>
+                <button class="admin-save-btn" id="adminSaveBtn">💾 Save All Changes</button>
+                <button class="admin-close-btn" id="adminCloseBtn">Close</button>
+            </div>
+        </div>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
@@ -1013,6 +1218,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const scoresRef = ref(db, 'scores');
+        const scheduleRef = ref(db, 'schedule'); // For admin schedule overrides
 
         const GROUPS = {
             'A': ['Mexico', 'South Africa', 'South Korea', 'Czechia'],
@@ -1112,7 +1318,7 @@
             return (hrs * 60) + mins;
         }
 
-        // ---- GROUP GAMES (all 72 matches) ----
+        // ---- GROUP GAMES (full list) ----
         const allGroupGames = [
             // Group A
             { id: 'G1', group: 'A', home: 'Mexico', away: 'South Africa', date: '2026-06-11', time: '1:00 PM CT',
@@ -1276,51 +1482,42 @@
         ];
         allGroupGames.forEach(g => { g.round = 'group'; });
 
-        // ---- KNOCKOUT GAMES (reordered Round of 32 to feed into Round of 16) ----
+        // ---- KNOCKOUT GAMES ----
         const allKoGames = [
             // Round of 32 – reordered in pairs that feed into each Round of 16 match:
-            // Match 89 = Winner 74 vs Winner 77 → K2 and K5 first
             { id: 'K2', round: 'Round of 32', home: 'Germany', away: 'Paraguay', date: '2026-06-29',
                 time: '1:30 PM PST', stadium: 'Boston Stadium', matchNumber: '74', homeScore: null, awayScore: null, isKo: true },
             { id: 'K5', round: 'Round of 32', home: 'France', away: 'Sweden', date: '2026-06-30',
                 time: '2:00 PM PST', stadium: 'New York New Jersey Stadium', matchNumber: '77', homeScore: null, awayScore: null, isKo: true },
-            // Match 90 = Winner 73 vs Winner 75 → K1 and K3
             { id: 'K1', round: 'Round of 32', home: 'South Africa', away: 'Canada', date: '2026-06-28',
                 time: '12:00 PM PST', stadium: 'Los Angeles Stadium', matchNumber: '73', homeScore: null, awayScore: null, isKo: true },
             { id: 'K3', round: 'Round of 32', home: 'Netherlands', away: 'Morocco', date: '2026-06-29',
                 time: '10:00 AM PST', stadium: 'Estadio Monterrey', matchNumber: '75', homeScore: null, awayScore: null, isKo: true },
-            // Match 91 = Winner 76 vs Winner 78 → K4 and K6
             { id: 'K4', round: 'Round of 32', home: 'Brazil', away: 'Japan', date: '2026-06-29',
                 time: '6:00 PM PST', stadium: 'Houston Stadium', matchNumber: '76', homeScore: null, awayScore: null, isKo: true },
             { id: 'K6', round: 'Round of 32', home: 'Côte d\'Ivoire', away: 'Norway', date: '2026-06-30',
                 time: '10:00 AM PST', stadium: 'Dallas Stadium', matchNumber: '78', homeScore: null, awayScore: null, isKo: true },
-            // Match 92 = Winner 79 vs Winner 80 → K7 and K8
             { id: 'K7', round: 'Round of 32', home: 'Mexico', away: 'Ecuador', date: '2026-06-30',
                 time: '6:00 PM PST', stadium: 'Mexico City Stadium', matchNumber: '79', homeScore: null, awayScore: null, isKo: true },
             { id: 'K8', round: 'Round of 32', home: 'England', away: 'Congo DR', date: '2026-07-01',
                 time: '9:00 AM PST', stadium: 'Atlanta Stadium', matchNumber: '80', homeScore: null, awayScore: null, isKo: true },
-            // Match 93 = Winner 83 vs Winner 84 → K11 and K12
             { id: 'K11', round: 'Round of 32', home: 'Portugal', away: 'Croatia', date: '2026-07-02',
                 time: '4:00 PM PST', stadium: 'Toronto Stadium', matchNumber: '83', homeScore: null, awayScore: null, isKo: true },
             { id: 'K12', round: 'Round of 32', home: 'Spain', away: 'Austria', date: '2026-07-02',
                 time: '12:00 PM PST', stadium: 'Los Angeles Stadium', matchNumber: '84', homeScore: null, awayScore: null, isKo: true },
-            // Match 94 = Winner 81 vs Winner 82 → K9 and K10
             { id: 'K9', round: 'Round of 32', home: 'USA', away: 'Bosnia and Herzegovina', date: '2026-07-01',
                 time: '5:00 PM PST', stadium: 'San Francisco Bay Area Stadium', matchNumber: '81', homeScore: null, awayScore: null, isKo: true },
             { id: 'K10', round: 'Round of 32', home: 'Belgium', away: 'Senegal', date: '2026-07-01',
                 time: '1:00 PM PST', stadium: 'Seattle Stadium', matchNumber: '82', homeScore: null, awayScore: null, isKo: true },
-            // Match 95 = Winner 86 vs Winner 88 → K14 and K16
             { id: 'K14', round: 'Round of 32', home: 'Argentina', away: 'Cabo Verde', date: '2026-07-03',
                 time: '11:00 AM PST', stadium: 'Miami Stadium', matchNumber: '86', homeScore: null, awayScore: null, isKo: true },
             { id: 'K16', round: 'Round of 32', home: 'Australia', away: 'Egypt', date: '2026-07-03',
                 time: '6:30 PM PST', stadium: 'Dallas Stadium', matchNumber: '88', homeScore: null, awayScore: null, isKo: true },
-            // Match 96 = Winner 85 vs Winner 87 → K13 and K15
             { id: 'K13', round: 'Round of 32', home: 'Switzerland', away: 'Algeria', date: '2026-07-02',
                 time: '8:00 PM PST', stadium: 'BC Place Vancouver', matchNumber: '85', homeScore: null, awayScore: null, isKo: true },
             { id: 'K15', round: 'Round of 32', home: 'Colombia', away: 'Ghana', date: '2026-07-03',
                 time: '3:00 PM PST', stadium: 'Kansas City Stadium', matchNumber: '87', homeScore: null, awayScore: null, isKo: true },
-
-            // ---- Round of 16 (Matches 89–96) ----
+            // Round of 16
             { id: 'K17', round: 'Round of 16', home: 'Winner Match 74', away: 'Winner Match 77', date: '2026-07-04',
                 time: '2:00 PM PST', stadium: 'Philadelphia Stadium', matchNumber: '89', homeScore: null, awayScore: null, isKo: true },
             { id: 'K18', round: 'Round of 16', home: 'Winner Match 73', away: 'Winner Match 75', date: '2026-07-04',
@@ -1337,8 +1534,7 @@
                 time: '9:00 AM PST', stadium: 'Atlanta Stadium', matchNumber: '95', homeScore: null, awayScore: null, isKo: true },
             { id: 'K24', round: 'Round of 16', home: 'Winner Match 85', away: 'Winner Match 87', date: '2026-07-07',
                 time: '1:00 PM PST', stadium: 'BC Place Vancouver', matchNumber: '96', homeScore: null, awayScore: null, isKo: true },
-
-            // ---- Quarter-finals (Matches 97–100) ----
+            // Quarter-finals
             { id: 'K25', round: 'Quarter-finals', home: 'Winner Match 89', away: 'Winner Match 90', date: '2026-07-09',
                 time: '1:00 PM PST', stadium: 'Boston Stadium', matchNumber: '97', homeScore: null, awayScore: null, isKo: true },
             { id: 'K26', round: 'Quarter-finals', home: 'Winner Match 93', away: 'Winner Match 94', date: '2026-07-10',
@@ -1347,28 +1543,30 @@
                 time: '2:00 PM PST', stadium: 'Miami Stadium', matchNumber: '99', homeScore: null, awayScore: null, isKo: true },
             { id: 'K28', round: 'Quarter-finals', home: 'Winner Match 95', away: 'Winner Match 96', date: '2026-07-11',
                 time: '6:00 PM PST', stadium: 'Kansas City Stadium', matchNumber: '100', homeScore: null, awayScore: null, isKo: true },
-
-            // ---- Semi-finals (Matches 101–102) ----
+            // Semi-finals
             { id: 'K29', round: 'Semi-finals', home: 'Winner Match 97', away: 'Winner Match 98', date: '2026-07-14',
                 time: '12:00 PM PST', stadium: 'Dallas Stadium', matchNumber: '101', homeScore: null, awayScore: null, isKo: true },
             { id: 'K30', round: 'Semi-finals', home: 'Winner Match 99', away: 'Winner Match 100', date: '2026-07-15',
                 time: '12:00 PM PST', stadium: 'Atlanta Stadium', matchNumber: '102', homeScore: null, awayScore: null, isKo: true },
-
-            // ---- Third Place (Match 103) ----
+            // Third Place
             { id: 'K31', round: 'Third Place', home: 'Runner-up Match 101', away: 'Runner-up Match 102', date: '2026-07-18',
                 time: '2:00 PM PST', stadium: 'Miami Stadium', matchNumber: '103', homeScore: null, awayScore: null, isKo: true },
-
-            // ---- Final (Match 104) ----
+            // Final
             { id: 'K32', round: 'Final', home: 'Winner Match 101', away: 'Winner Match 102', date: '2026-07-19',
                 time: '12:00 PM PST', stadium: 'New York New Jersey Stadium', matchNumber: '104', homeScore: null, awayScore: null, isKo: true }
         ];
 
-        const allGames = [...allGroupGames, ...allKoGames];
+        // Combine all games for easy lookup
+        let allGames = [...allGroupGames, ...allKoGames];
         let selectedDate = null,
             currentView = 'bracket';
         let celebrationShown = false;
         let confettiAnimationId = null;
         let confettiPieces = [];
+
+        // Admin password
+        const ADMIN_PASSWORD = 'admin123';
+        let adminAuthenticated = false;
 
         // --- Helper functions ---
         function isGroupComplete(gid) {
@@ -1441,7 +1639,7 @@
             return false;
         }
 
-        // --- FIXED PROPAGATION: correctly assign home/away from respective child winners ---
+        // --- Propagation ---
         function propagateKnockoutResults() {
             const winners = {},
                 losers = {};
@@ -1452,17 +1650,15 @@
                         losers[m.id] = m.home; }
                 }
             });
-
-            // Round of 16: match 89 = winner 74 vs winner 77 → K2 and K5
             const r16Map = [
-                ['K2', 'K5'], // 89
-                ['K1', 'K3'], // 90
-                ['K4', 'K6'], // 91
-                ['K7', 'K8'], // 92
-                ['K11', 'K12'], // 93
-                ['K9', 'K10'], // 94
-                ['K14', 'K16'], // 95
-                ['K13', 'K15'] // 96
+                ['K2', 'K5'],
+                ['K1', 'K3'],
+                ['K4', 'K6'],
+                ['K7', 'K8'],
+                ['K11', 'K12'],
+                ['K9', 'K10'],
+                ['K14', 'K16'],
+                ['K13', 'K15']
             ];
             const r16Ids = ['K17', 'K18', 'K19', 'K20', 'K21', 'K22', 'K23', 'K24'];
             r16Ids.forEach((mid, idx) => {
@@ -1476,8 +1672,6 @@
                     m.away = winners[childIds[1]] || m.away;
                 }
             });
-
-            // Quarter-finals
             const qfMap = [
                 ['K17', 'K18'],
                 ['K21', 'K22'],
@@ -1496,8 +1690,6 @@
                     m.away = winners[childIds[1]] || m.away;
                 }
             });
-
-            // Semi-finals
             const sfMap = [
                 ['K25', 'K26'],
                 ['K27', 'K28']
@@ -1514,8 +1706,6 @@
                     m.away = winners[childIds[1]] || m.away;
                 }
             });
-
-            // Third Place: 103 = runner-up 101 vs runner-up 102
             const thirdMatch = allKoGames.find(g => g.id === 'K31');
             if (thirdMatch) {
                 if (thirdMatch.home && thirdMatch.home.startsWith('Runner-up Match')) {
@@ -1525,8 +1715,6 @@
                     thirdMatch.away = losers['K30'] || thirdMatch.away;
                 }
             }
-
-            // Final: 104 = winner 101 vs winner 102
             const finalMatch = allKoGames.find(g => g.id === 'K32');
             if (finalMatch) {
                 if (finalMatch.home && finalMatch.home.startsWith('Winner Match')) {
@@ -1538,7 +1726,7 @@
             }
         }
 
-        // ---- CONFETTI ANIMATION ----
+        // --- Confetti ---
         function startConfetti() {
             const canvas = document.getElementById('confettiCanvas');
             const ctx = canvas.getContext('2d');
@@ -1546,13 +1734,11 @@
             const H = window.innerHeight;
             canvas.width = W;
             canvas.height = H;
-
             const colors = ['#f44336', '#e91e63', '#9c27b0', '#3f51b5', '#03a9f4', '#009688', '#8bc34a', '#ffeb3b', '#ff9800',
                 '#ff5722'
             ];
             const pieces = [];
             const NUM_PIECES = 250;
-
             for (let i = 0; i < NUM_PIECES; i++) {
                 pieces.push({
                     x: Math.random() * W,
@@ -1568,7 +1754,6 @@
                 });
             }
             confettiPieces = pieces;
-
             function draw() {
                 ctx.clearRect(0, 0, W, H);
                 pieces.forEach(p => {
@@ -1604,7 +1789,6 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
 
-        // ---- CELEBRATION ----
         function showCelebration(team, player) {
             if (celebrationShown) return;
             celebrationShown = true;
@@ -1622,13 +1806,26 @@
             overlay.classList.remove('show');
             stopConfetti();
         }
-
         document.getElementById('celebrationCloseBtn').addEventListener('click', hideCelebration);
 
-        // ---- Firebase sync and other functions ----
+        function checkAndCelebrate() {
+            const finalMatch = allKoGames.find(g => g.id === 'K32');
+            if (!finalMatch) return;
+            if (finalMatch.homeScore !== null && finalMatch.awayScore !== null && finalMatch.homeScore !== finalMatch
+                .awayScore) {
+                const championTeam = finalMatch.homeScore > finalMatch.awayScore ? finalMatch.home : finalMatch.away;
+                const player = peopleMap[championTeam];
+                if (player && !celebrationShown) {
+                    showCelebration(championTeam, player);
+                }
+            }
+        }
+
+        // --- Firebase Sync ---
         function syncFromFirebase() {
             const statusEl = document.getElementById('syncStatus');
             statusEl.textContent = '🟡 Syncing...';
+            // Load scores
             onValue(scoresRef, (snapshot) => {
                 const data = snapshot.val() || {};
                 allGames.forEach(g => { if (data[g.id] !== undefined) { g.homeScore = data[g.id].homeScore;
@@ -1641,11 +1838,30 @@
             }, () => { statusEl.textContent = '🔴 Sync Error';
                 statusEl.className = 'sync-status offline';
                 renderAll(); });
+            // Load schedule overrides
+            onValue(scheduleRef, (snapshot) => {
+                const data = snapshot.val() || {};
+                allGames.forEach(g => {
+                    if (data[g.id]) {
+                        const s = data[g.id];
+                        if (s.date) g.date = s.date;
+                        if (s.time) g.time = s.time;
+                        if (s.stadium) g.stadium = s.stadium;
+                        if (s.pst) g.pst = s.pst;
+                    }
+                });
+                // Re-render after schedule load
+                renderCalendar();
+                renderAll();
+                renderBracket();
+            });
         }
 
-        function saveToFirebase(gameId, homeScore, awayScore) { const updates = {};
+        function saveToFirebase(gameId, homeScore, awayScore) {
+            const updates = {};
             updates[gameId] = { homeScore, awayScore };
-            update(scoresRef, updates); }
+            update(scoresRef, updates);
+        }
 
         function initializeDefaultScores() {
             get(scoresRef).then(snapshot => {
@@ -1684,20 +1900,7 @@
             return { wins, losses, draws };
         }
 
-        function checkAndCelebrate() {
-            const finalMatch = allKoGames.find(g => g.id === 'K32');
-            if (!finalMatch) return;
-            if (finalMatch.homeScore !== null && finalMatch.awayScore !== null && finalMatch.homeScore !== finalMatch
-                .awayScore) {
-                const championTeam = finalMatch.homeScore > finalMatch.awayScore ? finalMatch.home : finalMatch.away;
-                const player = peopleMap[championTeam];
-                if (player && !celebrationShown) {
-                    showCelebration(championTeam, player);
-                }
-            }
-        }
-
-        // --- Render bracket with proper time fallbacks ---
+        // --- Render functions ---
         function renderBracket() {
             propagateKnockoutResults();
             const container = document.getElementById('dynamicBracketTree');
@@ -1741,7 +1944,6 @@
                 });
                 html += `</div></div>`;
             });
-
             const finalMatch = allKoGames.find(g => g.round === 'Final');
             let champHtml = '';
             if (finalMatch && finalMatch.homeScore !== null && finalMatch.awayScore !== null && finalMatch.homeScore !==
@@ -1760,7 +1962,6 @@
             });
         }
 
-        // ---- Calendar and modal functions ----
         function getTodayPST() {
             const now = new Date();
             const formatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles', year: 'numeric',
@@ -1818,7 +2019,6 @@
             setTimeout(() => scrollCalendarToDate(focusDate), 50);
         }
 
-        // ---- UPDATED DAILY MODAL to show match number ----
         function openDailyModal(dateStr) {
             const overlay = document.getElementById('dailyOverlay'),
                 modal = document.getElementById('dailyModal');
@@ -1843,7 +2043,6 @@
                 }
                 const displayTime = game.time || game.pst || '';
                 const displayPST = game.pst || game.time || '';
-                // Match number or group
                 let matchLine = '';
                 if (game.matchNumber) {
                     matchLine = `Match ${game.matchNumber}`;
@@ -1978,7 +2177,6 @@
                 { pos: 11, group: 'C', team: 'Scotland', pts: 3, gd: '-3', status: 'Eliminated' },
                 { pos: 12, group: 'H', team: 'Uruguay', pts: 2, gd: '-1', status: 'Eliminated' }
             ];
-
             let h =
                 `<div class="third-place-section"><h3>📊 Third-Placed Teams Ranking (Top 8 advance)</h3><table class="third-place-table"><thead><tr><th>Pos</th><th>Grp</th><th>Team</th><th>Pts</th><th>GD</th><th>Status</th></tr></thead><tbody>`;
             officialList.forEach(t => {
@@ -2080,6 +2278,94 @@
             });
         }
 
+        // --- Admin functions ---
+        function openAdmin() {
+            const overlay = document.getElementById('adminOverlay');
+            overlay.classList.add('open');
+            // Reset password section
+            document.getElementById('adminPasswordSection').style.display = 'flex';
+            document.getElementById('adminEditor').classList.remove('show');
+            document.getElementById('adminPasswordInput').value = '';
+            document.getElementById('adminPasswordError').textContent = '';
+            adminAuthenticated = false;
+        }
+
+        function closeAdmin() {
+            document.getElementById('adminOverlay').classList.remove('open');
+        }
+
+        function authenticateAdmin() {
+            const input = document.getElementById('adminPasswordInput').value;
+            if (input === ADMIN_PASSWORD) {
+                adminAuthenticated = true;
+                document.getElementById('adminPasswordSection').style.display = 'none';
+                document.getElementById('adminEditor').classList.add('show');
+                populateAdminTable();
+            } else {
+                document.getElementById('adminPasswordError').textContent = 'Incorrect password. Try again.';
+            }
+        }
+
+        function populateAdminTable() {
+            const tbody = document.getElementById('adminTableBody');
+            let html = '';
+            // Show all games (group and knockout) sorted by date, then time
+            const sorted = [...allGames].sort((a, b) => {
+                if (a.date !== b.date) return a.date.localeCompare(b.date);
+                return parsePST(a.time) - parsePST(b.time);
+            });
+            sorted.forEach(g => {
+                const label = g.matchNumber ? `Match ${g.matchNumber}` : `Group ${g.group}`;
+                const teams = `${g.home} vs ${g.away}`;
+                html += `<tr>
+                            <td class="match-id">${label}</td>
+                            <td class="match-teams-label">${teams}</td>
+                            <td><input type="date" value="${g.date}" data-id="${g.id}" data-field="date" /></td>
+                            <td><input type="text" value="${g.time}" data-id="${g.id}" data-field="time" placeholder="e.g., 1:30 PM PST" /></td>
+                            <td><input type="text" value="${g.stadium}" data-id="${g.id}" data-field="stadium" placeholder="Stadium name" /></td>
+                        </tr>`;
+            });
+            tbody.innerHTML = html;
+        }
+
+        function saveAdminChanges() {
+            const inputs = document.querySelectorAll('#adminTableBody input');
+            const updates = {};
+            inputs.forEach(inp => {
+                const id = inp.dataset.id;
+                const field = inp.dataset.field;
+                const val = inp.value;
+                const game = allGames.find(g => g.id === id);
+                if (game) {
+                    // Update local
+                    game[field] = val;
+                    // Prepare for Firebase
+                    if (!updates[id]) updates[id] = {};
+                    updates[id][field] = val;
+                }
+            });
+            // Also update pst (time) if time changed
+            // We'll just push the whole schedule object
+            const scheduleData = {};
+            allGames.forEach(g => {
+                scheduleData[g.id] = {
+                    date: g.date,
+                    time: g.time,
+                    stadium: g.stadium,
+                    pst: g.pst || g.time // if pst not set, use time
+                };
+            });
+            set(scheduleRef, scheduleData).then(() => {
+                alert('Schedule saved successfully!');
+                renderCalendar();
+                renderAll();
+                renderBracket();
+            }).catch(err => {
+                alert('Error saving: ' + err.message);
+            });
+        }
+
+        // --- Render all ---
         function renderAll() {
             propagateKnockoutResults();
             document.getElementById('filterBanner').innerHTML = selectedDate ?
@@ -2101,6 +2387,20 @@
             renderLegend();
         }
 
+        // --- Event Listeners ---
+        document.getElementById('adminBtn').addEventListener('click', openAdmin);
+        document.getElementById('adminPasswordSubmit').addEventListener('click', authenticateAdmin);
+        document.getElementById('adminPasswordInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') authenticateAdmin();
+        });
+        document.getElementById('adminSaveBtn').addEventListener('click', saveAdminChanges);
+        document.getElementById('adminCloseBtn').addEventListener('click', closeAdmin);
+        // Close admin on overlay background click
+        document.getElementById('adminOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closeAdmin();
+        });
+
+        // Tab switching
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
