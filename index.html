@@ -501,7 +501,7 @@
             align-items: stretch;
             font-size: 0.85rem;
             line-height: 1.3;
-            min-height: 85px;
+            min-height: 95px; /* slightly increased for penalty line */
             justify-content: center;
         }
         .match-card:hover {
@@ -539,6 +539,16 @@
         .match-score.pending {
             color: #9aaebf;
             background: #f1f3f7;
+        }
+        .penalty-line {
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: #6c86a0;
+            text-align: center;
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .match-meta {
             display: flex;
@@ -1126,11 +1136,14 @@
             }
             .match-card {
                 font-size: 0.7rem;
-                min-height: 70px;
+                min-height: 80px;
                 padding: 6px;
             }
             .match-teams {
                 font-size: 0.75rem;
+            }
+            .penalty-line {
+                font-size: 0.55rem;
             }
             .match-meta {
                 font-size: 0.55rem;
@@ -1784,12 +1797,12 @@
                 matches.forEach(m => {
                     const hasScore = (m.homeScore !== null && m.awayScore !== null);
                     let scoreText = '—';
+                    let penaltyHtml = '';
                     if (hasScore) {
                         if (m.homeScore === m.awayScore) {
+                            scoreText = `${m.homeScore} – ${m.awayScore}`;
                             if (m.homePenalties != null && m.awayPenalties != null && m.homePenalties !== m.awayPenalties) {
-                                scoreText = `${m.homeScore} – ${m.awayScore} (${m.homePenalties}-${m.awayPenalties} pens)`;
-                            } else {
-                                scoreText = `${m.homeScore} – ${m.awayScore}`;
+                                penaltyHtml = `<div class="penalty-line">Penalties: ${m.homePenalties} – ${m.awayPenalties}</div>`;
                             }
                         } else {
                             scoreText = `${m.homeScore} – ${m.awayScore}`;
@@ -1807,6 +1820,7 @@
                                         <span class="match-score ${!hasScore ? 'pending' : ''}">${scoreText}</span>
                                         <span class="team-abbr">${m.away}</span>
                                     </div>
+                                    ${penaltyHtml}
                                     <div class="match-meta">
                                         <div class="left">
                                             <div class="date-time">${formattedDate}${timePST ? ' · ' + timePST : ''}</div>
@@ -1911,7 +1925,7 @@
                 let scoreDisplay = 'vs';
                 if (sc) {
                     if (game.homeScore === game.awayScore && game.homePenalties != null && game.awayPenalties != null && game.homePenalties !== game.awayPenalties) {
-                        scoreDisplay = `${game.homeScore} – ${game.awayScore} (${game.homePenalties}-${game.awayPenalties} pens)`;
+                        scoreDisplay = `${game.homeScore} – ${game.awayScore} (${game.homePenalties}-${game.awayPenalties} Penalties)`;
                     } else {
                         scoreDisplay = `${game.homeScore} - ${game.awayScore}`;
                     }
@@ -1965,7 +1979,7 @@
                 let scoreDisplay = 'vs';
                 if (sc) {
                     if (g.homeScore === g.awayScore && g.homePenalties != null && g.awayPenalties != null && g.homePenalties !== g.awayPenalties) {
-                        scoreDisplay = `${g.homeScore} – ${g.awayScore} (${g.homePenalties}-${g.awayPenalties} pens)`;
+                        scoreDisplay = `${g.homeScore} – ${g.awayScore} (${g.homePenalties}-${g.awayPenalties} Penalties)`;
                     } else {
                         scoreDisplay = `${g.homeScore} - ${g.awayScore}`;
                     }
@@ -2087,7 +2101,6 @@
                 </div>`;
             overlay.classList.add('open');
 
-            // Add dynamic toggle for penalties
             if (isKnockout) {
                 const homeInput = document.getElementById('modalHomeScore');
                 const awayInput = document.getElementById('modalAwayScore');
@@ -2098,7 +2111,6 @@
                         penaltySection.style.display = 'block';
                     } else {
                         penaltySection.style.display = 'none';
-                        // clear penalty inputs when hiding
                         document.getElementById('modalHomePenalties').value = '';
                         document.getElementById('modalAwayPenalties').value = '';
                     }
