@@ -1560,12 +1560,27 @@
             return thirds.sort((a, b) => b.pts - a.pts || b.gd - a.gd || b.gf - a.gf);
         }
 
+        // Determine the loser of a knockout game (regular or penalties)
+        function getKnockoutLoser(game) {
+            if (game.homeScore === null || game.awayScore === null) return null;
+            if (game.homeScore !== game.awayScore) {
+                return game.homeScore < game.awayScore ? game.home : game.away;
+            } else {
+                if (game.homePenalties != null && game.awayPenalties != null && game.homePenalties !== game.awayPenalties) {
+                    return game.homePenalties < game.awayPenalties ? game.home : game.away;
+                }
+            }
+            return null;
+        }
+
         function isTeamEliminated(teamName) {
+            // Champion never eliminated
             const finalMatch = allKoGames.find(g => g.round === 'Final');
             if (finalMatch && finalMatch.homeScore !== null && finalMatch.awayScore !== null && finalMatch.homeScore !== finalMatch.awayScore) {
                 if (finalMatch.homeScore > finalMatch.awayScore && finalMatch.home === teamName) return false;
                 if (finalMatch.awayScore > finalMatch.homeScore && finalMatch.away === teamName) return false;
             }
+            // Group stage elimination
             for (const gid of Object.keys(GROUPS)) {
                 if (GROUPS[gid].includes(teamName)) {
                     if (isGroupComplete(gid)) {
@@ -1579,11 +1594,10 @@
                     }
                 }
             }
+            // Knockout losses (regular or penalties)
             for (const game of allKoGames) {
-                if (game.homeScore !== null && game.awayScore !== null) {
-                    if (game.homeScore === game.awayScore) continue;
-                    if (game.home === teamName && game.homeScore < game.awayScore) return true;
-                    if (game.away === teamName && game.awayScore < game.homeScore) return true;
+                if (getKnockoutLoser(game) === teamName) {
+                    return true;
                 }
             }
             return false;
@@ -1809,14 +1823,12 @@
                             scoreText = `${m.homeScore} – ${m.awayScore}`;
                             if (m.homePenalties != null && m.awayPenalties != null && m.homePenalties !== m.awayPenalties) {
                                 penaltyHtml = `<div class="penalty-line">Penalties: ${m.homePenalties} – ${m.awayPenalties}</div>`;
-                                // cross out loser
                                 const loser = m.homePenalties < m.awayPenalties ? m.home : m.away;
                                 if (loser === m.home && !m.home.startsWith('Winner') && !m.home.startsWith('Runner-up')) homeClass += ' team-eliminated';
                                 else if (loser === m.away && !m.away.startsWith('Winner') && !m.away.startsWith('Runner-up')) awayClass += ' team-eliminated';
                             }
                         } else {
                             scoreText = `${m.homeScore} – ${m.awayScore}`;
-                            // cross out loser in regular time
                             const loser = m.homeScore < m.awayScore ? m.home : m.away;
                             if (loser === m.home && !m.home.startsWith('Winner') && !m.home.startsWith('Runner-up')) homeClass += ' team-eliminated';
                             else if (loser === m.away && !m.away.startsWith('Winner') && !m.away.startsWith('Runner-up')) awayClass += ' team-eliminated';
