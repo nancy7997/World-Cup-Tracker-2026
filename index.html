@@ -1502,8 +1502,8 @@
             { id: 'K23', round: 'Round of 16', home: 'Winner Match 86', away: 'Winner Match 88', date: '2026-07-07', time: '9:00 AM PST', stadium: 'Atlanta Stadium', matchNumber: '95', homeScore: null, awayScore: null, isKo: true },
             { id: 'K24', round: 'Round of 16', home: 'Winner Match 85', away: 'Winner Match 87', date: '2026-07-07', time: '1:00 PM PST', stadium: 'BC Place Vancouver', matchNumber: '96', homeScore: null, awayScore: null, isKo: true },
             { id: 'K25', round: 'Quarter-finals', home: 'Winner Match 89', away: 'Winner Match 90', date: '2026-07-09', time: '1:00 PM PST', stadium: 'Boston Stadium', matchNumber: '97', homeScore: null, awayScore: null, isKo: true },
-            { id: 'K26', round: 'Quarter-finals', home: 'Winner Match 93', away: 'Winner Match 94', date: '2026-07-10', time: '12:00 PM PST', stadium: 'Los Angeles Stadium', matchNumber: '98', homeScore: null, awayScore: null, isKo: true },
-            { id: 'K27', round: 'Quarter-finals', home: 'Winner Match 91', away: 'Winner Match 92', date: '2026-07-11', time: '2:00 PM PST', stadium: 'Miami Stadium', matchNumber: '99', homeScore: null, awayScore: null, isKo: true },
+            { id: 'K26', round: 'Quarter-finals', home: 'Winner Match 91', away: 'Winner Match 92', date: '2026-07-10', time: '12:00 PM PST', stadium: 'Los Angeles Stadium', matchNumber: '98', homeScore: null, awayScore: null, isKo: true },
+            { id: 'K27', round: 'Quarter-finals', home: 'Winner Match 93', away: 'Winner Match 94', date: '2026-07-11', time: '2:00 PM PST', stadium: 'Miami Stadium', matchNumber: '99', homeScore: null, awayScore: null, isKo: true },
             { id: 'K28', round: 'Quarter-finals', home: 'Winner Match 95', away: 'Winner Match 96', date: '2026-07-11', time: '6:00 PM PST', stadium: 'Kansas City Stadium', matchNumber: '100', homeScore: null, awayScore: null, isKo: true },
             { id: 'K29', round: 'Semi-finals', home: 'Winner Match 97', away: 'Winner Match 98', date: '2026-07-14', time: '12:00 PM PST', stadium: 'Dallas Stadium', matchNumber: '101', homeScore: null, awayScore: null, isKo: true },
             { id: 'K30', round: 'Semi-finals', home: 'Winner Match 99', away: 'Winner Match 100', date: '2026-07-15', time: '12:00 PM PST', stadium: 'Atlanta Stadium', matchNumber: '102', homeScore: null, awayScore: null, isKo: true },
@@ -1560,7 +1560,6 @@
             return thirds.sort((a, b) => b.pts - a.pts || b.gd - a.gd || b.gf - a.gf);
         }
 
-        // Determine the loser of a knockout game (regular or penalties)
         function getKnockoutLoser(game) {
             if (game.homeScore === null || game.awayScore === null) return null;
             if (game.homeScore !== game.awayScore) {
@@ -1574,13 +1573,11 @@
         }
 
         function isTeamEliminated(teamName) {
-            // Champion never eliminated
             const finalMatch = allKoGames.find(g => g.round === 'Final');
             if (finalMatch && finalMatch.homeScore !== null && finalMatch.awayScore !== null && finalMatch.homeScore !== finalMatch.awayScore) {
                 if (finalMatch.homeScore > finalMatch.awayScore && finalMatch.home === teamName) return false;
                 if (finalMatch.awayScore > finalMatch.homeScore && finalMatch.away === teamName) return false;
             }
-            // Group stage elimination
             for (const gid of Object.keys(GROUPS)) {
                 if (GROUPS[gid].includes(teamName)) {
                     if (isGroupComplete(gid)) {
@@ -1594,7 +1591,6 @@
                     }
                 }
             }
-            // Knockout losses (regular or penalties)
             for (const game of allKoGames) {
                 if (getKnockoutLoser(game) === teamName) {
                     return true;
@@ -1627,7 +1623,7 @@
                 if (m.home && m.home.startsWith('Winner Match')) m.home = winners[childIds[0]] || m.home;
                 if (m.away && m.away.startsWith('Winner Match')) m.away = winners[childIds[1]] || m.away;
             });
-            const qfMap = [['K17', 'K18'], ['K21', 'K22'], ['K19', 'K20'], ['K23', 'K24']];
+            const qfMap = [['K17', 'K18'], ['K19', 'K20'], ['K21', 'K22'], ['K23', 'K24']];
             const qfIds = ['K25', 'K26', 'K27', 'K28'];
             qfIds.forEach((mid, idx) => {
                 const m = allKoGames.find(g => g.id === mid);
